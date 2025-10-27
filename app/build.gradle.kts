@@ -5,7 +5,6 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.compose") //id("com.google.devtools.ksp")
-//    kotlin("jvm")
     id("com.google.firebase.crashlytics") // ✅ ADD THIS LINE
 
 }
