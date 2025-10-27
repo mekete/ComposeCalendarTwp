@@ -3,7 +3,7 @@ package com.ethiopiancalendar.data.repository
 import com.ethiopiancalendar.domain.calculator.MuslimHolidayCalculator
 import com.ethiopiancalendar.domain.calculator.OrthodoxHolidayCalculator
 import com.ethiopiancalendar.domain.calculator.PublicHolidayCalculator
-import com.ethiopiancalendar.domain.model.EthiopianDate
+import com.ethiopiancalendar.domain.model.EthiopicDate
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -39,7 +39,7 @@ class HolidayRepository @Inject constructor(
             holidays.addAll(publicHolidays.map { holiday ->
                 HolidayOccurrence(
                     holiday = holiday,
-                    ethiopianDate = EthiopianDate(
+                    ethiopicDate = EthiopicDate(
                         year = ethiopianYear,
                         month = holiday.ethiopianMonth,
                         day = holiday.ethiopianDay
@@ -54,7 +54,7 @@ class HolidayRepository @Inject constructor(
                 holidays.addAll(orthodoxHolidays.map { holiday ->
                     HolidayOccurrence(
                         holiday = holiday,
-                        ethiopianDate = EthiopianDate(
+                        ethiopicDate = EthiopicDate(
                             year = ethiopianYear,
                             month = holiday.ethiopianMonth,
                             day = holiday.ethiopianDay
@@ -74,7 +74,7 @@ class HolidayRepository @Inject constructor(
                 holidays.addAll(muslimHolidays.map { holiday ->
                     HolidayOccurrence(
                         holiday = holiday,
-                        ethiopianDate = EthiopianDate(
+                        ethiopicDate = EthiopicDate(
                             year = ethiopianYear,
                             month = holiday.ethiopianMonth,
                             day = holiday.ethiopianDay
@@ -110,7 +110,7 @@ class HolidayRepository @Inject constructor(
             }
             
             // Filter to only holidays in this month
-            val monthHolidays = allHolidays.filter { it.ethiopianDate.month == ethiopianMonth }
+            val monthHolidays = allHolidays.filter { it.ethiopicDate.month == ethiopianMonth }
             
             emit(monthHolidays)
         }
@@ -119,15 +119,15 @@ class HolidayRepository @Inject constructor(
     /**
      * Get holidays for a specific date
      */
-    fun getHolidaysForDate(ethiopianDate: EthiopianDate): Flow<List<HolidayOccurrence>> {
+    fun getHolidaysForDate(ethiopicDate: EthiopicDate): Flow<List<HolidayOccurrence>> {
         return flow {
             val allHolidays = mutableListOf<HolidayOccurrence>()
             
-            getHolidaysForMonth(ethiopianDate.year, ethiopianDate.month).collect { monthHolidays ->
+            getHolidaysForMonth(ethiopicDate.year, ethiopicDate.month).collect { monthHolidays ->
                 allHolidays.addAll(monthHolidays)
             }
             
-            val dateHolidays = allHolidays.filter { it.ethiopianDate.day == ethiopianDate.day }
+            val dateHolidays = allHolidays.filter { it.ethiopicDate.day == ethiopicDate.day }
             
             emit(dateHolidays)
         }

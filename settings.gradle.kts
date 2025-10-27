@@ -9,12 +9,9 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-<<<<<<< HEAD
-=======
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
->>>>>>> 96e39c8 (Initial commit)
 
 
 

@@ -3,12 +3,12 @@ package com.ethiopiancalendar.ui.month
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ethiopiancalendar.data.repository.HolidayRepository
-import com.ethiopiancalendar.domain.model.EthiopianDate
+import com.ethiopiancalendar.domain.model.EthiopicDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.threeten.bp.DayOfWeek
 import timber.log.Timber
+import java.time.DayOfWeek
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,11 +16,11 @@ class MonthCalendarViewModel @Inject constructor(
     private val holidayRepository: HolidayRepository
 ) : ViewModel() {
     
-    private val _currentMonth = MutableStateFlow(EthiopianDate.now())
-    val currentMonth: StateFlow<EthiopianDate> = _currentMonth.asStateFlow()
+    private val _currentMonth = MutableStateFlow(EthiopicDate.now())
+    val currentMonth: StateFlow<EthiopicDate> = _currentMonth.asStateFlow()
     
-    private val _selectedDate = MutableStateFlow<EthiopianDate?>(null)
-    val selectedDate: StateFlow<EthiopianDate?> = _selectedDate.asStateFlow()
+    private val _selectedDate = MutableStateFlow<EthiopicDate?>(null)
+    val selectedDate: StateFlow<EthiopicDate?> = _selectedDate.asStateFlow()
     
     private val _uiState = MutableStateFlow<MonthCalendarUiState>(MonthCalendarUiState.Loading)
     val uiState: StateFlow<MonthCalendarUiState> = _uiState.asStateFlow()
@@ -57,11 +57,11 @@ class MonthCalendarViewModel @Inject constructor(
     /**
      * Generate 42 date cells for calendar grid (6 weeks × 7 days)
      */
-    private fun generateDateListForMonth(month: EthiopianDate): List<EthiopianDate> {
-        val firstDayOfMonth = EthiopianDate(month.year, month.month, 1, DayOfWeek.MONDAY)
+    private fun generateDateListForMonth(month: EthiopicDate): List<EthiopicDate> {
+        val firstDayOfMonth = EthiopicDate(month.year, month.month, 1, DayOfWeek.MONDAY)
         val daysInMonth = getDaysInMonth(month.year, month.month)
         
-        val dateList = mutableListOf<EthiopianDate>()
+        val dateList = mutableListOf<EthiopicDate>()
         
         // Add days from previous month to fill first week
         val dayOffset = (firstDayOfMonth.toGregorianDate().dayOfWeek.value - 1) % 7
@@ -70,13 +70,13 @@ class MonthCalendarViewModel @Inject constructor(
             val daysInPrevMonth = getDaysInMonth(prevMonth.year, prevMonth.month)
             
             for (i in (daysInPrevMonth - dayOffset + 1)..daysInPrevMonth) {
-                dateList.add(EthiopianDate(prevMonth.year, prevMonth.month, i, DayOfWeek.MONDAY))
+                dateList.add(EthiopicDate(prevMonth.year, prevMonth.month, i, DayOfWeek.MONDAY))
             }
         }
         
         // Add days of current month
         for (day in 1..daysInMonth) {
-            dateList.add(EthiopianDate(month.year, month.month, day, DayOfWeek.MONDAY))
+            dateList.add(EthiopicDate(month.year, month.month, day, DayOfWeek.MONDAY))
         }
         
         // Add days from next month to complete the grid
@@ -84,7 +84,7 @@ class MonthCalendarViewModel @Inject constructor(
         if (remainingCells > 0) {
             val nextMonth = month.plusMonths(1)
             for (day in 1..remainingCells) {
-                dateList.add(EthiopianDate(nextMonth.year, nextMonth.month, day, DayOfWeek.MONDAY))
+                dateList.add(EthiopicDate(nextMonth.year, nextMonth.month, day, DayOfWeek.MONDAY))
             }
         }
         
@@ -99,7 +99,7 @@ class MonthCalendarViewModel @Inject constructor(
     }
     
     // User actions
-    fun selectDate(date: EthiopianDate) {
+    fun selectDate(date: EthiopicDate) {
         _selectedDate.value = date
         Timber.d("Selected date: ${date.format()}")
     }
@@ -117,8 +117,8 @@ class MonthCalendarViewModel @Inject constructor(
     }
     
     fun goToToday() {
-        _currentMonth.value = EthiopianDate.now()
-        _selectedDate.value = EthiopianDate.now()
+        _currentMonth.value = EthiopicDate.now()
+        _selectedDate.value = EthiopicDate.now()
         loadMonthData()
         Timber.d("Navigated to today: ${_currentMonth.value.format()}")
     }

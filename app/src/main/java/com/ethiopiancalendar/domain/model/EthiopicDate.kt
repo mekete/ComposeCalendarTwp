@@ -1,31 +1,33 @@
 package com.ethiopiancalendar.domain.model
 
-import org.threeten.bp.DayOfWeek
-import org.threeten.bp.LocalDate
-import org.threeten.bp.temporal.ChronoUnit
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.chrono.HijrahDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 /**
  * Represents a date in the Ethiopian calendar
  * Ethiopian calendar has 13 months: 12 months of 30 days each, plus Pagume with 5-6 days
  */
-data class EthiopianDate(
+data class EthiopicDate(
     val year: Int,
     val month: Int,  // 1-13
     val day: Int,    // 1-30 (or 1-5/6 for Pagume)
     val dayOfWeek: DayOfWeek = DayOfWeek.MONDAY
-) : Comparable<EthiopianDate> {
+) : Comparable<EthiopicDate> {
     
     companion object {
         private const val ETHIOPIAN_EPOCH_OFFSET = 8 * 365 + 2  // 8 years difference + leap days
         
-        fun now(): EthiopianDate {
+        fun now(): EthiopicDate {
             return from(LocalDate.now())
         }
         
         /**
          * Convert Gregorian date to Ethiopian date
          */
-        fun from(gregorianDate: LocalDate): EthiopianDate {
+        fun from(gregorianDate: LocalDate): EthiopicDate {
             // Ethiopian calendar is approximately 7-8 years behind Gregorian
             val gregYear = gregorianDate.year
             val gregMonth = gregorianDate.monthValue
@@ -57,7 +59,7 @@ data class EthiopianDate(
             val ethioMonth = ((ethioDayOfYear - 1) / 30) + 1
             val ethioDay = ((ethioDayOfYear - 1) % 30) + 1
             
-            return EthiopianDate(
+            return EthiopicDate(
                 year = if (dayOfYear >= ethioNewYearDay) ethioYear else ethioYear - 1,
                 month = ethioMonth.coerceIn(1, 13),
                 day = ethioDay,
@@ -85,12 +87,12 @@ data class EthiopianDate(
         return startOfEthioYear.plusDays((dayOfYear - 1).toLong())
     }
     
-    fun plusDays(days: Long): EthiopianDate {
+    fun plusDays(days: Long): EthiopicDate {
         val gregorian = toGregorianDate().plusDays(days)
         return from(gregorian)
     }
     
-    fun plusMonths(months: Long): EthiopianDate {
+    fun plusMonths(months: Long): EthiopicDate {
         var newMonth = month + months.toInt()
         var newYear = year
         
@@ -103,7 +105,7 @@ data class EthiopianDate(
             newYear--
         }
         
-        return EthiopianDate(newYear, newMonth, day.coerceAtMost(getDaysInMonth(newYear, newMonth)), dayOfWeek)
+        return EthiopicDate(newYear, newMonth, day.coerceAtMost(getDaysInMonth(newYear, newMonth)), dayOfWeek)
     }
     
     fun format(): String {
@@ -129,7 +131,39 @@ data class EthiopianDate(
             else -> "Unknown"
         }
     }
-    
+
+    private fun gregToHijiri() {
+        // 1. Create a Gregorian date
+        val gregorianDate = LocalDate.of(2025, 10, 27)
+
+        // 2. Convert to Hijri date
+        val hijriDate = HijrahDate.from(gregorianDate)
+
+        // 3. Format the Hijri date for display
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val formattedHijri = formatter.format(hijriDate)
+
+        println("Gregorian Date: $gregorianDate")
+        println("Hijri Date: $formattedHijri")
+    }
+
+
+    private fun gregToEthio() {
+        // 1. Create a Gregorian date
+        val gregorianDate = LocalDate.of(2025, 10, 27)
+
+        // 2. Convert to Hijri date
+        val hijriDate = org.threeten.extra.chrono.EthiopicDate.from(gregorianDate)
+
+        // 3. Format the Hijri date for display
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val formattedHijri = formatter.format(hijriDate)
+
+        println("Gregorian Date: $gregorianDate")
+        println("Hijri Date: $formattedHijri")
+    }
+
+
     private fun getDaysInMonth(year: Int, month: Int): Int {
         return when (month) {
             13 -> if (isEthiopianLeapYear(year)) 6 else 5
@@ -141,7 +175,7 @@ data class EthiopianDate(
         return year % 4 == 3
     }
     
-    override fun compareTo(other: EthiopianDate): Int {
+    override fun compareTo(other: EthiopicDate): Int {
         return when {
             year != other.year -> year.compareTo(other.year)
             month != other.month -> month.compareTo(other.month)

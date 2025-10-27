@@ -1,9 +1,9 @@
 package com.ethiopiancalendar.domain.calculator
 
-import com.ethiopiancalendar.domain.model.EthiopianDate
+import com.ethiopiancalendar.domain.model.EthiopicDate
 import com.ethiopiancalendar.domain.model.Holiday
 import com.ethiopiancalendar.domain.model.HolidayType
-import org.threeten.bp.DayOfWeek
+import java.time.DayOfWeek
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -87,7 +87,7 @@ class OrthodoxHolidayCalculator @Inject constructor() {
      * Calculate Ethiopian Orthodox Easter using the Alexandrian computus
      * This algorithm matches the traditional Ethiopian Orthodox calculation
      */
-    fun calculateEaster(ethiopianYear: Int): EthiopianDate {
+    fun calculateEaster(ethiopianYear: Int): EthiopicDate {
         val a = ethiopianYear % 4
         val b = ethiopianYear % 7
         val c = ethiopianYear % 19
@@ -96,7 +96,7 @@ class OrthodoxHolidayCalculator @Inject constructor() {
         val month = (d + e + 114) / 31
         val day = ((d + e + 114) % 31) + 1
         
-        return EthiopianDate(
+        return EthiopicDate(
             year = ethiopianYear,
             month = month,
             day = day,

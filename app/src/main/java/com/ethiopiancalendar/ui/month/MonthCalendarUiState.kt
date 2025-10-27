@@ -1,6 +1,6 @@
 package com.ethiopiancalendar.ui.month
 
-import com.ethiopiancalendar.domain.model.EthiopianDate
+import com.ethiopiancalendar.domain.model.EthiopicDate
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 
 /**
@@ -10,10 +10,10 @@ sealed class MonthCalendarUiState {
     object Loading : MonthCalendarUiState()
     
     data class Success(
-        val currentMonth: EthiopianDate,
-        val dateList: List<EthiopianDate>,
+        val currentMonth: EthiopicDate,
+        val dateList: List<EthiopicDate>,
         val holidays: List<HolidayOccurrence>,
-        val selectedDate: EthiopianDate?
+        val selectedDate: EthiopicDate?
     ) : MonthCalendarUiState()
     
     data class Error(val message: String) : MonthCalendarUiState()

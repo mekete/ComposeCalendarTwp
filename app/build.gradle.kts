@@ -15,7 +15,7 @@ android {
     
     defaultConfig {
         applicationId = "com.shalom.composeclandar"
-        minSdk = 24
+        minSdk = 26
         //targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
@@ -109,10 +109,10 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")
 
-    
     // ThreeTenBP for Ethiopian Calendar
-    implementation("com.jakewharton.threetenabp:threetenabp:1.4.9")
-    
+    // implementation("com.jakewharton.threetenabp:threetenabp:1.4.9")
+    implementation("org.threeten:threeten-extra:1.8.0")
+
     // Timber
     implementation("com.jakewharton.timber:timber:5.0.1")
     

@@ -39,9 +39,9 @@ data class Holiday(
  */
 data class HolidayOccurrence(
     val holiday: Holiday,
-    val ethiopianDate: EthiopianDate,
+    val ethiopicDate: EthiopicDate,
     val adjustment: Int = 0  // Days adjusted via Firebase
 ) {
-    val actualEthiopianDate: EthiopianDate
-        get() = ethiopianDate.plusDays(adjustment.toLong())
+    val actualEthiopicDate: EthiopicDate
+        get() = ethiopicDate.plusDays(adjustment.toLong())
 }

@@ -8,13 +8,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-<<<<<<< HEAD
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-=======
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
->>>>>>> 96e39c8 (Initial commit)
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,13 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-<<<<<<< HEAD
-import androidx.hilt.navigation.compose.hiltViewModel
-=======
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-
->>>>>>> 96e39c8 (Initial commit)
-import com.ethiopiancalendar.domain.model.EthiopianDate
+import com.ethiopiancalendar.domain.model.EthiopicDate
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,11 +53,7 @@ fun MonthCalendarScreen(
                 },
                 actions = {
                     IconButton(onClick = { viewModel.previousMonth() }) {
-<<<<<<< HEAD
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Previous Month")
-=======
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
->>>>>>> 96e39c8 (Initial commit)
                     }
                     
                     TextButton(onClick = { viewModel.goToToday() }) {
@@ -75,11 +61,7 @@ fun MonthCalendarScreen(
                     }
                     
                     IconButton(onClick = { viewModel.nextMonth() }) {
-<<<<<<< HEAD
-                        Icon(Icons.Default.ArrowForward, contentDescription = "Next Month")
-=======
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
->>>>>>> 96e39c8 (Initial commit)
                     }
                 }
             )
@@ -118,7 +100,7 @@ fun MonthCalendarScreen(
 @Composable
 fun MonthCalendarContent(
     state: MonthCalendarUiState.Success,
-    onDateClick: (EthiopianDate) -> Unit,
+    onDateClick: (EthiopicDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -142,11 +124,11 @@ fun MonthCalendarContent(
                 DateCell(
                     date = date,
                     currentMonth = state.currentMonth.month,
-                    isToday = date == EthiopianDate.now(),
+                    isToday = date == EthiopicDate.now(),
                     isSelected = date == state.selectedDate,
                     holidays = state.holidays.filter { 
-                        it.actualEthiopianDate.day == date.day &&
-                        it.actualEthiopianDate.month == date.month
+                        it.actualEthiopicDate.day == date.day &&
+                        it.actualEthiopicDate.month == date.month
                     },
                     onClick = { onDateClick(date) }
                 )
@@ -185,7 +167,7 @@ fun WeekdayHeader() {
 
 @Composable
 fun DateCell(
-    date: EthiopianDate,
+    date: EthiopicDate,
     currentMonth: Int,
     isToday: Boolean,
     isSelected: Boolean,
@@ -316,7 +298,7 @@ fun HolidayItem(holiday: HolidayOccurrence) {
             )
             
             Text(
-                text = holiday.actualEthiopianDate.format(),
+                text = holiday.actualEthiopicDate.format(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

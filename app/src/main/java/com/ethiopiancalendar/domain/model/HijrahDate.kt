@@ -1,13 +1,13 @@
 package com.ethiopiancalendar.domain.model
 
-import org.threeten.bp.DayOfWeek
-import org.threeten.bp.LocalDate
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 /**
  * Represents a date in the Hijri (Islamic) calendar
  * Based on the Kuwaiti algorithm for astronomical calculations
  */
-data class HijriDate(
+data class HijrahDate(
     val year: Int,
     val month: Int,  // 1-12
     val day: Int,    // 1-29 or 1-30
@@ -18,7 +18,7 @@ data class HijriDate(
     companion object {
         private const val HIJRI_EPOCH = 1948440  // Julian day of Hijra (July 16, 622 CE)
         
-        fun now(): HijriDate {
+        fun now(): HijrahDate {
             return from(LocalDate.now())
         }
         
@@ -26,7 +26,7 @@ data class HijriDate(
          * Convert Gregorian date to Hijri date
          * Uses Kuwaiti algorithm for astronomical calculations
          */
-        fun from(gregorianDate: LocalDate): HijriDate {
+        fun from(gregorianDate: LocalDate): HijrahDate {
             val julianDay = gregorianToJulianDay(gregorianDate)
             return julianDayToHijri(julianDay)
         }
@@ -43,7 +43,7 @@ data class HijriDate(
             return day + ((153 * m + 2) / 5) + (365 * y) + (y / 4) - (y / 100) + (y / 400) - 32045
         }
         
-        private fun julianDayToHijri(julianDay: Int): HijriDate {
+        private fun julianDayToHijri(julianDay: Int): HijrahDate {
             val l = julianDay - HIJRI_EPOCH + 10632
             val n = (l - 1) / 10631
             val l2 = l - 10631 * n + 354
@@ -57,7 +57,7 @@ data class HijriDate(
             val dayOfWeek = DayOfWeek.of(((julianDay + 1) % 7) + 1)
             val isLeapYear = isHijriLeapYear(year)
             
-            return HijriDate(
+            return HijrahDate(
                 year = year,
                 month = month,
                 day = day,
@@ -80,12 +80,12 @@ data class HijriDate(
         return julianDayToGregorian(julianDay)
     }
     
-    private fun hijriToJulianDay(hijriDate: HijriDate): Int {
-        return ((11 * hijriDate.year + 3) / 30) + 
-               354 * hijriDate.year + 
-               30 * hijriDate.month - 
-               ((hijriDate.month - 1) / 2) + 
-               hijriDate.day + 
+    private fun hijriToJulianDay(hijrahDate: HijrahDate): Int {
+        return ((11 * hijrahDate.year + 3) / 30) +
+               354 * hijrahDate.year +
+               30 * hijrahDate.month -
+               ((hijrahDate.month - 1) / 2) +
+               hijrahDate.day +
                HIJRI_EPOCH - 385
     }
     
@@ -104,7 +104,7 @@ data class HijriDate(
         return LocalDate.of(year, month, day)
     }
     
-    fun toEthiopian(): EthiopianDate = EthiopianDate.from(toGregorian())
+    fun toEthiopian(): EthiopicDate = EthiopicDate.from(toGregorian())
     
     fun format(): String {
         val monthName = getMonthName()

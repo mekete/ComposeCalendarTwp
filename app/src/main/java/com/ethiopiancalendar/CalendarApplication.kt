@@ -1,7 +1,6 @@
 package com.ethiopiancalendar
 
 import android.app.Application
-import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -12,8 +11,7 @@ class CalendarApplication : Application() {
         super.onCreate()
         
         // Initialize ThreeTenBP for Ethiopian calendar
-        AndroidThreeTen.init(this)
-        
+
 ////         Initialize Timber for logging
 //        if (BuildConfig.DEBUG) {
 //            Timber.plant(Timber.DebugTree())

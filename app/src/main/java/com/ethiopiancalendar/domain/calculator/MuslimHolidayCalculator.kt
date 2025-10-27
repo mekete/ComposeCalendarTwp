@@ -1,9 +1,10 @@
 package com.ethiopiancalendar.domain.calculator
 
-import com.ethiopiancalendar.domain.model.EthiopianDate
-import com.ethiopiancalendar.domain.model.HijriDate
+import com.ethiopiancalendar.domain.model.EthiopicDate
+import com.ethiopiancalendar.domain.model.HijrahDate
 import com.ethiopiancalendar.domain.model.Holiday
 import com.ethiopiancalendar.domain.model.HolidayType
+import java.time.DayOfWeek
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,15 +34,15 @@ class MuslimHolidayCalculator @Inject constructor() {
         val holidays = mutableListOf<Holiday>()
         
         // Get start and end dates for Ethiopian year
-        val startEthiopian = EthiopianDate(ethiopianYear, 1, 1)
-        val endEthiopian = EthiopianDate(ethiopianYear + 1, 1, 1)
+        val startEthiopian = EthiopicDate(ethiopianYear, 1, 1)
+        val endEthiopian = EthiopicDate(ethiopianYear + 1, 1, 1)
         
         val startGregorian = startEthiopian.toGregorianDate()
         val endGregorian = endEthiopian.toGregorianDate()
         
         // Get Hijri years that overlap with this Ethiopian year
-        val startHijri = HijriDate.from(startGregorian)
-        val endHijri = HijriDate.from(endGregorian)
+        val startHijri = HijrahDate.from(startGregorian)
+        val endHijri = HijrahDate.from(endGregorian)
         
         // Generate holidays for all overlapping Hijri years
         for (hijriYear in startHijri.year..endHijri.year) {
@@ -56,12 +57,12 @@ class MuslimHolidayCalculator @Inject constructor() {
         
         // Filter to only holidays within the Ethiopian year
         return holidays.filter { holiday ->
-            val ethiopianDate = EthiopianDate(
+            val ethiopicDate = EthiopicDate(
                 ethiopianYear,
                 holiday.ethiopianMonth,
                 holiday.ethiopianDay
             )
-            val gregorianDate = ethiopianDate.toGregorianDate()
+            val gregorianDate = ethiopicDate.toGregorianDate()
             
             !gregorianDate.isBefore(startGregorian) && gregorianDate.isBefore(endGregorian)
         }
@@ -77,7 +78,7 @@ class MuslimHolidayCalculator @Inject constructor() {
                 id = "muslim_eid_fitr_$hijriYear",
                 name = "Eid al-Fitr",
                 nameAmharic = "ኢድ አል-ፈጥር",
-                hijriDate = eidFitrDate,
+                hijrahDate = eidFitrDate,
                 isDayOff = true,
                 description = "Festival of Breaking the Fast after Ramadan"
             )
@@ -90,7 +91,7 @@ class MuslimHolidayCalculator @Inject constructor() {
                 id = "muslim_eid_adha_$hijriYear",
                 name = "Eid al-Adha",
                 nameAmharic = "ኢድ አል-አድሃ",
-                hijriDate = eidAdhaDate,
+                hijrahDate = eidAdhaDate,
                 isDayOff = true,
                 description = "Festival of Sacrifice"
             )
@@ -103,7 +104,7 @@ class MuslimHolidayCalculator @Inject constructor() {
                 id = "muslim_mawlid_$hijriYear",
                 name = "Mawlid al-Nabi",
                 nameAmharic = "መውሊድ",
-                hijriDate = mawlidDate,
+                hijrahDate = mawlidDate,
                 isDayOff = true,
                 description = "Birthday of Prophet Muhammad"
             )
@@ -122,7 +123,7 @@ class MuslimHolidayCalculator @Inject constructor() {
                 id = "muslim_new_year_$hijriYear",
                 name = "Islamic New Year",
                 nameAmharic = "የሙስሊም አዲስ ዓመት",
-                hijriDate = newYearDate,
+                hijrahDate = newYearDate,
                 isDayOff = false,
                 description = "First day of Muharram"
             )
@@ -135,7 +136,7 @@ class MuslimHolidayCalculator @Inject constructor() {
                 id = "muslim_ashura_$hijriYear",
                 name = "Ashura",
                 nameAmharic = "አሹራ",
-                hijriDate = ashuraDate,
+                hijrahDate = ashuraDate,
                 isDayOff = false,
                 description = "Day of Ashura"
             )
@@ -148,7 +149,7 @@ class MuslimHolidayCalculator @Inject constructor() {
                 id = "muslim_ramadan_$hijriYear",
                 name = "Start of Ramadan",
                 nameAmharic = "የረመዳን መጀመሪያ",
-                hijriDate = ramadanDate,
+                hijrahDate = ramadanDate,
                 isDayOff = false,
                 description = "Beginning of the holy month of fasting"
             )
@@ -161,7 +162,7 @@ class MuslimHolidayCalculator @Inject constructor() {
                 id = "muslim_mid_shaban_$hijriYear",
                 name = "Mid-Sha'ban",
                 nameAmharic = "መካከለኛ ሻዕባን",
-                hijriDate = midShabanDate,
+                hijrahDate = midShabanDate,
                 isDayOff = false,
                 description = "Night of Mid-Sha'ban"
             )
@@ -170,29 +171,29 @@ class MuslimHolidayCalculator @Inject constructor() {
         return holidays
     }
     
-    private fun createHijriDate(year: Int, month: Int, day: Int): HijriDate {
+    private fun createHijriDate(year: Int, month: Int, day: Int): HijrahDate {
         // Create a Hijri date and convert to check validity
-        val gregorian = HijriDate(
+        val gregorian = HijrahDate(
             year = year,
             month = month,
             day = day,
-            dayOfWeek = org.threeten.bp.DayOfWeek.MONDAY,
+            dayOfWeek = DayOfWeek.MONDAY,
             isLeapYear = false
         ).toGregorian()
         
-        return HijriDate.from(gregorian)
+        return HijrahDate.from(gregorian)
     }
     
     private fun createMuslimHoliday(
         id: String,
         name: String,
         nameAmharic: String,
-        hijriDate: HijriDate,
+        hijrahDate: HijrahDate,
         isDayOff: Boolean,
         description: String
     ): Holiday {
         // Convert Hijri date to Ethiopian
-        val ethiopianDate = hijriDate.toEthiopian()
+        val ethiopianDate = hijrahDate.toEthiopian()
         
         return Holiday(
             id = id,

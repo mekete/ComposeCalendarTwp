@@ -1,5 +1,6 @@
 package com.ethiopiancalendar.domain.model
 
+import java.time.LocalDate
 import java.util.UUID
 
 /**
@@ -26,8 +27,8 @@ data class Event(
     /**
      * Get the Ethiopian date for this event
      */
-    fun getEthiopianDate(): EthiopianDate {
-        return EthiopianDate(
+    fun getEthiopianDate(): EthiopicDate {
+        return EthiopicDate(
             year = ethiopianYear,
             month = ethiopianMonth,
             day = ethiopianDay
@@ -37,7 +38,7 @@ data class Event(
     /**
      * Get the Gregorian date for this event
      */
-    fun getGregorianDate(): org.threeten.bp.LocalDate {
+    fun getGregorianDate(): LocalDate {
         return getEthiopianDate().toGregorianDate()
     }
 }
