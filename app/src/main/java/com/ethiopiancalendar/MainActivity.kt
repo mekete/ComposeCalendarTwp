@@ -98,7 +98,12 @@ fun MainScreen() {
                 DateConverterScreen()
             }
             composable("more") {
-                MoreScreen()
+                MoreScreen(
+                    onNavigateToTheme = { navController.navigate("theme") }
+                )
+            }
+            composable("theme") {
+                ThemeSettingScreen()
             }
         }
     }
