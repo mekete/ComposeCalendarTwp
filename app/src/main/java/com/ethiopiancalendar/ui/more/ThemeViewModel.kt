@@ -1,4 +1,4 @@
-package com.ethiopiancalendar.ui.settings
+package com.ethiopiancalendar.ui.more
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
