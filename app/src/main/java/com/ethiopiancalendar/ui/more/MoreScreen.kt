@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingsScreen() {
+fun MoreScreen() {
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {

@@ -26,7 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ethiopiancalendar.ui.converter.DateConverterScreen
 import com.ethiopiancalendar.ui.holidaylist.HolidayListScreen
 import com.ethiopiancalendar.ui.month.MonthCalendarScreen
-import com.ethiopiancalendar.ui.more.SettingsScreen
+import com.ethiopiancalendar.ui.more.MoreScreen
 import com.ethiopiancalendar.ui.more.ThemeSettingScreen
 import com.ethiopiancalendar.ui.more.ThemeViewModel
 import com.ethiopiancalendar.ui.theme.EthiopianCalendarTheme
@@ -98,7 +98,7 @@ fun MainScreen() {
                 DateConverterScreen()
             }
             composable("more") {
-                SettingsScreen()
+                MoreScreen()
             }
         }
     }
