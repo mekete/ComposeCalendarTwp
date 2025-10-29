@@ -3,6 +3,7 @@ package com.ethiopiancalendar
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,15 +24,25 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ethiopiancalendar.ui.converter.DateConverterScreen
 import com.ethiopiancalendar.ui.month.MonthCalendarScreen
+import com.ethiopiancalendar.ui.settings.SettingsScreen
+import com.ethiopiancalendar.ui.settings.ThemeViewModel
 import com.ethiopiancalendar.ui.theme.EthiopianCalendarTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val themeViewModel: ThemeViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            EthiopianCalendarTheme {
+            val appTheme by themeViewModel.appTheme.collectAsState()
+            val themeMode by themeViewModel.themeMode.collectAsState()
+
+            EthiopianCalendarTheme(
+                appTheme = appTheme,
+                themeMode = themeMode
+            ) {
                 MainScreen()
             }
         }
@@ -80,7 +92,7 @@ fun MainScreen() {
                 PlaceholderScreen("Events & Reminders")
             }
             composable("settings") {
-                PlaceholderScreen("Settings")
+                SettingsScreen()
             }
         }
     }
