@@ -3,6 +3,7 @@ package com.ethiopiancalendar.ui.month
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
@@ -95,7 +96,7 @@ fun MonthCalendarScreen(
             modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-            beyondViewportPageCount = 2, // Preload 2 pages on each side
+            //beyondViewportPageCount = 2, // Preload 2 pages on each side
             flingBehavior = PagerDefaults.flingBehavior(state = pagerState)
         ) { page ->
             // Load data for this page
@@ -279,7 +280,7 @@ fun DateCell(
                 .clip(CircleShape)
                 .background(backgroundColor)
                 .clickable { onClick() }
-                .padding(4.dp)
+                .padding(2.dp)  // Reduced padding
                 .semantics {
                     this.contentDescription = contentDesc
                 },
@@ -287,46 +288,44 @@ fun DateCell(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceBetween,  // Spread content evenly
+            modifier = Modifier.fillMaxSize()
         ) {
             // Gregorian date (small, top)
-            Text(
-                text = gregorianDate.dayOfMonth.toString(),
-                fontSize = 10.sp,
-                color = textColor.copy(alpha = 0.6f)
-            )
 
-            // Ethiopian date (large, main)
+
+            Row(
+                horizontalArrangement = Arrangement.Start,
+
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 2.dp, top = 2.dp)
+            ) {
+                Text(
+                    text = gregorianDate.dayOfMonth.toString(),
+                    fontSize = 8.sp,  // Smaller font
+                    color = textColor.copy(alpha = 0.6f),
+                )
+                holidays.take(3).forEach { holiday ->
+                    Box(
+                        modifier = Modifier
+                                .size(8.dp)
+                                .padding(horizontal = 2.dp)
+                                .clip(CircleShape)
+                                .background(holiday.holiday.type.getColor())
+                    )
+                }
+            }
+
+            // Ethiopian date (large, main) - centered
             Text(
                 text = dayOfMonth.toString(),
-                fontSize = 16.sp,
+                fontSize = 14.sp,  // Slightly smaller
                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                 color = textColor
             )
 
-            // Holiday indicators - show up to 3 colored circles
-            if (holidays.isNotEmpty()) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                            .height(8.dp)
-                            .padding(top = 2.dp)
-                ) {
-                    holidays.take(3).forEach { holiday ->
-                        Box(
-                            modifier = Modifier
-                                    .size(5.dp)
-                                    .padding(horizontal = 0.5.dp)
-                                    .clip(CircleShape)
-                                    .background(holiday.holiday.type.getColor())
-                        )
-                    }
-                }
-            } else {
-                // Empty space to maintain consistent cell height
-                Spacer(modifier = Modifier.height(8.dp))
-            }
         }
     }
 }
