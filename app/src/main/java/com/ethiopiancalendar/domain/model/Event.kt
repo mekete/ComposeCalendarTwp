@@ -1,5 +1,6 @@
 package com.ethiopiancalendar.domain.model
 
+import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
 import java.util.UUID
 
@@ -24,23 +25,8 @@ data class Event(
     val updatedAt: Long = System.currentTimeMillis()
 ) {
     
-    /**
-     * Get the Ethiopian date for this event
-     */
-    fun getEthiopianDate(): EthiopicDate {
-        return EthiopicDate(
-            year = ethiopianYear,
-            month = ethiopianMonth,
-            day = ethiopianDay
-        )
-    }
-    
-    /**
-     * Get the Gregorian date for this event
-     */
-    fun getGregorianDate(): LocalDate {
-        return getEthiopianDate().toGregorianDate()
-    }
+
+
 }
 
 /**

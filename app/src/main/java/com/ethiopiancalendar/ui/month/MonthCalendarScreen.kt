@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,8 +22,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.ethiopiancalendar.domain.model.EthiopicDate
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
+import org.threeten.extra.chrono.EthiopicDate
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,12 +125,12 @@ fun MonthCalendarContent(
             items(state.dateList) { date ->
                 DateCell(
                     date = date,
-                    currentMonth = state.currentMonth.month,
+                    currentMonth = state.currentMonth.monthValue.toInt(),
                     isToday = date == EthiopicDate.now(),
                     isSelected = date == state.selectedDate,
-                    holidays = state.holidays.filter { 
-                        it.actualEthiopicDate.day == date.day &&
-                        it.actualEthiopicDate.month == date.month
+                    holidays = state.holidays.filter {
+                        it.actualEthiopicDate.dayOfMonth.toInt() == date.dayOfMonth.toInt() &&
+                                it.actualEthiopicDate.monthValue.toInt() == date.monthValue.toInt()
                     },
                     onClick = { onDateClick(date) }
                 )
@@ -165,6 +167,7 @@ fun WeekdayHeader() {
     }
 }
 
+
 @Composable
 fun DateCell(
     date: EthiopicDate,
@@ -174,27 +177,27 @@ fun DateCell(
     holidays: List<HolidayOccurrence>,
     onClick: () -> Unit
 ) {
-    val isCurrentMonth = date.month == currentMonth
-    
+    val isCurrentMonth = date.monthValue.toInt() == currentMonth
+
     val backgroundColor = when {
         isToday -> MaterialTheme.colorScheme.primaryContainer
         isSelected -> MaterialTheme.colorScheme.secondaryContainer
         else -> Color.Transparent
     }
-    
+
     val textColor = when {
         !isCurrentMonth -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         isToday || isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
         else -> MaterialTheme.colorScheme.onSurface
     }
-    
+
     Box(
         modifier = Modifier
-            .aspectRatio(1f)
-            .clip(CircleShape)
-            .background(backgroundColor)
-            .clickable { onClick() }
-            .padding(4.dp),
+                .aspectRatio(1f)
+                .clip(CircleShape)
+                .background(backgroundColor)
+                .clickable { onClick() }
+                .padding(4.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -208,27 +211,29 @@ fun DateCell(
                 fontSize = 10.sp,
                 color = textColor.copy(alpha = 0.6f)
             )
-            
+
             // Ethiopian date (large, main)
             Text(
-                text = date.day.toString(),
+                text = date.dayOfMonth.toString(),
                 fontSize = 16.sp,
                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                 color = textColor
             )
-            
+
             // Holiday indicator
             if (holidays.isNotEmpty()) {
                 Box(
                     modifier = Modifier
-                        .width(20.dp)
-                        .height(2.dp)
-                        .background(holidays.first().holiday.type.getColor())
+                            .width(20.dp)
+                            .height(2.dp)
+                            .background(holidays.first().holiday.type.getColor())
                 )
             }
         }
     }
 }
+
+
 
 @Composable
 fun HolidayListSection(
@@ -298,7 +303,7 @@ fun HolidayItem(holiday: HolidayOccurrence) {
             )
             
             Text(
-                text = holiday.actualEthiopicDate.format(),
+                text = holiday.actualEthiopicDate.format(DateTimeFormatter.ISO_WEEK_DATE),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

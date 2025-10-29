@@ -1,6 +1,5 @@
 package com.ethiopiancalendar.ui.month
 
-import com.ethiopiancalendar.domain.model.EthiopicDate
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 
 /**

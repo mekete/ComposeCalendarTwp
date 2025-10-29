@@ -1,5 +1,8 @@
 package com.ethiopiancalendar.domain.model
 
+import org.threeten.extra.chrono.EthiopicDate
+import java.time.temporal.ChronoUnit
+
 /**
  * Represents a holiday in the Ethiopian calendar
  */
@@ -43,5 +46,5 @@ data class HolidayOccurrence(
     val adjustment: Int = 0  // Days adjusted via Firebase
 ) {
     val actualEthiopicDate: EthiopicDate
-        get() = ethiopicDate.plusDays(adjustment.toLong())
+        get() = ethiopicDate.plus(adjustment.toLong(), ChronoUnit.DAYS) as EthiopicDate
 }
