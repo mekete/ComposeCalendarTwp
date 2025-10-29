@@ -23,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ethiopiancalendar.ui.converter.DateConverterScreen
+import com.ethiopiancalendar.ui.holidaylist.HolidayListScreen
 import com.ethiopiancalendar.ui.month.MonthCalendarScreen
 import com.ethiopiancalendar.ui.settings.SettingsScreen
 import com.ethiopiancalendar.ui.settings.ThemeViewModel
@@ -89,7 +90,7 @@ fun MainScreen() {
                 DateConverterScreen()
             }
             composable("events") {
-                PlaceholderScreen("Events & Reminders")
+                HolidayListScreen()
             }
             composable("settings") {
                 SettingsScreen()
@@ -107,7 +108,7 @@ data class BottomNavItem(
 val bottomNavItems = listOf(
     BottomNavItem("month", "Month", Icons.Default.CalendarMonth),
     BottomNavItem("converter", "Convert", Icons.Default.SwapHoriz),
-    BottomNavItem("events", "Events", Icons.Default.Event),
+    BottomNavItem("events", "Holidays", Icons.Default.Event),
     BottomNavItem("settings", "Settings", Icons.Default.Settings)
 )
 
