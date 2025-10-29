@@ -20,7 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.ui.theme.*
 
 @Composable
-fun MoreScreen(
+fun ThemeSettingScreen(
     viewModel: ThemeViewModel = hiltViewModel()
 ) {
     val currentTheme by viewModel.appTheme.collectAsState()
