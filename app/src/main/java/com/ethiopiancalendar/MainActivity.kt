@@ -91,7 +91,7 @@ fun MainScreen() {
                 PlaceholderScreen("News, Events & Reminders")
             }
             composable("holiday") {
-                PlaceholderScreen("Holidays & Days")
+                HolidayListScreen( )
             }
             composable("converter") {
                 DateConverterScreen()
