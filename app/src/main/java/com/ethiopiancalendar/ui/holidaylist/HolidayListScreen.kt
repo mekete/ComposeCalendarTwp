@@ -284,7 +284,7 @@ private fun HolidayListItem(
                 modifier = Modifier
                     .size(12.dp)
                     .background(
-                        color = holiday.holiday.type.color,
+                        color = holiday.holiday.type.getColor(),
                         shape = MaterialTheme.shapes.small
                     )
             )
@@ -302,7 +302,7 @@ private fun HolidayListItem(
                 )
 
                 Text(
-                    text = formatEthiopicDateWithGregorian(holiday.date),
+                    text = formatEthiopicDateWithGregorian(holiday.ethiopicDate),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

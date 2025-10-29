@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import org.threeten.extra.chrono.EthiopicDate
+import java.time.temporal.ChronoField
+import java.time.temporal.TemporalField
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,7 +23,7 @@ class HolidayListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<HolidayListUiState>(HolidayListUiState.Loading)
     val uiState: StateFlow<HolidayListUiState> = _uiState.asStateFlow()
 
-    private var currentYear: Int = EthiopicDate.now().year
+    private var currentYear: Int = EthiopicDate.now().get(ChronoField.YEAR)
     private var selectedFilters: Set<HolidayType> = setOf(
         HolidayType.NATIONAL,
         HolidayType.ORTHODOX_CHRISTIAN,
@@ -56,7 +58,7 @@ class HolidayListViewModel @Inject constructor(
             _uiState.value = HolidayListUiState.Loading
             holidayRepository.getHolidaysForYear(
                 ethiopianYear = currentYear,
-                includeNational = true,
+                //includeNational = true,//Fix: No parameter with name 'includeNational' found.
                 includeOrthodox = true,
                 includeMuslim = true
             )
@@ -66,7 +68,7 @@ class HolidayListViewModel @Inject constructor(
                     )
                 }
                 .collect { holidays ->
-                    val sortedHolidays = holidays.sortedBy { it.date }
+                    val sortedHolidays = holidays.sortedBy { it.holiday }
                     _uiState.value = HolidayListUiState.Success(
                         currentYear = currentYear,
                         allHolidays = sortedHolidays,
