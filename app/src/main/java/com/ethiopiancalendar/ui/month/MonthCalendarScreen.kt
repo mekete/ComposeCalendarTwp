@@ -5,27 +5,28 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
+import kotlinx.coroutines.launch
 import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,67 +34,133 @@ import java.time.temporal.ChronoField
 fun MonthCalendarScreen(
     viewModel: MonthCalendarViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
+
+    // Initialize pager state with saved state support
+    val pagerState = rememberPagerState(
+        initialPage = rememberSaveable { viewModel.initialPage },
+        pageCount = { MonthCalendarViewModel.TOTAL_PAGES }
+    )
+
+    // Track current page's Ethiopian date
+    val currentEthiopicDate = remember(pagerState.currentPage) {
+        viewModel.getEthiopicDateForPage(pagerState.currentPage)
+    }
+
+    // Content description for accessibility
+    val monthDescription = formatEthiopicDate(currentEthiopicDate)
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
+                    Column(
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .semantics {
+                                    contentDescription = "Ethiopian Calendar, currently showing $monthDescription"
+                                },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text(
                             text = "Ethiopian Calendar",
                             style = MaterialTheme.typography.titleLarge
                         )
-                        if (uiState is MonthCalendarUiState.Success) {
-                            val state = uiState as MonthCalendarUiState.Success
-                            Text(
-                                text = formatEthiopicDate(state.currentMonth),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Text(
+                            text = monthDescription,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.previousMonth() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
-                    }
-
-                    TextButton(onClick = { viewModel.goToToday() }) {
+                    // Today button - animate scroll to today's page
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                val todayPage = viewModel.getTodayPage()
+                                pagerState.animateScrollToPage(todayPage)
+                            }
+                        }
+                    ) {
                         Text("Today")
-                    }
-
-                    IconButton(onClick = { viewModel.nextMonth() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
                     }
                 }
             )
         }
     ) { padding ->
-        when (val state = uiState) {
-            is MonthCalendarUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+        // HorizontalPager with recommended configuration
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+            //beyondBoundsPageCount = 2, // Preload 2 pages on each side
+            flingBehavior = PagerDefaults.flingBehavior(state = pagerState)
+        ) { page ->
+            // Load data for this page
+            val monthData by viewModel.loadMonthDataForPage(page)
+                    .collectAsState(initial = MonthCalendarUiState.Loading)
+
+            MonthCalendarPage(
+                uiState = monthData,
+                onDateClick = { date ->
+                    viewModel.selectDate(date)
+                    // Optionally navigate to the month of the selected date
+                    val datePage = viewModel.getPageForEthiopicDate(date)
+                    if (datePage != page) {
+                        scope.launch {
+                            pagerState.animateScrollToPage(datePage)
+                        }
+                    }
                 }
-            }
+            )
+        }
+    }
+}
 
-            is MonthCalendarUiState.Success -> {
-                MonthCalendarContent(
-                    state = state,
-                    onDateClick = { date -> viewModel.selectDate(date) },
-                    modifier = Modifier.padding(padding)
-                )
+@Composable
+fun MonthCalendarPage(
+    uiState: MonthCalendarUiState,
+    onDateClick: (EthiopicDate) -> Unit
+) {
+    when (uiState) {
+        is MonthCalendarUiState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
+        }
 
-            is MonthCalendarUiState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+        is MonthCalendarUiState.Success -> {
+            MonthCalendarContent(
+                state = uiState,
+                onDateClick = onDateClick
+            )
+        }
+
+        is MonthCalendarUiState.Error -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Text(text = "Error: ${state.message}")
+                    Text(
+                        text = "Error loading calendar",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = uiState.message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -169,7 +236,6 @@ fun WeekdayHeader() {
     }
 }
 
-
 @Composable
 fun DateCell(
     date: EthiopicDate,
@@ -180,6 +246,8 @@ fun DateCell(
     onClick: () -> Unit
 ) {
     val isCurrentMonth = date.get(ChronoField.MONTH_OF_YEAR) == currentMonth
+    val dayOfMonth = date.get(ChronoField.DAY_OF_MONTH)
+    val gregorianDate = LocalDate.from(date)
 
     val backgroundColor = when {
         isToday -> MaterialTheme.colorScheme.primaryContainer
@@ -193,13 +261,26 @@ fun DateCell(
         else -> MaterialTheme.colorScheme.onSurface
     }
 
+    // Accessibility content description
+    val contentDesc = buildString {
+        append(formatEthiopicDateFull(date))
+        if (isToday) append(", Today")
+        if (isSelected) append(", Selected")
+        if (holidays.isNotEmpty()) {
+            append(", Holiday: ${holidays.first().holiday.name}")
+        }
+    }
+
     Box(
         modifier = Modifier
                 .aspectRatio(1f)
                 .clip(CircleShape)
                 .background(backgroundColor)
                 .clickable { onClick() }
-                .padding(4.dp),
+                .padding(4.dp)
+                .semantics {
+                    this.contentDescription = contentDesc
+                },
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -207,7 +288,6 @@ fun DateCell(
             verticalArrangement = Arrangement.Center
         ) {
             // Gregorian date (small, top)
-            val gregorianDate = LocalDate.from(date)
             Text(
                 text = gregorianDate.dayOfMonth.toString(),
                 fontSize = 10.sp,
@@ -216,7 +296,7 @@ fun DateCell(
 
             // Ethiopian date (large, main)
             Text(
-                text = date.get(ChronoField.DAY_OF_MONTH).toString(),
+                text = dayOfMonth.toString(),
                 fontSize = 16.sp,
                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                 color = textColor
@@ -234,8 +314,6 @@ fun DateCell(
         }
     }
 }
-
-
 
 @Composable
 fun HolidayListSection(
@@ -342,4 +420,23 @@ private fun formatEthiopicDate(date: EthiopicDate): String {
     val monthName = if (month in 1..13) monthNames[month - 1] else "Unknown"
 
     return "$monthName $day, $year"
+}
+
+/**
+ * Format EthiopicDate with full details for accessibility
+ */
+private fun formatEthiopicDateFull(date: EthiopicDate): String {
+    val monthNames = listOf(
+        "Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
+        "Megabit", "Miazia", "Ginbot", "Sene", "Hamle", "Nehase", "Pagume"
+    )
+
+    val year = date.get(ChronoField.YEAR_OF_ERA)
+    val month = date.get(ChronoField.MONTH_OF_YEAR)
+    val day = date.get(ChronoField.DAY_OF_MONTH)
+    val gregorianDate = LocalDate.from(date)
+
+    val monthName = if (month in 1..13) monthNames[month - 1] else "Unknown"
+
+    return "$monthName $day, $year (${gregorianDate.month.name} ${gregorianDate.dayOfMonth}, ${gregorianDate.year})"
 }

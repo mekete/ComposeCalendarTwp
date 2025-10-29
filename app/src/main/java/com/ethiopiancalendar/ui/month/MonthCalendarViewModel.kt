@@ -18,43 +18,99 @@ class MonthCalendarViewModel @Inject constructor(
     private val holidayRepository: HolidayRepository
 ) : ViewModel() {
 
-    private val _currentMonth = MutableStateFlow(EthiopicDate.now() as EthiopicDate)
-    val currentMonth: StateFlow<EthiopicDate> = _currentMonth.asStateFlow()
+    companion object {
+        // Paging range: ±60 months (5 years)
+        const val MONTHS_BEFORE = 60
+        const val MONTHS_AFTER = 60
+        const val TOTAL_PAGES = MONTHS_BEFORE + 1 + MONTHS_AFTER // 121 pages
+    }
+
+    // Reference date: current Ethiopian date
+    private val referenceDate = EthiopicDate.now() as EthiopicDate
+    private val referenceYear = referenceDate.get(ChronoField.YEAR_OF_ERA)
+    private val referenceMonth = referenceDate.get(ChronoField.MONTH_OF_YEAR)
+
+    // Calculate initial page (center of range)
+    val initialPage = MONTHS_BEFORE
 
     private val _selectedDate = MutableStateFlow<EthiopicDate?>(null)
     val selectedDate: StateFlow<EthiopicDate?> = _selectedDate.asStateFlow()
 
-    private val _uiState = MutableStateFlow<MonthCalendarUiState>(MonthCalendarUiState.Loading)
-    val uiState: StateFlow<MonthCalendarUiState> = _uiState.asStateFlow()
+    // Cache for month data
+    private val monthDataCache = mutableMapOf<Int, MonthCalendarUiState>()
 
-    init {
-        loadMonthData()
+    /**
+     * Get Ethiopian date for a specific page index
+     */
+    fun getEthiopicDateForPage(page: Int): EthiopicDate {
+        val monthOffset = page - MONTHS_BEFORE
+        var targetYear = referenceYear
+        var targetMonth = referenceMonth + monthOffset
+
+        // Handle year wrapping
+        while (targetMonth > 13) {
+            targetMonth -= 13
+            targetYear++
+        }
+        while (targetMonth < 1) {
+            targetMonth += 13
+            targetYear--
+        }
+
+        return EthiopicDate.of(targetYear, targetMonth, 1)
     }
 
-    private fun loadMonthData() {
-        viewModelScope.launch {
+    /**
+     * Get page index for a specific Ethiopian date
+     */
+    fun getPageForEthiopicDate(date: EthiopicDate): Int {
+        val year = date.get(ChronoField.YEAR_OF_ERA)
+        val month = date.get(ChronoField.MONTH_OF_YEAR)
+
+        val yearDiff = year - referenceYear
+        val monthDiff = month - referenceMonth
+        val totalMonthDiff = yearDiff * 13 + monthDiff
+
+        return MONTHS_BEFORE + totalMonthDiff
+    }
+
+    /**
+     * Load month data for a specific page
+     */
+    fun loadMonthDataForPage(page: Int): Flow<MonthCalendarUiState> {
+        // Check cache first
+        monthDataCache[page]?.let {
+            return flowOf(it)
+        }
+
+        return flow {
+            emit(MonthCalendarUiState.Loading)
+
             try {
-                val year = _currentMonth.value.get(ChronoField.YEAR_OF_ERA)
-                val month = _currentMonth.value.get(ChronoField.MONTH_OF_YEAR)
+                val currentMonth = getEthiopicDateForPage(page)
+                val year = currentMonth.get(ChronoField.YEAR_OF_ERA)
+                val month = currentMonth.get(ChronoField.MONTH_OF_YEAR)
 
-                holidayRepository.getHolidaysForMonth(
-                    year,
-                    month
-                ).collect { holidays ->
-                    val dateList = generateDateListForMonth(_currentMonth.value)
+                holidayRepository.getHolidaysForMonth(year, month).collect { holidays ->
+                    val dateList = generateDateListForMonth(currentMonth)
 
-                    _uiState.value = MonthCalendarUiState.Success(
-                        currentMonth = _currentMonth.value,
+                    val state = MonthCalendarUiState.Success(
+                        currentMonth = currentMonth,
                         dateList = dateList,
                         holidays = holidays,
                         selectedDate = _selectedDate.value
                     )
 
-                    Timber.d("Loaded ${holidays.size} holidays for ${_currentMonth.value}")
+                    // Cache the result
+                    monthDataCache[page] = state
+                    emit(state)
+
+                    Timber.d("Loaded page $page: ${holidays.size} holidays for $currentMonth")
                 }
             } catch (e: Exception) {
-                Timber.e(e, "Error loading month data")
-                _uiState.value = MonthCalendarUiState.Error(e.message ?: "Unknown error")
+                Timber.e(e, "Error loading month data for page $page")
+                val errorState = MonthCalendarUiState.Error(e.message ?: "Unknown error")
+                emit(errorState)
             }
         }
     }
@@ -77,7 +133,7 @@ class MonthCalendarViewModel @Inject constructor(
         val dayOffset = (firstDayWeekday - 1) % 7
 
         if (dayOffset > 0) {
-            val prevMonth = firstDayOfMonth.plus(-1, ChronoUnit.DAYS)  as EthiopicDate
+            val prevMonth = firstDayOfMonth.plus(1, ChronoUnit.DAYS) as EthiopicDate
             val prevYear = prevMonth.get(ChronoField.YEAR_OF_ERA)
             val prevMonthValue = prevMonth.get(ChronoField.MONTH_OF_YEAR)
             val daysInPrevMonth = getDaysInMonth(prevYear, prevMonthValue)
@@ -95,7 +151,7 @@ class MonthCalendarViewModel @Inject constructor(
         // Add days from next month to complete the grid
         val remainingCells = 42 - dateList.size
         if (remainingCells > 0) {
-            val nextMonth = firstDayOfMonth.plus(1, ChronoUnit.DAYS) as EthiopicDate
+            val nextMonth = firstDayOfMonth.plus(1, ChronoUnit.DAYS)  as EthiopicDate
             val nextYear = nextMonth.get(ChronoField.YEAR_OF_ERA)
             val nextMonthValue = nextMonth.get(ChronoField.MONTH_OF_YEAR)
 
@@ -117,27 +173,17 @@ class MonthCalendarViewModel @Inject constructor(
     // User actions
     fun selectDate(date: EthiopicDate) {
         _selectedDate.value = date
-        loadMonthData()
+        // Clear cache to refresh UI with new selection
+        monthDataCache.clear()
         Timber.d("Selected date: $date")
     }
 
-    fun nextMonth() {
-        _currentMonth.value = _currentMonth.value.plus(1, ChronoUnit.DAYS) as EthiopicDate
-        loadMonthData()
-        Timber.d("Navigated to next month: ${_currentMonth.value}")
+    fun clearCache() {
+        monthDataCache.clear()
     }
 
-    fun previousMonth() {
-        _currentMonth.value = _currentMonth.value.plus(-1, ChronoUnit.DAYS) as EthiopicDate
-        loadMonthData()
-        Timber.d("Navigated to previous month: ${_currentMonth.value}")
-    }
-
-    fun goToToday() {
+    fun getTodayPage(): Int {
         val today = EthiopicDate.now() as EthiopicDate
-        _currentMonth.value = today
-        _selectedDate.value = today
-        loadMonthData()
-        Timber.d("Navigated to today: ${_currentMonth.value}")
+        return getPageForEthiopicDate(today)
     }
 }
