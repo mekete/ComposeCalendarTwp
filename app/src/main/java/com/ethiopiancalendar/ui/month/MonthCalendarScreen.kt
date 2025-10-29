@@ -95,7 +95,7 @@ fun MonthCalendarScreen(
             modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-            //beyondBoundsPageCount = 2, // Preload 2 pages on each side
+            beyondViewportPageCount = 2, // Preload 2 pages on each side
             flingBehavior = PagerDefaults.flingBehavior(state = pagerState)
         ) { page ->
             // Load data for this page
@@ -199,7 +199,8 @@ fun MonthCalendarContent(
                     isSelected = date == state.selectedDate,
                     holidays = state.holidays.filter {
                         it.actualEthiopicDate.get(ChronoField.DAY_OF_MONTH) == date.get(ChronoField.DAY_OF_MONTH) &&
-                                it.actualEthiopicDate.get(ChronoField.MONTH_OF_YEAR) == date.get(ChronoField.MONTH_OF_YEAR)
+                                it.actualEthiopicDate.get(ChronoField.MONTH_OF_YEAR) == date.get(ChronoField.MONTH_OF_YEAR) &&
+                                it.actualEthiopicDate.get(ChronoField.YEAR_OF_ERA) == date.get(ChronoField.YEAR_OF_ERA)
                     },
                     onClick = { onDateClick(date) }
                 )
@@ -267,7 +268,8 @@ fun DateCell(
         if (isToday) append(", Today")
         if (isSelected) append(", Selected")
         if (holidays.isNotEmpty()) {
-            append(", Holiday: ${holidays.first().holiday.name}")
+            val holidayNames = holidays.joinToString(", ") { it.holiday.name }
+            append(", Holidays: $holidayNames")
         }
     }
 
@@ -302,14 +304,28 @@ fun DateCell(
                 color = textColor
             )
 
-            // Holiday indicator
+            // Holiday indicators - show up to 3 colored circles
             if (holidays.isNotEmpty()) {
-                Box(
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                            .width(20.dp)
-                            .height(2.dp)
-                            .background(holidays.first().holiday.type.getColor())
-                )
+                            .height(8.dp)
+                            .padding(top = 2.dp)
+                ) {
+                    holidays.take(3).forEach { holiday ->
+                        Box(
+                            modifier = Modifier
+                                    .size(5.dp)
+                                    .padding(horizontal = 0.5.dp)
+                                    .clip(CircleShape)
+                                    .background(holiday.holiday.type.getColor())
+                        )
+                    }
+                }
+            } else {
+                // Empty space to maintain consistent cell height
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
