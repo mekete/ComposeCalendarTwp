@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.threeten.extra.chrono.EthiopicDate
 import timber.log.Timber
-import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,9 +34,12 @@ class MonthCalendarViewModel @Inject constructor(
     private fun loadMonthData() {
         viewModelScope.launch {
             try {
+                val year = _currentMonth.value.get(ChronoField.YEAR_OF_ERA)
+                val month = _currentMonth.value.get(ChronoField.MONTH_OF_YEAR)
+
                 holidayRepository.getHolidaysForMonth(
-                    _currentMonth.value.year.toInt(),
-                    _currentMonth.value.monthValue.toInt()
+                    year,
+                    month
                 ).collect { holidays ->
                     val dateList = generateDateListForMonth(_currentMonth.value)
 
@@ -58,34 +63,44 @@ class MonthCalendarViewModel @Inject constructor(
      * Generate 42 date cells for calendar grid (6 weeks × 7 days)
      */
     private fun generateDateListForMonth(month: EthiopicDate): List<EthiopicDate> {
-        val firstDayOfMonth = EthiopicDate.of(month.year.toInt(), month.monthValue.toInt(), 1)
-        val daysInMonth = getDaysInMonth(month.year.toInt(), month.monthValue.toInt())
+        val year = month.get(ChronoField.YEAR_OF_ERA)
+        val monthValue = month.get(ChronoField.MONTH_OF_YEAR)
+
+        val firstDayOfMonth = EthiopicDate.of(year, monthValue, 1)
+        val daysInMonth = getDaysInMonth(year, monthValue)
 
         val dateList = mutableListOf<EthiopicDate>()
 
         // Add days from previous month to fill first week
-        val firstDayWeekday = firstDayOfMonth.toGregorianDate().dayOfWeek.value
+        val gregorianFirstDay = LocalDate.from(firstDayOfMonth)
+        val firstDayWeekday = gregorianFirstDay.dayOfWeek.value
         val dayOffset = (firstDayWeekday - 1) % 7
+
         if (dayOffset > 0) {
-            val prevMonth = firstDayOfMonth.minusMonths(1) as EthiopicDate
-            val daysInPrevMonth = getDaysInMonth(prevMonth.year.toInt(), prevMonth.monthValue.toInt())
+            val prevMonth = firstDayOfMonth.plus(-1, ChronoUnit.DAYS)  as EthiopicDate
+            val prevYear = prevMonth.get(ChronoField.YEAR_OF_ERA)
+            val prevMonthValue = prevMonth.get(ChronoField.MONTH_OF_YEAR)
+            val daysInPrevMonth = getDaysInMonth(prevYear, prevMonthValue)
 
             for (i in (daysInPrevMonth - dayOffset + 1)..daysInPrevMonth) {
-                dateList.add(EthiopicDate.of(prevMonth.year.toInt(), prevMonth.monthValue.toInt(), i))
+                dateList.add(EthiopicDate.of(prevYear, prevMonthValue, i))
             }
         }
 
         // Add days of current month
         for (day in 1..daysInMonth) {
-            dateList.add(EthiopicDate.of(month.year.toInt(), month.monthValue.toInt(), day))
+            dateList.add(EthiopicDate.of(year, monthValue, day))
         }
 
         // Add days from next month to complete the grid
         val remainingCells = 42 - dateList.size
         if (remainingCells > 0) {
-            val nextMonth = firstDayOfMonth.plusMonths(1) as EthiopicDate
+            val nextMonth = firstDayOfMonth.plus(1, ChronoUnit.DAYS) as EthiopicDate
+            val nextYear = nextMonth.get(ChronoField.YEAR_OF_ERA)
+            val nextMonthValue = nextMonth.get(ChronoField.MONTH_OF_YEAR)
+
             for (day in 1..remainingCells) {
-                dateList.add(EthiopicDate.of(nextMonth.year.toInt(), nextMonth.monthValue.toInt(), day))
+                dateList.add(EthiopicDate.of(nextYear, nextMonthValue, day))
             }
         }
 
@@ -102,17 +117,18 @@ class MonthCalendarViewModel @Inject constructor(
     // User actions
     fun selectDate(date: EthiopicDate) {
         _selectedDate.value = date
+        loadMonthData()
         Timber.d("Selected date: $date")
     }
 
     fun nextMonth() {
-        _currentMonth.value = (_currentMonth.value.plusMonths(1) as EthiopicDate)
+        _currentMonth.value = _currentMonth.value.plus(1, ChronoUnit.DAYS) as EthiopicDate
         loadMonthData()
         Timber.d("Navigated to next month: ${_currentMonth.value}")
     }
 
     fun previousMonth() {
-        _currentMonth.value = (_currentMonth.value.plusMonths(-1) as EthiopicDate)
+        _currentMonth.value = _currentMonth.value.plus(-1, ChronoUnit.DAYS) as EthiopicDate
         loadMonthData()
         Timber.d("Navigated to previous month: ${_currentMonth.value}")
     }

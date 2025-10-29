@@ -121,7 +121,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.37.3")
 
 
-
+    implementation("androidx.compose.foundation:foundation:1.9.4")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

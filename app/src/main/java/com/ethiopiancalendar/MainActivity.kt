@@ -3,7 +3,7 @@ package com.ethiopiancalendar
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Event
@@ -12,20 +12,18 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavHostController
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ethiopiancalendar.ui.converter.DateConverterScreen
 import com.ethiopiancalendar.ui.month.MonthCalendarScreen
 import com.ethiopiancalendar.ui.theme.EthiopianCalendarTheme
 import dagger.hilt.android.AndroidEntryPoint
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.dp
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -44,7 +42,7 @@ fun MainScreen() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "month"
-    
+
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -76,7 +74,7 @@ fun MainScreen() {
                 MonthCalendarScreen()
             }
             composable("converter") {
-                PlaceholderScreen("Date Converter")
+                DateConverterScreen()
             }
             composable("events") {
                 PlaceholderScreen("Events & Reminders")
@@ -104,8 +102,7 @@ val bottomNavItems = listOf(
 @Composable
 fun PlaceholderScreen(title: String) {
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Box(
             contentAlignment = Alignment.Center

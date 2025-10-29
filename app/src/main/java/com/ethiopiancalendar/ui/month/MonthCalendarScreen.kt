@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
@@ -34,7 +34,7 @@ fun MonthCalendarScreen(
     viewModel: MonthCalendarViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,8 +45,9 @@ fun MonthCalendarScreen(
                             style = MaterialTheme.typography.titleLarge
                         )
                         if (uiState is MonthCalendarUiState.Success) {
+                            val state = uiState as MonthCalendarUiState.Success
                             Text(
-                                text = (uiState as MonthCalendarUiState.Success).currentMonth.format(),
+                                text = formatEthiopicDate(state.currentMonth),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -57,11 +58,11 @@ fun MonthCalendarScreen(
                     IconButton(onClick = { viewModel.previousMonth() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
                     }
-                    
+
                     TextButton(onClick = { viewModel.goToToday() }) {
                         Text("Today")
                     }
-                    
+
                     IconButton(onClick = { viewModel.nextMonth() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
                     }
@@ -78,7 +79,7 @@ fun MonthCalendarScreen(
                     CircularProgressIndicator()
                 }
             }
-            
+
             is MonthCalendarUiState.Success -> {
                 MonthCalendarContent(
                     state = state,
@@ -86,7 +87,7 @@ fun MonthCalendarScreen(
                     modifier = Modifier.padding(padding)
                 )
             }
-            
+
             is MonthCalendarUiState.Error -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -107,14 +108,14 @@ fun MonthCalendarContent(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp)
     ) {
         // Weekday headers
         WeekdayHeader()
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Calendar grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
@@ -122,23 +123,24 @@ fun MonthCalendarContent(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.weight(1f)
         ) {
-            items(state.dateList) { date ->
+            items(state.dateList.size) { index ->
+                val date = state.dateList[index]
                 DateCell(
                     date = date,
-                    currentMonth = state.currentMonth.monthValue.toInt(),
+                    currentMonth = state.currentMonth.get(ChronoField.MONTH_OF_YEAR),
                     isToday = date == EthiopicDate.now(),
                     isSelected = date == state.selectedDate,
                     holidays = state.holidays.filter {
-                        it.actualEthiopicDate.dayOfMonth.toInt() == date.dayOfMonth.toInt() &&
-                                it.actualEthiopicDate.monthValue.toInt() == date.monthValue.toInt()
+                        it.actualEthiopicDate.get(ChronoField.DAY_OF_MONTH) == date.get(ChronoField.DAY_OF_MONTH) &&
+                                it.actualEthiopicDate.get(ChronoField.MONTH_OF_YEAR) == date.get(ChronoField.MONTH_OF_YEAR)
                     },
                     onClick = { onDateClick(date) }
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Holiday list
         HolidayListSection(
             holidays = state.holidays,
@@ -150,7 +152,7 @@ fun MonthCalendarContent(
 @Composable
 fun WeekdayHeader() {
     val weekdays = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-    
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -177,7 +179,7 @@ fun DateCell(
     holidays: List<HolidayOccurrence>,
     onClick: () -> Unit
 ) {
-    val isCurrentMonth = date.monthValue.toInt() == currentMonth
+    val isCurrentMonth = date.get(ChronoField.MONTH_OF_YEAR) == currentMonth
 
     val backgroundColor = when {
         isToday -> MaterialTheme.colorScheme.primaryContainer
@@ -205,7 +207,7 @@ fun DateCell(
             verticalArrangement = Arrangement.Center
         ) {
             // Gregorian date (small, top)
-            val gregorianDate = date.toGregorianDate()
+            val gregorianDate = LocalDate.from(date)
             Text(
                 text = gregorianDate.dayOfMonth.toString(),
                 fontSize = 10.sp,
@@ -214,7 +216,7 @@ fun DateCell(
 
             // Ethiopian date (large, main)
             Text(
-                text = date.dayOfMonth.toString(),
+                text = date.get(ChronoField.DAY_OF_MONTH).toString(),
                 fontSize = 16.sp,
                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                 color = textColor
@@ -260,17 +262,17 @@ fun HolidayListSection(
         } else {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                        .fillMaxSize()
+                        .padding(16.dp)
             ) {
                 Text(
                     text = "Holidays",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 holidays.take(3).forEach { holiday ->
                     HolidayItem(holiday = holiday)
                     Spacer(modifier = Modifier.height(4.dp))
@@ -289,26 +291,26 @@ fun HolidayItem(holiday: HolidayOccurrence) {
         // Color indicator
         Box(
             modifier = Modifier
-                .size(4.dp, 30.dp)
-                .background(holiday.holiday.type.getColor())
+                    .size(4.dp, 30.dp)
+                    .background(holiday.holiday.type.getColor())
         )
-        
+
         Spacer(modifier = Modifier.width(12.dp))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = holiday.holiday.name,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Text(
-                text = holiday.actualEthiopicDate.format(DateTimeFormatter.ISO_WEEK_DATE),
+                text = formatEthiopicDate(holiday.actualEthiopicDate),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        
+
         if (holiday.holiday.isDayOff) {
             Surface(
                 color = MaterialTheme.colorScheme.primaryContainer,
@@ -322,4 +324,22 @@ fun HolidayItem(holiday: HolidayOccurrence) {
             }
         }
     }
+}
+
+/**
+ * Format EthiopicDate to readable string
+ */
+private fun formatEthiopicDate(date: EthiopicDate): String {
+    val monthNames = listOf(
+        "Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
+        "Megabit", "Miazia", "Ginbot", "Sene", "Hamle", "Nehase", "Pagume"
+    )
+
+    val year = date.get(ChronoField.YEAR_OF_ERA)
+    val month = date.get(ChronoField.MONTH_OF_YEAR)
+    val day = date.get(ChronoField.DAY_OF_MONTH)
+
+    val monthName = if (month in 1..13) monthNames[month - 1] else "Unknown"
+
+    return "$monthName $day, $year"
 }
