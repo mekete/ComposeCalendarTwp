@@ -133,14 +133,20 @@ class MonthCalendarViewModel @Inject constructor(
         val dayOffset = (firstDayWeekday - 1) % 7
 
         if (dayOffset > 0) {
-            val prevMonth = firstDayOfMonth.plus(1, ChronoUnit.DAYS) as EthiopicDate
-            val prevYear = prevMonth.get(ChronoField.YEAR_OF_ERA)
-            val prevMonthValue = prevMonth.get(ChronoField.MONTH_OF_YEAR)
-            val daysInPrevMonth = getDaysInMonth(prevYear, prevMonthValue)
+            // Use plus with negative value to go backwards
+            var prevDate = firstDayOfMonth.plus(-1, ChronoUnit.DAYS) as EthiopicDate
+            val prevDatesToAdd = mutableListOf<EthiopicDate>()
 
-            for (i in (daysInPrevMonth - dayOffset + 1)..daysInPrevMonth) {
-                dateList.add(EthiopicDate.of(prevYear, prevMonthValue, i))
+            // Collect previous dates in reverse
+            for (i in 0 until dayOffset) {
+                prevDatesToAdd.add(prevDate)
+                if (i < dayOffset - 1) {
+                    prevDate = prevDate.plus(-1, ChronoUnit.DAYS) as EthiopicDate
+                }
             }
+
+            // Add them in correct order (oldest to newest)
+            dateList.addAll(prevDatesToAdd.reversed())
         }
 
         // Add days of current month
@@ -151,12 +157,14 @@ class MonthCalendarViewModel @Inject constructor(
         // Add days from next month to complete the grid
         val remainingCells = 42 - dateList.size
         if (remainingCells > 0) {
-            val nextMonth = firstDayOfMonth.plus(1, ChronoUnit.DAYS)  as EthiopicDate
-            val nextYear = nextMonth.get(ChronoField.YEAR_OF_ERA)
-            val nextMonthValue = nextMonth.get(ChronoField.MONTH_OF_YEAR)
+            // Use plus with positive value to go forwards
+            var nextDate = EthiopicDate.of(year, monthValue, daysInMonth).plus(1, ChronoUnit.DAYS) as EthiopicDate
 
-            for (day in 1..remainingCells) {
-                dateList.add(EthiopicDate.of(nextYear, nextMonthValue, day))
+            for (i in 0 until remainingCells) {
+                dateList.add(nextDate)
+                if (i < remainingCells - 1) {
+                    nextDate = nextDate.plus(1, ChronoUnit.DAYS) as EthiopicDate
+                }
             }
         }
 

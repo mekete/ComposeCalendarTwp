@@ -213,7 +213,7 @@ fun MonthCalendarContent(
         // Holiday list
         HolidayListSection(
             holidays = state.holidays,
-            modifier = Modifier.height(150.dp)
+            modifier = Modifier.height(200.dp)
         )
     }
 }

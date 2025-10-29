@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -86,11 +87,14 @@ fun MainScreen() {
             composable("month") {
                 MonthCalendarScreen()
             }
+            composable("today") {
+                PlaceholderScreen("News, Events & Reminders")
+            }
+            composable("holiday") {
+                PlaceholderScreen("Holidays & Days")
+            }
             composable("converter") {
                 DateConverterScreen()
-            }
-            composable("events") {
-                HolidayListScreen()
             }
             composable("settings") {
                 SettingsScreen()
@@ -107,8 +111,9 @@ data class BottomNavItem(
 
 val bottomNavItems = listOf(
     BottomNavItem("month", "Month", Icons.Default.CalendarMonth),
+    BottomNavItem("today", "Today", Icons.Default.Today),
+    BottomNavItem("holiday", "Holiday", Icons.Default.Event),
     BottomNavItem("converter", "Convert", Icons.Default.SwapHoriz),
-    BottomNavItem("events", "Holidays", Icons.Default.Event),
     BottomNavItem("settings", "Settings", Icons.Default.Settings)
 )
 
