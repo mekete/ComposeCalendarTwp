@@ -20,6 +20,83 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.R
 import com.ethiopiancalendar.data.local.entity.EventInstance
+import java.time.Duration
+import java.time.ZonedDateTime
+import kotlin.math.abs
+
+/**
+ * Calculate relative time difference from now to the given time.
+ * Returns formatted string like "In 3 hours", "2 days ago", etc.
+ */
+private fun getRelativeTimeText(targetTime: ZonedDateTime): String {
+    val now = ZonedDateTime.now()
+    val duration = Duration.between(now, targetTime)
+    val seconds = duration.seconds
+    val absSeconds = abs(seconds)
+
+    val isPast = seconds < 0
+
+    return when {
+        absSeconds < 60 -> {
+            // Less than 1 minute
+            if (isPast) "Just now" else "In a moment"
+        }
+        absSeconds < 3600 -> {
+            // Less than 1 hour - show minutes
+            val minutes = absSeconds / 60
+            if (isPast) {
+                "$minutes ${if (minutes == 1L) "minute" else "minutes"} ago"
+            } else {
+                "In $minutes ${if (minutes == 1L) "minute" else "minutes"}"
+            }
+        }
+        absSeconds < 86400 -> {
+            // Less than 1 day - show hours
+            val hours = absSeconds / 3600
+            if (isPast) {
+                "$hours ${if (hours == 1L) "hour" else "hours"} ago"
+            } else {
+                "In $hours ${if (hours == 1L) "hour" else "hours"}"
+            }
+        }
+        absSeconds < 604800 -> {
+            // Less than 1 week - show days
+            val days = absSeconds / 86400
+            if (isPast) {
+                "$days ${if (days == 1L) "day" else "days"} ago"
+            } else {
+                "In $days ${if (days == 1L) "day" else "days"}"
+            }
+        }
+        absSeconds < 2592000 -> {
+            // Less than 30 days - show weeks
+            val weeks = absSeconds / 604800
+            if (isPast) {
+                "$weeks ${if (weeks == 1L) "week" else "weeks"} ago"
+            } else {
+                "In $weeks ${if (weeks == 1L) "week" else "weeks"}"
+            }
+        }
+        absSeconds < 31536000 -> {
+            // Less than 1 year - show months
+            val months = absSeconds / 2592000
+            if (isPast) {
+                "$months ${if (months == 1L) "month" else "months"} ago"
+            } else {
+                "In $months ${if (months == 1L) "month" else "months"}"
+            }
+        }
+        else -> {
+            // 1 year or more
+            val years = absSeconds / 31536000
+            if (isPast) {
+                "$years ${if (years == 1L) "year" else "years"} ago"
+            } else {
+                "In $years ${if (years == 1L) "year" else "years"}"
+            }
+        }
+    }
+}
 
 @Composable
 fun EventScreen(
@@ -222,6 +299,25 @@ private fun EventCard(
                         text = dateTimeText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                // Relative time display
+                Spacer(modifier = Modifier.height(4.dp))
+                val relativeTimeText = getRelativeTimeText(event.instanceStart)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = relativeTimeText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
