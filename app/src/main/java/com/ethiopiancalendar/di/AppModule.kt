@@ -1,7 +1,11 @@
 package com.ethiopiancalendar.di
 
 import android.content.Context
+import androidx.room.Room
+import com.ethiopiancalendar.data.local.CalendarDatabase
+import com.ethiopiancalendar.data.local.dao.EventDao
 import com.ethiopiancalendar.data.preferences.ThemePreferences
+import com.ethiopiancalendar.data.repository.EventRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,5 +27,31 @@ object AppModule {
     @Singleton
     fun provideThemePreferences(@ApplicationContext context: Context): ThemePreferences {
         return ThemePreferences(context)
+    }
+
+    // ========== Room Database ==========
+
+    @Provides
+    @Singleton
+    fun provideCalendarDatabase(@ApplicationContext context: Context): CalendarDatabase {
+        return Room.databaseBuilder(
+            context,
+            CalendarDatabase::class.java,
+            CalendarDatabase.DATABASE_NAME
+        )
+            .fallbackToDestructiveMigration() // For development - replace with migrations in production
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEventDao(database: CalendarDatabase): EventDao {
+        return database.eventDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEventRepository(eventDao: EventDao): EventRepository {
+        return EventRepository(eventDao)
     }
 }

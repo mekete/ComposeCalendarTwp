@@ -158,4 +158,44 @@
     <string name="holiday_isra_miraj">Isra and Mi\'raj</string>
     <string name="holiday_isra_miraj_desc">Night Journey and Ascension</string>
 
+    <!-- Event / Reminder Feature -->
+    <string name="add_event">Add Event</string>
+    <string name="title">Title</string>
+    <string name="title_required">Title is required</string>
+    <string name="description_optional">Description (optional)</string>
+    <string name="date">Date</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_time">End Time</string>
+    <string name="all_day_event">All-day event</string>
+    <string name="repeat">Repeat</string>
+    <string name="no_repeat">No repeat</string>
+    <string name="weekly">Weekly</string>
+    <string name="repeat_on">Repeat on</string>
+    <string name="ends">Ends</string>
+    <string name="never">Never</string>
+    <string name="until">Until</string>
+    <string name="until_date">Until %1$s</string>
+    <string name="select_end_date">Select End Date</string>
+    <string name="reminder">Reminder</string>
+    <string name="at_time_of_event">At time of event</string>
+    <string name="minutes_before_5">5 minutes before</string>
+    <string name="minutes_before_15">15 minutes before</string>
+    <string name="minutes_before_30">30 minutes before</string>
+    <string name="hour_before_1">1 hour before</string>
+    <string name="category">Category</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="no_events">No events yet</string>
+    <string name="tap_plus_to_add_event">Tap the + button to add your first event</string>
+    <string name="delete_event">Delete Event</string>
+    <string name="delete_event_title">Delete Event?</string>
+    <string name="delete_event_message">Are you sure you want to delete \"%1$s\"?</string>
+    <string name="delete">Delete</string>
+    <string name="error_loading_events">Error Loading Events</string>
+    <string name="event_date_all_day">%1$d/%2$d/%3$d (All day)</string>
+    <string name="recurring_event">Recurring event</string>
+    <string name="recurring">Recurring</string>
+    <string name="reminder_minutes_before">%1$d min before</string>
+
 </resources>
