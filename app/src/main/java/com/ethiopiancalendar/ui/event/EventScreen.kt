@@ -61,6 +61,7 @@ fun EventScreen(
                         EventList(
                             events = state.events,
                             onEventClick = { /* TODO: Show event details */ },
+                            onEditEvent = { viewModel.showEditEventDialog(it) },
                             onDeleteEvent = { viewModel.deleteEvent(it) }
                         )
                     }
@@ -69,8 +70,25 @@ fun EventScreen(
                     if (state.isDialogOpen) {
                         AddEventDialog(
                             onDismiss = { viewModel.hideAddEventDialog() },
+                            editingEvent = state.editingEvent,
                             onCreateEvent = { summary, description, startTime, endTime, isAllDay, recurrenceRule, reminderMinutes, category, ethYear, ethMonth, ethDay ->
                                 viewModel.createEvent(
+                                    summary = summary,
+                                    description = description,
+                                    startTime = startTime,
+                                    endTime = endTime,
+                                    isAllDay = isAllDay,
+                                    recurrenceRule = recurrenceRule,
+                                    reminderMinutesBefore = reminderMinutes,
+                                    category = category,
+                                    ethiopianYear = ethYear,
+                                    ethiopianMonth = ethMonth,
+                                    ethiopianDay = ethDay
+                                )
+                            },
+                            onUpdateEvent = { eventId, summary, description, startTime, endTime, isAllDay, recurrenceRule, reminderMinutes, category, ethYear, ethMonth, ethDay ->
+                                viewModel.updateEvent(
+                                    eventId = eventId,
                                     summary = summary,
                                     description = description,
                                     startTime = startTime,
@@ -103,6 +121,7 @@ fun EventScreen(
 private fun EventList(
     events: List<EventInstance>,
     onEventClick: (String) -> Unit,
+    onEditEvent: (String) -> Unit,
     onDeleteEvent: (String) -> Unit
 ) {
     LazyColumn(
@@ -117,6 +136,7 @@ private fun EventList(
             EventCard(
                 event = event,
                 onClick = { onEventClick(event.eventId) },
+                onEdit = { onEditEvent(event.eventId) },
                 onDelete = { onDeleteEvent(event.eventId) }
             )
         }
@@ -128,6 +148,7 @@ private fun EventList(
 private fun EventCard(
     event: EventInstance,
     onClick: () -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -255,13 +276,25 @@ private fun EventCard(
                 }
             }
 
-            // Delete button
-            IconButton(onClick = { showDeleteDialog = true }) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.delete_event),
-                    tint = MaterialTheme.colorScheme.error
-                )
+            // Action buttons
+            Row {
+                // Edit button
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.edit_event),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Delete button
+                IconButton(onClick = { showDeleteDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.delete_event),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }

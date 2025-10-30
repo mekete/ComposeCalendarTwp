@@ -18,9 +18,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ethiopiancalendar.R
+import com.ethiopiancalendar.data.local.entity.EventEntity
 import com.ethiopiancalendar.data.local.entity.RecurrenceEndOption
 import com.ethiopiancalendar.data.local.entity.RecurrenceFrequency
 import com.ethiopiancalendar.data.local.entity.RecurrenceRule
+import com.ethiopiancalendar.data.local.entity.parseRRule
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -31,7 +33,22 @@ import java.time.ZoneId
 @Composable
 fun AddEventDialog(
     onDismiss: () -> Unit,
+    editingEvent: EventEntity? = null,
     onCreateEvent: (
+        summary: String,
+        description: String?,
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime?,
+        isAllDay: Boolean,
+        recurrenceRule: RecurrenceRule?,
+        reminderMinutesBefore: Int?,
+        category: String,
+        ethiopianYear: Int,
+        ethiopianMonth: Int,
+        ethiopianDay: Int
+    ) -> Unit,
+    onUpdateEvent: (
+        eventId: String,
         summary: String,
         description: String?,
         startTime: ZonedDateTime,
@@ -45,30 +62,59 @@ fun AddEventDialog(
         ethiopianDay: Int
     ) -> Unit
 ) {
-    // Form state
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var startTime by remember { mutableStateOf(LocalTime.of(9, 0)) }
-    var endTime by remember { mutableStateOf<LocalTime?>(LocalTime.of(10, 0)) }
-    var isAllDay by remember { mutableStateOf(false) }
+    val isEditMode = editingEvent != null
+
+    // Parse recurrence rule if editing
+    val parsedRecurrenceRule = editingEvent?.recurrenceRule?.parseRRule()
+
+    // Form state - pre-filled with editingEvent data if in edit mode
+    var title by remember { mutableStateOf(editingEvent?.summary ?: "") }
+    var description by remember { mutableStateOf(editingEvent?.description ?: "") }
+    var selectedDate by remember {
+        mutableStateOf(
+            editingEvent?.startTime?.toLocalDate() ?: LocalDate.now()
+        )
+    }
+    var startTime by remember {
+        mutableStateOf(
+            editingEvent?.startTime?.toLocalTime() ?: LocalTime.of(9, 0)
+        )
+    }
+    var endTime by remember {
+        mutableStateOf(
+            editingEvent?.endTime?.toLocalTime() ?: LocalTime.of(10, 0)
+        )
+    }
+    var isAllDay by remember { mutableStateOf(editingEvent?.isAllDay ?: false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
 
-    // Recurrence state
-    var recurrenceFrequency by remember { mutableStateOf(RecurrenceFrequency.NONE) }
-    var selectedWeekDays by remember { mutableStateOf(setOf<DayOfWeek>()) }
-    var recurrenceEndOption by remember { mutableStateOf(RecurrenceEndOption.NEVER) }
-    var recurrenceEndDate by remember { mutableStateOf<LocalDate?>(null) }
+    // Recurrence state - pre-filled if editing
+    var recurrenceFrequency by remember {
+        mutableStateOf(parsedRecurrenceRule?.frequency ?: RecurrenceFrequency.NONE)
+    }
+    var selectedWeekDays by remember {
+        mutableStateOf(parsedRecurrenceRule?.weekDays ?: setOf<DayOfWeek>())
+    }
+    var recurrenceEndOption by remember {
+        mutableStateOf(parsedRecurrenceRule?.endOption ?: RecurrenceEndOption.NEVER)
+    }
+    var recurrenceEndDate by remember {
+        mutableStateOf(
+            parsedRecurrenceRule?.endDate?.let {
+                java.time.Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+            }
+        )
+    }
     var showRecurrenceEndDatePicker by remember { mutableStateOf(false) }
 
-    // Reminder state
-    var reminderEnabled by remember { mutableStateOf(false) }
-    var reminderMinutes by remember { mutableStateOf(30) }
+    // Reminder state - pre-filled if editing
+    var reminderEnabled by remember { mutableStateOf(editingEvent?.reminderMinutesBefore != null) }
+    var reminderMinutes by remember { mutableStateOf(editingEvent?.reminderMinutesBefore ?: 30) }
 
-    // Category state
-    var category by remember { mutableStateOf("PERSONAL") }
+    // Category state - pre-filled if editing
+    var category by remember { mutableStateOf(editingEvent?.category ?: "PERSONAL") }
 
     // Error state
     var titleError by remember { mutableStateOf(false) }
@@ -90,7 +136,7 @@ fun AddEventDialog(
             ) {
                 // Header
                 Text(
-                    text = stringResource(R.string.add_event),
+                    text = if (isEditMode) stringResource(R.string.edit_event) else stringResource(R.string.add_event),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -365,28 +411,46 @@ fun AddEventDialog(
                                 )
                             } else null
 
-                            // Convert Gregorian to Ethiopian (simplified - you may have a proper converter)
-                            // For now, using the current date's Ethiopian equivalent
-                            val ethiopianYear = 2017  // Placeholder
-                            val ethiopianMonth = 1     // Placeholder
-                            val ethiopianDay = 1       // Placeholder
+                            // Use existing Ethiopian date if editing, otherwise use placeholder
+                            val ethiopianYear = editingEvent?.ethiopianYear ?: 2017
+                            val ethiopianMonth = editingEvent?.ethiopianMonth ?: 1
+                            val ethiopianDay = editingEvent?.ethiopianDay ?: 1
 
-                            onCreateEvent(
-                                title.trim(),
-                                description.ifBlank { null },
-                                startDateTime,
-                                endDateTime,
-                                isAllDay,
-                                recurrenceRule,
-                                if (reminderEnabled) reminderMinutes else null,
-                                category,
-                                ethiopianYear,
-                                ethiopianMonth,
-                                ethiopianDay
-                            )
+                            if (isEditMode && editingEvent != null) {
+                                // Update existing event
+                                onUpdateEvent(
+                                    editingEvent.id,
+                                    title.trim(),
+                                    description.ifBlank { null },
+                                    startDateTime,
+                                    endDateTime,
+                                    isAllDay,
+                                    recurrenceRule,
+                                    if (reminderEnabled) reminderMinutes else null,
+                                    category,
+                                    ethiopianYear,
+                                    ethiopianMonth,
+                                    ethiopianDay
+                                )
+                            } else {
+                                // Create new event
+                                onCreateEvent(
+                                    title.trim(),
+                                    description.ifBlank { null },
+                                    startDateTime,
+                                    endDateTime,
+                                    isAllDay,
+                                    recurrenceRule,
+                                    if (reminderEnabled) reminderMinutes else null,
+                                    category,
+                                    ethiopianYear,
+                                    ethiopianMonth,
+                                    ethiopianDay
+                                )
+                            }
                         }
                     ) {
-                        Text(stringResource(R.string.create))
+                        Text(if (isEditMode) stringResource(R.string.update) else stringResource(R.string.create))
                     }
                 }
             }
