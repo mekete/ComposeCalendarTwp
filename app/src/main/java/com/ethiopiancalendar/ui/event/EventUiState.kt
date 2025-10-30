@@ -1,5 +1,6 @@
 package com.ethiopiancalendar.ui.event
 
+import com.ethiopiancalendar.data.local.entity.EventEntity
 import com.ethiopiancalendar.data.local.entity.EventInstance
 
 /**
@@ -21,10 +22,12 @@ sealed class EventUiState {
      *
      * @param events List of event instances (includes recurring event instances)
      * @param isDialogOpen Whether the add event dialog is currently shown
+     * @param editingEvent Event currently being edited (null if creating new event)
      */
     data class Success(
         val events: List<EventInstance>,
-        val isDialogOpen: Boolean = false
+        val isDialogOpen: Boolean = false,
+        val editingEvent: EventEntity? = null
     ) : EventUiState()
 
     /**

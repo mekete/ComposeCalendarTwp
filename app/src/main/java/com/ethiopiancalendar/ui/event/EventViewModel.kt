@@ -87,7 +87,32 @@ class EventViewModel @Inject constructor(
     fun hideAddEventDialog() {
         val currentState = _uiState.value
         if (currentState is EventUiState.Success) {
-            _uiState.value = currentState.copy(isDialogOpen = false)
+            _uiState.value = currentState.copy(isDialogOpen = false, editingEvent = null)
+        }
+    }
+
+    /**
+     * Show the edit event dialog for a specific event.
+     */
+    fun showEditEventDialog(eventId: String) {
+        viewModelScope.launch {
+            try {
+                val currentState = _uiState.value
+                if (currentState is EventUiState.Success) {
+                    // Find the event to edit
+                    val eventToEdit = currentState.events.find { it.eventId == eventId }?.originalEvent
+                    if (eventToEdit != null) {
+                        _uiState.value = currentState.copy(
+                            isDialogOpen = true,
+                            editingEvent = eventToEdit
+                        )
+                    } else {
+                        Timber.w("Event not found for editing: $eventId")
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error loading event for edit")
+            }
         }
     }
 
@@ -187,6 +212,112 @@ class EventViewModel @Inject constructor(
                 Timber.e(e, "Error deleting event")
                 _uiState.value = EventUiState.Error(
                     message = e.message ?: "Failed to delete event"
+                )
+            }
+        }
+    }
+
+    /**
+     * Update an existing event.
+     *
+     * This method:
+     * 1. Updates the event in the database
+     * 2. Cancels the old alarm
+     * 3. Schedules a new alarm if reminder is enabled
+     *
+     * @param eventId ID of the event to update
+     * @param summary Updated event title
+     * @param description Updated event description (optional)
+     * @param startTime Updated start date/time with timezone
+     * @param endTime Updated end date/time with timezone (optional)
+     * @param isAllDay Whether the event is all-day
+     * @param recurrenceRule Updated recurrence pattern (optional)
+     * @param reminderMinutesBefore Updated minutes before event to remind (optional)
+     * @param category Updated event category
+     * @param ethiopianYear Updated Ethiopian calendar year
+     * @param ethiopianMonth Updated Ethiopian calendar month
+     * @param ethiopianDay Updated Ethiopian calendar day
+     */
+    fun updateEvent(
+        eventId: String,
+        summary: String,
+        description: String? = null,
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime? = null,
+        isAllDay: Boolean = false,
+        recurrenceRule: RecurrenceRule? = null,
+        reminderMinutesBefore: Int? = null,
+        category: String = "PERSONAL",
+        ethiopianYear: Int,
+        ethiopianMonth: Int,
+        ethiopianDay: Int
+    ) {
+        viewModelScope.launch {
+            try {
+                // Get the existing event to preserve createdAt timestamp
+                val existingEvent = (_uiState.value as? EventUiState.Success)
+                    ?.events
+                    ?.find { it.eventId == eventId }
+                    ?.originalEvent
+
+                if (existingEvent == null) {
+                    Timber.e("Cannot update event: Event not found with ID $eventId")
+                    _uiState.value = EventUiState.Error("Event not found")
+                    return@launch
+                }
+
+                val updatedEvent = EventEntity(
+                    id = eventId,
+                    summary = summary.trim(),
+                    description = description?.trim(),
+                    startTime = startTime,
+                    endTime = endTime,
+                    isAllDay = isAllDay,
+                    timeZone = startTime.zone.id,
+                    recurrenceRule = recurrenceRule?.toRRuleString(),
+                    recurrenceEndDate = recurrenceRule?.endDate?.let {
+                        ZonedDateTime.ofInstant(
+                            java.time.Instant.ofEpochMilli(it),
+                            startTime.zone
+                        )
+                    },
+                    reminderMinutesBefore = reminderMinutesBefore,
+                    category = category,
+                    ethiopianYear = ethiopianYear,
+                    ethiopianMonth = ethiopianMonth,
+                    ethiopianDay = ethiopianDay,
+                    createdAt = existingEvent.createdAt,
+                    updatedAt = System.currentTimeMillis(),
+                    googleCalendarEventId = existingEvent.googleCalendarEventId,
+                    isSynced = false // Mark as not synced since we modified it
+                )
+
+                // Cancel old alarm first
+                alarmScheduler.cancelAlarm(eventId)
+                Timber.d("Canceled old alarm for event: $eventId")
+
+                // Update event in database
+                eventRepository.updateEvent(updatedEvent)
+                Timber.d("Event updated in database: $summary")
+
+                // Schedule new alarm if reminder is enabled
+                if (reminderMinutesBefore != null) {
+                    val scheduled = alarmScheduler.scheduleAlarm(updatedEvent)
+                    if (scheduled) {
+                        Timber.d("New alarm scheduled for event: $summary")
+                    } else {
+                        Timber.w("Failed to schedule new alarm for event: $summary")
+                    }
+                } else {
+                    Timber.d("No reminder set for event: $summary")
+                }
+
+                hideAddEventDialog()
+                Timber.d("Event update completed: $summary")
+            } catch (e: Exception) {
+                Timber.e(e, "Error updating event")
+                _uiState.value = EventUiState.Error(
+                    message = e.message ?: "Failed to update event"
                 )
             }
         }

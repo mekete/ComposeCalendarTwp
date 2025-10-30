@@ -160,6 +160,7 @@
 
     <!-- Event / Reminder Feature -->
     <string name="add_event">Add Event</string>
+    <string name="edit_event">Edit Event</string>
     <string name="title">Title</string>
     <string name="title_required">Title is required</string>
     <string name="description_optional">Description (optional)</string>
@@ -184,6 +185,7 @@
     <string name="hour_before_1">1 hour before</string>
     <string name="category">Category</string>
     <string name="create">Create</string>
+    <string name="update">Update</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="no_events">No events yet</string>
