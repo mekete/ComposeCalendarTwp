@@ -17,7 +17,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ethiopiancalendar.R
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
 import java.time.temporal.ChronoField
@@ -74,7 +74,7 @@ fun DateConverterScreen(
                 onConvert = { viewModel.convertToEthiopian() }
             )
 
-            Divider()
+            HorizontalDivider()
 
             // Section 2: Ethiopian to Gregorian
             EthiopianToGregorianSection(

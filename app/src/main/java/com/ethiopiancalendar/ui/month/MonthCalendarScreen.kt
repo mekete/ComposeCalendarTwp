@@ -54,7 +54,7 @@ fun MonthCalendarScreen(
     // Content description for accessibility
     val monthNames = stringArrayResource(R.array.ethiopian_months)
     val monthDescription = formatEthiopicDate(currentEthiopicDate, monthNames)
-
+    val monthDescriptionCd = stringResource( R.string.cd_calendar_state, monthDescription )
     Scaffold(
         topBar = {
             TopAppBar(
@@ -63,10 +63,7 @@ fun MonthCalendarScreen(
                         modifier = Modifier
                                 .fillMaxWidth()
                                 .semantics {
-                                    contentDescription = stringResource(
-                                        R.string.cd_calendar_state,
-                                        monthDescription
-                                    )
+                                    contentDescription = monthDescriptionCd
                                 },
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
