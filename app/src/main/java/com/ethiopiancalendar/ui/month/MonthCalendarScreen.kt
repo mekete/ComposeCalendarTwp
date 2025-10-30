@@ -17,12 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ethiopiancalendar.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 import kotlinx.coroutines.launch
@@ -49,7 +52,8 @@ fun MonthCalendarScreen(
     }
 
     // Content description for accessibility
-    val monthDescription = formatEthiopicDate(currentEthiopicDate)
+    val monthNames = stringArrayResource(R.array.ethiopian_months)
+    val monthDescription = formatEthiopicDate(currentEthiopicDate, monthNames)
 
     Scaffold(
         topBar = {
@@ -59,12 +63,15 @@ fun MonthCalendarScreen(
                         modifier = Modifier
                                 .fillMaxWidth()
                                 .semantics {
-                                    contentDescription = "Ethiopian Calendar, currently showing $monthDescription"
+                                    contentDescription = stringResource(
+                                        R.string.cd_calendar_state,
+                                        monthDescription
+                                    )
                                 },
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Ethiopian Calendar",
+                            text = stringResource(R.string.screen_title_month_calendar),
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
@@ -84,7 +91,7 @@ fun MonthCalendarScreen(
                             }
                         }
                     ) {
-                        Text("Today")
+                        Text(stringResource(R.string.button_today))
                     }
                 }
             )
@@ -152,7 +159,7 @@ fun MonthCalendarPage(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Error loading calendar",
+                        text = stringResource(R.string.error_loading_calendar),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -220,7 +227,7 @@ fun MonthCalendarContent(
 
 @Composable
 fun WeekdayHeader() {
-    val weekdays = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    val weekdays = stringArrayResource(R.array.weekday_names_short).toList()
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -250,6 +257,7 @@ fun DateCell(
     val isCurrentMonth = date.get(ChronoField.MONTH_OF_YEAR) == currentMonth
     val dayOfMonth = date.get(ChronoField.DAY_OF_MONTH)
     val gregorianDate = LocalDate.from(date)
+    val monthNames = stringArrayResource(R.array.ethiopian_months)
 
     val backgroundColor = when {
         isToday -> MaterialTheme.colorScheme.primaryContainer
@@ -265,7 +273,7 @@ fun DateCell(
 
     // Accessibility content description
     val contentDesc = buildString {
-        append(formatEthiopicDateFull(date))
+        append(formatEthiopicDateFull(date, monthNames))
         if (isToday) append(", Today")
         if (isSelected) append(", Selected")
         if (holidays.isNotEmpty()) {
@@ -335,6 +343,8 @@ fun HolidayListSection(
     holidays: List<HolidayOccurrence>,
     modifier: Modifier = Modifier
 ) {
+    val monthNames = stringArrayResource(R.array.ethiopian_months)
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -347,7 +357,7 @@ fun HolidayListSection(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No holidays this month",
+                    text = stringResource(R.string.empty_no_holidays_month),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -359,7 +369,7 @@ fun HolidayListSection(
                         .padding(16.dp)
             ) {
                 Text(
-                    text = "Holidays",
+                    text = stringResource(R.string.label_holidays),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -367,7 +377,7 @@ fun HolidayListSection(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 holidays.take(3).forEach { holiday ->
-                    HolidayItem(holiday = holiday)
+                    HolidayItem(holiday = holiday, monthNames = monthNames)
                     Spacer(modifier = Modifier.height(4.dp))
                 }
             }
@@ -376,7 +386,10 @@ fun HolidayListSection(
 }
 
 @Composable
-fun HolidayItem(holiday: HolidayOccurrence) {
+fun HolidayItem(
+    holiday: HolidayOccurrence,
+    monthNames: Array<String>
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -398,7 +411,7 @@ fun HolidayItem(holiday: HolidayOccurrence) {
             )
 
             Text(
-                text = formatEthiopicDate(holiday.actualEthiopicDate),
+                text = formatEthiopicDate(holiday.actualEthiopicDate, monthNames),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -410,7 +423,7 @@ fun HolidayItem(holiday: HolidayOccurrence) {
                 shape = MaterialTheme.shapes.small
             ) {
                 Text(
-                    text = "Day Off",
+                    text = stringResource(R.string.label_day_off),
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
@@ -422,12 +435,7 @@ fun HolidayItem(holiday: HolidayOccurrence) {
 /**
  * Format EthiopicDate to readable string
  */
-private fun formatEthiopicDate(date: EthiopicDate): String {
-    val monthNames = listOf(
-        "Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
-        "Megabit", "Miazia", "Ginbot", "Sene", "Hamle", "Nehase", "Pagume"
-    )
-
+private fun formatEthiopicDate(date: EthiopicDate, monthNames: Array<String>): String {
     val year = date.get(ChronoField.YEAR_OF_ERA)
     val month = date.get(ChronoField.MONTH_OF_YEAR)
     val day = date.get(ChronoField.DAY_OF_MONTH)
@@ -440,12 +448,7 @@ private fun formatEthiopicDate(date: EthiopicDate): String {
 /**
  * Format EthiopicDate with full details for accessibility
  */
-private fun formatEthiopicDateFull(date: EthiopicDate): String {
-    val monthNames = listOf(
-        "Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
-        "Megabit", "Miazia", "Ginbot", "Sene", "Hamle", "Nehase", "Pagume"
-    )
-
+private fun formatEthiopicDateFull(date: EthiopicDate, monthNames: Array<String>): String {
     val year = date.get(ChronoField.YEAR_OF_ERA)
     val month = date.get(ChronoField.MONTH_OF_YEAR)
     val day = date.get(ChronoField.DAY_OF_MONTH)

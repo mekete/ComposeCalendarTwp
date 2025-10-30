@@ -10,10 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ethiopiancalendar.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
@@ -36,7 +39,7 @@ fun DateConverterScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Date Converter",
+                        text = stringResource(R.string.screen_title_date_converter),
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -113,12 +116,12 @@ fun DateConverterScreen(
                         showGregorianPicker = false
                     }
                 ) {
-                    Text("OK")
+                    Text(stringResource(R.string.button_ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showGregorianPicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.button_cancel))
                 }
             }
         ) {
@@ -165,7 +168,7 @@ fun GregorianToEthiopianSection(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "From Gregorian",
+                text = stringResource(R.string.label_from_gregorian),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -207,7 +210,7 @@ fun GregorianToEthiopianSection(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CalendarToday,
-                        contentDescription = "Pick Date"
+                        contentDescription = stringResource(R.string.cd_pick_date)
                     )
                 }
             }
@@ -217,7 +220,7 @@ fun GregorianToEthiopianSection(
                 onClick = onConvert,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("To Ethiopian")
+                Text(stringResource(R.string.button_to_ethiopian))
             }
 
             // Error message
@@ -244,7 +247,7 @@ fun GregorianToEthiopianSection(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Ethiopian Date",
+                            text = stringResource(R.string.label_ethiopian_date),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -290,7 +293,7 @@ fun EthiopianToGregorianSection(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "From Ethiopian",
+                text = stringResource(R.string.label_from_ethiopian),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -332,7 +335,7 @@ fun EthiopianToGregorianSection(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CalendarToday,
-                        contentDescription = "Pick Date"
+                        contentDescription = stringResource(R.string.cd_pick_date)
                     )
                 }
             }
@@ -342,7 +345,7 @@ fun EthiopianToGregorianSection(
                 onClick = onConvert,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("To Gregorian")
+                Text(stringResource(R.string.button_to_gregorian))
             }
 
             // Error message
@@ -369,7 +372,7 @@ fun EthiopianToGregorianSection(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Gregorian Date",
+                            text = stringResource(R.string.label_gregorian_date),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -422,10 +425,11 @@ fun EthiopianDatePickerDialog(
     var selectedDay by remember { mutableStateOf(currentEthiopian.get(ChronoField.DAY_OF_MONTH)) }
     var selectedMonth by remember { mutableStateOf(currentEthiopian.get(ChronoField.MONTH_OF_YEAR)) }
     var selectedYear by remember { mutableStateOf(currentEthiopian.get(ChronoField.YEAR_OF_ERA)) }
+    val monthNames = stringArrayResource(R.array.ethiopian_months)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Select Ethiopian Date") },
+        title = { Text(stringResource(R.string.dialog_title_select_ethiopian_date)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -439,7 +443,7 @@ fun EthiopianDatePickerDialog(
                     steps = 28
                 )
 
-                Text("Month: $selectedMonth (${getEthiopianMonthName(selectedMonth)})")
+                Text("Month: $selectedMonth (${getEthiopianMonthName(selectedMonth, monthNames)})")
                 Slider(
                     value = selectedMonth.toFloat(),
                     onValueChange = { selectedMonth = it.toInt() },
@@ -468,32 +472,17 @@ fun EthiopianDatePickerDialog(
                     }
                 }
             ) {
-                Text("OK")
+                Text(stringResource(R.string.button_ok))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.button_cancel))
             }
         }
     )
 }
 
-private fun getEthiopianMonthName(month: Int): String {
-    return when (month) {
-        1 -> "Meskerem"
-        2 -> "Tikimt"
-        3 -> "Hidar"
-        4 -> "Tahsas"
-        5 -> "Tir"
-        6 -> "Yekatit"
-        7 -> "Megabit"
-        8 -> "Miazia"
-        9 -> "Ginbot"
-        10 -> "Sene"
-        11 -> "Hamle"
-        12 -> "Nehase"
-        13 -> "Pagume"
-        else -> "Unknown"
-    }
+private fun getEthiopianMonthName(month: Int, monthNames: Array<String>): String {
+    return if (month in 1..13) monthNames[month - 1] else "Unknown"
 }

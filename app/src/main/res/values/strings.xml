@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Ethiopian Calendar</string>
+
+    <!-- Screen Titles -->
+    <string name="screen_title_month_calendar">Ethiopian Calendar</string>
+    <string name="screen_title_date_converter">Date Converter</string>
+    <string name="screen_title_holidays">Ethiopian Holidays</string>
+    <string name="screen_title_more">More</string>
+    <string name="screen_title_settings">Settings</string>
+
+    <!-- Navigation Labels -->
+    <string name="nav_month">Month</string>
+    <string name="nav_today">Today</string>
+    <string name="nav_holiday">Holiday</string>
+    <string name="nav_convert">Convert</string>
+    <string name="nav_more">More</string>
+
+    <!-- Button Labels -->
+    <string name="button_today">Today</string>
+    <string name="button_to_ethiopian">To Ethiopian</string>
+    <string name="button_to_gregorian">To Gregorian</string>
+    <string name="button_ok">OK</string>
+    <string name="button_cancel">Cancel</string>
+
+    <!-- Date Converter Labels -->
+    <string name="label_from_gregorian">From Gregorian</string>
+    <string name="label_from_ethiopian">From Ethiopian</string>
+    <string name="label_ethiopian_date">Ethiopian Date</string>
+    <string name="label_gregorian_date">Gregorian Date</string>
+    <string name="dialog_title_select_ethiopian_date">Select Ethiopian Date</string>
+
+    <!-- Holiday List Labels -->
+    <string name="label_filter_by_type">Filter by Type</string>
+    <string name="filter_public">Public</string>
+    <string name="filter_orthodox">Orthodox</string>
+    <string name="filter_muslim">Muslim</string>
+    <string name="label_ec_suffix">E.C.</string>
+
+    <!-- More Screen Labels -->
+    <string name="menu_color_theme">Color and Theme</string>
+    <string name="menu_privacy_policy">Privacy Policy</string>
+    <string name="menu_language">Language</string>
+
+    <!-- Settings Labels -->
+    <string name="label_theme_color">Theme Color</string>
+    <string name="label_theme_mode">Theme Mode</string>
+
+    <!-- Common Labels -->
+    <string name="label_holidays">Holidays</string>
+    <string name="label_day_off">Day Off</string>
+
+    <!-- Error and Empty State Messages -->
+    <string name="error_loading_calendar">Error loading calendar</string>
+    <string name="empty_no_holidays_month">No holidays this month</string>
+    <string name="empty_no_holidays_display">No holidays to display</string>
+    <string name="placeholder_coming_soon">Coming soon...</string>
+    <string name="placeholder_news_events">News, Events &amp; Reminders</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_pick_date">Pick Date</string>
+    <string name="cd_selected">Selected</string>
+    <string name="cd_navigate">Navigate</string>
+    <string name="cd_previous_year">Previous Year</string>
+    <string name="cd_next_year">Next Year</string>
+    <string name="cd_calendar_state">Ethiopian Calendar, currently showing %1$s</string>
+
+    <!-- Ethiopian Month Names -->
+    <string-array name="ethiopian_months">
+        <item>Meskerem</item>
+        <item>Tikimt</item>
+        <item>Hidar</item>
+        <item>Tahsas</item>
+        <item>Tir</item>
+        <item>Yekatit</item>
+        <item>Megabit</item>
+        <item>Miazia</item>
+        <item>Ginbot</item>
+        <item>Sene</item>
+        <item>Hamle</item>
+        <item>Nehase</item>
+        <item>Pagume</item>
+    </string-array>
+
+    <!-- Weekday Names (Short) -->
+    <string-array name="weekday_names_short">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+
+    <!-- Theme Color Names -->
+    <string-array name="theme_color_names">
+        <item>Blue</item>
+        <item>Red</item>
+        <item>Green</item>
+        <item>Purple</item>
+        <item>Orange</item>
+    </string-array>
+
+    <!-- Theme Mode Names -->
+    <string-array name="theme_mode_names">
+        <item>System Default</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <!-- Public Holidays -->
+    <string name="holiday_enkutatash">Enkutatash (New Year)</string>
+    <string name="holiday_enkutatash_desc">Ethiopian New Year</string>
+    <string name="holiday_meskel">Meskel</string>
+    <string name="holiday_meskel_desc">Finding of the True Cross</string>
+    <string name="holiday_genna">Genna (Christmas)</string>
+    <string name="holiday_genna_desc">Ethiopian Christmas</string>
+    <string name="holiday_timket">Timket (Epiphany)</string>
+    <string name="holiday_timket_desc">Epiphany / Baptism of Jesus</string>
+    <string name="holiday_adwa">Adwa Victory Day</string>
+    <string name="holiday_adwa_desc">Victory of Adwa</string>
+    <string name="holiday_labour">Labour Day</string>
+    <string name="holiday_labour_desc">International Workers\' Day</string>
+    <string name="holiday_patriots">Patriots\' Day</string>
+    <string name="holiday_patriots_desc">Patriots Victory Day</string>
+    <string name="holiday_derg">Derg Downfall Day</string>
+    <string name="holiday_derg_desc">Downfall of the Derg Regime</string>
+
+    <!-- Orthodox Holidays -->
+    <string name="holiday_siklet">Siklet (Good Friday)</string>
+    <string name="holiday_siklet_desc">Crucifixion of Jesus Christ</string>
+    <string name="holiday_fasika">Fasika (Easter)</string>
+    <string name="holiday_fasika_desc">Ethiopian Orthodox Easter</string>
+    <string name="holiday_tensae">Tensae (Resurrection)</string>
+    <string name="holiday_tensae_desc">Resurrection of Jesus Christ</string>
+    <string name="holiday_erget">Erget (Ascension)</string>
+    <string name="holiday_erget_desc">Ascension of Jesus into Heaven</string>
+    <string name="holiday_peraklitos">Peraklitos (Pentecost)</string>
+    <string name="holiday_peraklitos_desc">Descent of the Holy Spirit</string>
+
+    <!-- Muslim Holidays -->
+    <string name="holiday_mawlid">Mawlid al-Nabi</string>
+    <string name="holiday_mawlid_desc">Birthday of Prophet Muhammad</string>
+    <string name="holiday_ramadan_start">Ramadan Begins</string>
+    <string name="holiday_ramadan_start_desc">Start of Islamic Holy Month</string>
+    <string name="holiday_eid_fitr">Eid al-Fitr</string>
+    <string name="holiday_eid_fitr_desc">Festival of Breaking the Fast</string>
+    <string name="holiday_arafat">Day of Arafat</string>
+    <string name="holiday_arafat_desc">Day of Pilgrimage</string>
+    <string name="holiday_eid_adha">Eid al-Adha</string>
+    <string name="holiday_eid_adha_desc">Festival of Sacrifice</string>
+    <string name="holiday_hijri_new_year">Islamic New Year</string>
+    <string name="holiday_hijri_new_year_desc">First Day of Muharram</string>
+    <string name="holiday_ashura">Day of Ashura</string>
+    <string name="holiday_ashura_desc">Day of Remembrance</string>
+    <string name="holiday_isra_miraj">Isra and Mi\'raj</string>
+    <string name="holiday_isra_miraj_desc">Night Journey and Ascension</string>
+
+</resources>
