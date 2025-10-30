@@ -15,7 +15,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.ethiopiancalendar.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.ui.theme.*
 
@@ -25,6 +28,8 @@ fun ThemeSettingScreen(
 ) {
     val currentTheme by viewModel.appTheme.collectAsState()
     val currentMode by viewModel.themeMode.collectAsState()
+    val themeColorNames = stringArrayResource(R.array.theme_color_names)
+    val themeModeNames = stringArrayResource(R.array.theme_mode_names)
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -38,7 +43,7 @@ fun ThemeSettingScreen(
         ) {
             item {
                 Text(
-                    text = "Settings",
+                    text = stringResource(R.string.screen_title_settings),
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -48,6 +53,7 @@ fun ThemeSettingScreen(
             item {
                 ThemeColorSection(
                     currentTheme = currentTheme,
+                    themeColorNames = themeColorNames,
                     onThemeSelected = { viewModel.setAppTheme(it) }
                 )
             }
@@ -55,6 +61,7 @@ fun ThemeSettingScreen(
             item {
                 ThemeModeSection(
                     currentMode = currentMode,
+                    themeModeNames = themeModeNames,
                     onModeSelected = { viewModel.setThemeMode(it) }
                 )
             }
@@ -65,6 +72,7 @@ fun ThemeSettingScreen(
 @Composable
 fun ThemeColorSection(
     currentTheme: AppTheme,
+    themeColorNames: Array<String>,
     onThemeSelected: (AppTheme) -> Unit
 ) {
     Card(
@@ -80,7 +88,7 @@ fun ThemeColorSection(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Theme Color",
+                text = stringResource(R.string.label_theme_color),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -89,9 +97,10 @@ fun ThemeColorSection(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                AppTheme.entries.forEach { theme ->
+                AppTheme.entries.forEachIndexed { index, theme ->
                     ThemeColorOption(
                         theme = theme,
+                        themeName = themeColorNames[index],
                         isSelected = theme == currentTheme,
                         onSelected = { onThemeSelected(theme) }
                     )
@@ -104,6 +113,7 @@ fun ThemeColorSection(
 @Composable
 fun ThemeColorOption(
     theme: AppTheme,
+    themeName: String,
     isSelected: Boolean,
     onSelected: () -> Unit
 ) {
@@ -168,7 +178,7 @@ fun ThemeColorOption(
                 }
 
                 Text(
-                    text = theme.displayName,
+                    text = themeName,
                     style = MaterialTheme.typography.titleMedium,
                     color = if (isSelected)
                         MaterialTheme.colorScheme.onPrimaryContainer
@@ -180,7 +190,7 @@ fun ThemeColorOption(
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Selected",
+                    contentDescription = stringResource(R.string.cd_selected),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -191,6 +201,7 @@ fun ThemeColorOption(
 @Composable
 fun ThemeModeSection(
     currentMode: ThemeMode,
+    themeModeNames: Array<String>,
     onModeSelected: (ThemeMode) -> Unit
 ) {
     Card(
@@ -206,7 +217,7 @@ fun ThemeModeSection(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Theme Mode",
+                text = stringResource(R.string.label_theme_mode),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -215,9 +226,10 @@ fun ThemeModeSection(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ThemeMode.entries.forEach { mode ->
+                ThemeMode.entries.forEachIndexed { index, mode ->
                     ThemeModeOption(
                         mode = mode,
+                        modeName = themeModeNames[index],
                         isSelected = mode == currentMode,
                         onSelected = { onModeSelected(mode) }
                     )
@@ -230,6 +242,7 @@ fun ThemeModeSection(
 @Composable
 fun ThemeModeOption(
     mode: ThemeMode,
+    modeName: String,
     isSelected: Boolean,
     onSelected: () -> Unit
 ) {
@@ -257,7 +270,7 @@ fun ThemeModeOption(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = mode.displayName,
+                text = modeName,
                 style = MaterialTheme.typography.titleMedium,
                 color = if (isSelected)
                     MaterialTheme.colorScheme.onPrimaryContainer
@@ -268,7 +281,7 @@ fun ThemeModeOption(
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Selected",
+                    contentDescription = stringResource(R.string.cd_selected),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }

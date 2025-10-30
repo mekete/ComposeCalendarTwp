@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -57,6 +58,7 @@ fun MainScreen() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "month"
+    val bottomNavItems = getBottomNavItems()
 
     Scaffold(
         bottomBar = {
@@ -89,7 +91,7 @@ fun MainScreen() {
                 MonthCalendarScreen()
             }
             composable("today") {
-                PlaceholderScreen("News, Events & Reminders")
+                PlaceholderScreen(stringResource(R.string.placeholder_news_events))
             }
             composable("holiday") {
                 HolidayListScreen( )
@@ -115,13 +117,16 @@ data class BottomNavItem(
     val icon: ImageVector
 )
 
-val bottomNavItems = listOf(
-    BottomNavItem("month", "Month", Icons.Default.CalendarMonth),
-    BottomNavItem("today", "Today", Icons.Default.Today),
-    BottomNavItem("holiday", "Holiday", Icons.Default.Event),
-    BottomNavItem("converter", "Convert", Icons.Default.SwapHoriz),
-    BottomNavItem("more", "More", Icons.Default.Settings)
-)
+@Composable
+fun getBottomNavItems(): List<BottomNavItem> {
+    return listOf(
+        BottomNavItem("month", stringResource(R.string.nav_month), Icons.Default.CalendarMonth),
+        BottomNavItem("today", stringResource(R.string.nav_today), Icons.Default.Today),
+        BottomNavItem("holiday", stringResource(R.string.nav_holiday), Icons.Default.Event),
+        BottomNavItem("converter", stringResource(R.string.nav_convert), Icons.Default.SwapHoriz),
+        BottomNavItem("more", stringResource(R.string.nav_more), Icons.Default.Settings)
+    )
+}
 
 @Composable
 fun PlaceholderScreen(title: String) {
@@ -140,7 +145,7 @@ fun PlaceholderScreen(title: String) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Coming soon...",
+                    text = stringResource(R.string.placeholder_coming_soon),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

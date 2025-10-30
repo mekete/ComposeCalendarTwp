@@ -13,9 +13,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ethiopiancalendar.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 import com.ethiopiancalendar.domain.model.HolidayType
@@ -35,7 +38,7 @@ fun HolidayListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Ethiopian Holidays",
+                        text = stringResource(R.string.screen_title_holidays),
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -123,17 +126,18 @@ private fun HolidayListContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No holidays to display",
+                    text = stringResource(R.string.empty_no_holidays_display),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         } else {
+            val monthNames = stringArrayResource(R.array.ethiopian_months)
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(holidays) { holiday ->
-                    HolidayListItem(holiday = holiday)
+                    HolidayListItem(holiday = holiday, monthNames = monthNames)
                 }
             }
         }
@@ -162,12 +166,12 @@ private fun YearSelectorSection(
             IconButton(onClick = onYearDecrement) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Previous Year"
+                    contentDescription = stringResource(R.string.cd_previous_year)
                 )
             }
 
             Text(
-                text = "$currentYear E.C.",
+                text = "$currentYear ${stringResource(R.string.label_ec_suffix)}",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -179,7 +183,7 @@ private fun YearSelectorSection(
             IconButton(onClick = onYearIncrement) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Next Year"
+                    contentDescription = stringResource(R.string.cd_next_year)
                 )
             }
         }
@@ -203,7 +207,7 @@ private fun FilterSection(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Filter by Type",
+                text = stringResource(R.string.label_filter_by_type),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 12.dp)
@@ -214,21 +218,21 @@ private fun FilterSection(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 FilterCheckbox(
-                    label = "Public",
+                    label = stringResource(R.string.filter_public),
                     holidayType = HolidayType.NATIONAL,
                     isChecked = selectedFilters.contains(HolidayType.NATIONAL),
                     onCheckedChange = { onFilterToggle(HolidayType.NATIONAL) }
                 )
 
                 FilterCheckbox(
-                    label = "Orthodox",
+                    label = stringResource(R.string.filter_orthodox),
                     holidayType = HolidayType.ORTHODOX_CHRISTIAN,
                     isChecked = selectedFilters.contains(HolidayType.ORTHODOX_CHRISTIAN),
                     onCheckedChange = { onFilterToggle(HolidayType.ORTHODOX_CHRISTIAN) }
                 )
 
                 FilterCheckbox(
-                    label = "Muslim",
+                    label = stringResource(R.string.filter_muslim),
                     holidayType = HolidayType.MUSLIM,
                     isChecked = selectedFilters.contains(HolidayType.MUSLIM),
                     onCheckedChange = { onFilterToggle(HolidayType.MUSLIM) }
@@ -263,7 +267,8 @@ private fun FilterCheckbox(
 
 @Composable
 private fun HolidayListItem(
-    holiday: HolidayOccurrence
+    holiday: HolidayOccurrence,
+    monthNames: Array<String>
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -302,7 +307,7 @@ private fun HolidayListItem(
                 )
 
                 Text(
-                    text = formatEthiopicDateWithGregorian(holiday.ethiopicDate),
+                    text = formatEthiopicDateWithGregorian(holiday.ethiopicDate, monthNames),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -324,7 +329,7 @@ private fun HolidayListItem(
                     shape = MaterialTheme.shapes.small
                 ) {
                     Text(
-                        text = "Day Off",
+                        text = stringResource(R.string.label_day_off),
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
@@ -337,12 +342,7 @@ private fun HolidayListItem(
 /**
  * Format EthiopicDate with both Ethiopian and Gregorian dates
  */
-private fun formatEthiopicDateWithGregorian(date: EthiopicDate): String {
-    val monthNames = listOf(
-        "Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
-        "Megabit", "Miazia", "Ginbot", "Sene", "Hamle", "Nehase", "Pagume"
-    )
-
+private fun formatEthiopicDateWithGregorian(date: EthiopicDate, monthNames: Array<String>): String {
     val year = date.get(ChronoField.YEAR_OF_ERA)
     val month = date.get(ChronoField.MONTH_OF_YEAR)
     val day = date.get(ChronoField.DAY_OF_MONTH)

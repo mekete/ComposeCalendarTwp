@@ -17,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.ethiopiancalendar.R
 
 @Composable
 fun MoreScreen(
@@ -37,7 +39,7 @@ fun MoreScreen(
         ) {
             item {
                 Text(
-                    text = "More",
+                    text = stringResource(R.string.screen_title_more),
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -47,7 +49,7 @@ fun MoreScreen(
             item {
                 SettingItem(
                     icon = Icons.Default.Palette,
-                    title = "Color and Theme",
+                    title = stringResource(R.string.menu_color_theme),
                     onClick = onNavigateToTheme
                 )
             }
@@ -55,7 +57,7 @@ fun MoreScreen(
             item {
                 SettingItem(
                     icon = Icons.Default.Policy,
-                    title = "Privacy Policy",
+                    title = stringResource(R.string.menu_privacy_policy),
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.freeprivacypolicy.com/blog/privacy-policy-url/"))
                         context.startActivity(intent)
@@ -66,7 +68,7 @@ fun MoreScreen(
             item {
                 SettingItem(
                     icon = Icons.Default.Language,
-                    title = "Language",
+                    title = stringResource(R.string.menu_language),
                     onClick = {
                         // TODO: Implement language selection
                     }
@@ -116,7 +118,7 @@ fun SettingItem(
             }
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = "Navigate",
+                contentDescription = stringResource(R.string.cd_navigate),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
