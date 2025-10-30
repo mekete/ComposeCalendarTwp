@@ -39,6 +39,16 @@
             </intent-filter>
         </receiver>
 
+        <!-- Alarm Receiver for event notifications -->
+        <receiver
+            android:name=".alarm.AlarmReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.ethiopiancalendar.ACTION_EVENT_ALARM" />
+            </intent-filter>
+        </receiver>
+
         <!-- WorkManager initialization -->
         <provider
             android:name="androidx.startup.InitializationProvider"

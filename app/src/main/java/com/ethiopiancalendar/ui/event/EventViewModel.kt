@@ -1,12 +1,15 @@
 package com.ethiopiancalendar.ui.event
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ethiopiancalendar.alarm.AlarmScheduler
 import com.ethiopiancalendar.data.local.entity.EventEntity
 import com.ethiopiancalendar.data.local.entity.RecurrenceRule
 import com.ethiopiancalendar.data.local.entity.toRRuleString
 import com.ethiopiancalendar.data.repository.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,11 +28,15 @@ import javax.inject.Inject
  * - Exposes StateFlow for UI state
  * - Handles business logic and repository operations
  * - Uses viewModelScope for coroutines
+ * - Integrates alarm scheduling for event reminders
  */
 @HiltViewModel
 class EventViewModel @Inject constructor(
-    private val eventRepository: EventRepository
+    private val eventRepository: EventRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    private val alarmScheduler = AlarmScheduler(context)
 
     private val _uiState = MutableStateFlow<EventUiState>(EventUiState.Loading)
     val uiState: StateFlow<EventUiState> = _uiState.asStateFlow()
@@ -138,7 +145,19 @@ class EventViewModel @Inject constructor(
                     updatedAt = System.currentTimeMillis()
                 )
 
+                // Create event in database
                 eventRepository.createEvent(event)
+
+                // Schedule alarm if reminder is enabled
+                if (reminderMinutesBefore != null) {
+                    val scheduled = alarmScheduler.scheduleAlarm(event)
+                    if (scheduled) {
+                        Timber.d("Alarm scheduled for event: $summary")
+                    } else {
+                        Timber.w("Failed to schedule alarm for event: $summary")
+                    }
+                }
+
                 hideAddEventDialog()
                 Timber.d("Event created: $summary")
             } catch (e: Exception) {
@@ -152,11 +171,17 @@ class EventViewModel @Inject constructor(
 
     /**
      * Delete an event by ID.
+     * Also cancels any scheduled alarms for the event.
      */
     fun deleteEvent(eventId: String) {
         viewModelScope.launch {
             try {
+                // Cancel alarm if it exists
+                alarmScheduler.cancelAlarm(eventId)
+
+                // Delete event from database
                 eventRepository.deleteEventById(eventId)
+
                 Timber.d("Event deleted: $eventId")
             } catch (e: Exception) {
                 Timber.e(e, "Error deleting event")
