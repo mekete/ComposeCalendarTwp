@@ -59,6 +59,7 @@
     <string name="placeholder_news_events">News, Events &amp; Reminders</string>
 
     <!-- Content Descriptions -->
+    <string name="cd_back">Back</string>
     <string name="cd_pick_date">Pick Date</string>
     <string name="cd_selected">Selected</string>
     <string name="cd_navigate">Navigate</string>

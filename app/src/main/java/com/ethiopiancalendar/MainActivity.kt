@@ -71,7 +71,7 @@ fun MainScreen() {
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = item.label) },
                         label = { Text(item.label) },
-                        selected = currentRoute == item.route,
+                        selected = currentRoute == item.route || (currentRoute == "theme" && item.route == "more"),
                         onClick = {
                             navController.navigate(item.route) {
                                 popUpTo(navController.graph.startDestinationId) {
@@ -109,7 +109,9 @@ fun MainScreen() {
                 )
             }
             composable("theme") {
-                ThemeSettingScreen()
+                ThemeSettingScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
         }
     }
