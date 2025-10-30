@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material 3 Seed Color -->
+    <color name="seed">#1976D2</color>
+    
+    <!-- Light Theme Colors -->
+    <color name="md_theme_light_primary">#1976D2</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#BBDEFB</color>
+    <color name="md_theme_light_onPrimaryContainer">#01579B</color>
+    <color name="md_theme_light_secondary">#388E3C</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#C8E6C9</color>
+    <color name="md_theme_light_onSecondaryContainer">#1B5E20</color>
+    <color name="md_theme_light_background">#FFFFFF</color>
+    <color name="md_theme_light_onBackground">#1C1B1F</color>
+    <color name="md_theme_light_surface">#FFFFFF</color>
+    <color name="md_theme_light_onSurface">#1C1B1F</color>
+    
+    <!-- Dark Theme Colors -->
+    <color name="md_theme_dark_primary">#90CAF9</color>
+    <color name="md_theme_dark_onPrimary">#003258</color>
+    <color name="md_theme_dark_primaryContainer">#0D47A1</color>
+    <color name="md_theme_dark_onPrimaryContainer">#BBDEFB</color>
+    <color name="md_theme_dark_secondary">#81C784</color>
+    <color name="md_theme_dark_onSecondary">#00600F</color>
+    <color name="md_theme_dark_secondaryContainer">#2E7D32</color>
+    <color name="md_theme_dark_onSecondaryContainer">#C8E6C9</color>
+    <color name="md_theme_dark_background">#1C1B1F</color>
+    <color name="md_theme_dark_onBackground">#E6E1E5</color>
+    <color name="md_theme_dark_surface">#1C1B1F</color>
+    <color name="md_theme_dark_onSurface">#E6E1E5</color>
+    
+    <!-- Holiday Colors -->
+    <color name="holiday_public">#1976D2</color>
+    <color name="holiday_orthodox">#F57C00</color>
+    <color name="holiday_muslim">#388E3C</color>
+    <color name="holiday_cultural">#7B1FA2</color>
+    
+    <!-- Common -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

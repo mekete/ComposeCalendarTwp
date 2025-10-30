@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "527637582710",
+    "firebase_url": "https://ethiopiancalendar-99b39.firebaseio.com",
+    "project_id": "ethiopiancalendar-99b39",
+    "storage_bucket": "ethiopiancalendar-99b39.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:527637582710:android:64215ee0855ab0f9",
+        "android_client_info": {
+          "package_name": "com.shalom.calendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "527637582710-vqgdrgt0v9p3dnp2b3fv52gbkhaf2b30.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkA08R36P01M0p1U1PGBEac90RfIX-rdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "527637582710-vqgdrgt0v9p3dnp2b3fv52gbkhaf2b30.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:527637582710:android:f7633352c5405a30",
+        "android_client_info": {
+          "package_name": "com.shalom.calendar.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "527637582710-vqgdrgt0v9p3dnp2b3fv52gbkhaf2b30.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkA08R36P01M0p1U1PGBEac90RfIX-rdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "527637582710-vqgdrgt0v9p3dnp2b3fv52gbkhaf2b30.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:527637582710:android:d0e79b61c1493a604ee057",
+        "android_client_info": {
+          "package_name": "com.shalom.composeclandar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "527637582710-vqgdrgt0v9p3dnp2b3fv52gbkhaf2b30.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkA08R36P01M0p1U1PGBEac90RfIX-rdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "527637582710-vqgdrgt0v9p3dnp2b3fv52gbkhaf2b30.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
