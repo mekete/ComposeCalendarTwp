@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ethiopiancalendar.ui.converter.DateConverterScreen
+import com.ethiopiancalendar.ui.event.EventScreen
 import com.ethiopiancalendar.ui.holidaylist.HolidayListScreen
 import com.ethiopiancalendar.ui.month.MonthCalendarScreen
 import com.ethiopiancalendar.ui.more.MoreScreen
@@ -90,8 +91,8 @@ fun MainScreen() {
             composable("month") {
                 MonthCalendarScreen()
             }
-            composable("today") {
-                PlaceholderScreen(stringResource(R.string.placeholder_news_events))
+            composable("event") {
+                EventScreen( "")
             }
             composable("holiday") {
                 HolidayListScreen( )
@@ -121,35 +122,9 @@ data class BottomNavItem(
 fun getBottomNavItems(): List<BottomNavItem> {
     return listOf(
         BottomNavItem("month", stringResource(R.string.nav_month), Icons.Default.CalendarMonth),
-        BottomNavItem("today", stringResource(R.string.nav_today), Icons.Default.Today),
+        BottomNavItem("event", stringResource(R.string.nav_today), Icons.Default.Today),
         BottomNavItem("holiday", stringResource(R.string.nav_holiday), Icons.Default.Event),
         BottomNavItem("converter", stringResource(R.string.nav_convert), Icons.Default.SwapHoriz),
         BottomNavItem("more", stringResource(R.string.nav_more), Icons.Default.Settings)
     )
-}
-
-@Composable
-fun PlaceholderScreen(title: String) {
-    Surface(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.placeholder_coming_soon),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
 }
