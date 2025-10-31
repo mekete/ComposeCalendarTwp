@@ -1,6 +1,7 @@
 package com.ethiopiancalendar.widget
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,8 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+private const val TAG = "CalendarGlanceWidget"
 
 /**
  * CalendarGlanceWidget - Home screen widget for Ethiopian Calendar
@@ -195,6 +198,8 @@ fun TimeZoneItem(label: String, time: String) {
 
 @Composable
 fun RemindersSection(events: List<WidgetEvent>) {
+    Log.d(TAG, "RemindersSection: Rendering ${events.size} events (will show max 4)")
+
     Column(
         modifier = GlanceModifier.fillMaxWidth()
     ) {
@@ -212,6 +217,7 @@ fun RemindersSection(events: List<WidgetEvent>) {
 
         // Event list or empty state
         if (events.isEmpty()) {
+            Log.d(TAG, "RemindersSection: Showing 'No reminders yet' message")
             Text(
                 text = "No reminders yet",
                 style = TextStyle(
@@ -222,7 +228,9 @@ fun RemindersSection(events: List<WidgetEvent>) {
             )
         } else {
             // Show up to 4 upcoming events
-            events.take(4).forEach { event ->
+            val eventsToShow = events.take(4)
+            Log.d(TAG, "RemindersSection: Displaying ${eventsToShow.size} events")
+            eventsToShow.forEach { event ->
                 EventItem(event = event)
                 Spacer(modifier = GlanceModifier.height(8.dp))
             }
@@ -305,6 +313,11 @@ fun getWidgetData(context: Context, state: CalendarWidgetState): WidgetData {
 
     // Get local time
     val localTime = now.format(timeFormatter)
+
+    Log.d(TAG, "getWidgetData: state.events count = ${state.events.size}")
+    state.events.forEachIndexed { index, event ->
+        Log.d(TAG, "  State Event [$index]: ${event.title}")
+    }
 
     return WidgetData(
         currentDate = now,
