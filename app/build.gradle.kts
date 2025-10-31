@@ -6,6 +6,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.compose") //id("com.google.devtools.ksp")
     id("com.google.firebase.crashlytics") // ✅ ADD THIS LINE
+    kotlin("plugin.serialization") version "2.0.21"
 
 }
 
@@ -77,6 +78,10 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
 
+    // Glance (App Widgets)
+    implementation("androidx.glance:glance-appwidget:1.1.1")
+    implementation("androidx.glance:glance-material3:1.1.1")
+
 //    implementation("com.google.dagger:dagger-compiler:2.57.2")
     ksp("com.google.dagger:dagger-compiler:2.57.2")
 
@@ -98,7 +103,11 @@ dependencies {
 
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.7")
-    
+    implementation("androidx.datastore:datastore-core:1.1.7")
+
+    // Kotlinx Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.11.0")
     

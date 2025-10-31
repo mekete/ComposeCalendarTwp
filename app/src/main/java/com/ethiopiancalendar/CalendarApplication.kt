@@ -2,6 +2,7 @@ package com.ethiopiancalendar
 
 import android.app.Application
 import com.ethiopiancalendar.alarm.NotificationHelper
+import com.ethiopiancalendar.widget.CalendarWidgetWorker
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -20,6 +21,9 @@ class CalendarApplication : Application() {
 
         // Create notification channels for event reminders
         NotificationHelper.createNotificationChannels(this)
+
+        // Schedule periodic widget updates
+        CalendarWidgetWorker.schedule(this)
 
         Timber.d("Ethiopian Calendar App started")
     }
