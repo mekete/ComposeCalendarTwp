@@ -1,5 +1,6 @@
 package com.ethiopiancalendar.data.repository
 
+import android.util.Log
 import com.ethiopiancalendar.data.local.dao.EventDao
 import com.ethiopiancalendar.data.local.entity.EventEntity
 import com.ethiopiancalendar.data.local.entity.EventInstance
@@ -29,6 +30,10 @@ import javax.inject.Singleton
 class EventRepository @Inject constructor(
     private val eventDao: EventDao
 ) {
+
+    companion object {
+        private const val TAG = "EventRepository"
+    }
 
     // ========== QUERY OPERATIONS (Flow-based) ==========
 
@@ -86,7 +91,13 @@ class EventRepository @Inject constructor(
             .toInstant()
             .toEpochMilli()
 
+        Log.d(TAG, "getUpcomingEvents: Querying database with startOfToday=$startOfToday, limit=$limit")
+
         return eventDao.getUpcomingEvents(startOfToday, limit).map { events ->
+            Log.d(TAG, "getUpcomingEvents: Database returned ${events.size} events")
+            events.forEachIndexed { index, event ->
+                Log.d(TAG, "  DB Event [$index]: ${event.summary} - Start: ${event.startTime}, Ethiopian: ${event.ethiopianYear}/${event.ethiopianMonth}/${event.ethiopianDay}")
+            }
             events.map { it.toEventInstance() }
         }
     }

@@ -1,6 +1,7 @@
 package com.ethiopiancalendar.widget
 
 import android.content.Context
+import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.updateAll
@@ -37,6 +38,9 @@ class CalendarWidgetWorker @AssistedInject constructor(
             // Fetch upcoming events from repository
             val upcomingEvents = eventRepository.getUpcomingEvents(limit = 4).first()
 
+            // Log total events fetched from repository
+            Log.d(TAG, "Widget Update: Total events fetched from repository: ${upcomingEvents.size}")
+
             // Convert to WidgetEvent
             val widgetEvents = upcomingEvents.map { event ->
                 WidgetEvent(
@@ -48,6 +52,12 @@ class CalendarWidgetWorker @AssistedInject constructor(
                     color = event.color,
                     category = event.category
                 )
+            }
+
+            // Log events that will be displayed on widget
+            Log.d(TAG, "Widget Update: Events converted for widget display: ${widgetEvents.size}")
+            widgetEvents.forEachIndexed { index, event ->
+                Log.d(TAG, "  [$index] ${event.title} - Start: ${event.startTime}")
             }
 
             // Create new widget state
@@ -78,6 +88,7 @@ class CalendarWidgetWorker @AssistedInject constructor(
     }
 
     companion object {
+        private const val TAG = "CalendarWidgetWorker"
         private const val WORK_NAME = "CalendarWidgetUpdateWork"
 
         /**
