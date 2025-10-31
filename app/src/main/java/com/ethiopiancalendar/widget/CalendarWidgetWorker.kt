@@ -34,8 +34,10 @@ class CalendarWidgetWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        Log.d(TAG, "========== CalendarWidgetWorker START ==========")
         return try {
             // Fetch ALL events from repository (same as EventScreen)
+            Log.d(TAG, "Fetching all events from repository...")
             val allEvents = eventRepository.getAllEvents().first()
 
             // Log total events in database
@@ -71,13 +73,16 @@ class CalendarWidgetWorker @AssistedInject constructor(
 
             // Create new widget state
             val widgetState = CalendarWidgetState(events = widgetEvents)
+            Log.d(TAG, "Created widget state with ${widgetState.events.size} events")
 
             // Get all widget instances
             val glanceAppWidgetManager = GlanceAppWidgetManager(context)
             val glanceIds = glanceAppWidgetManager.getGlanceIds(CalendarGlanceWidget::class.java)
+            Log.d(TAG, "Found ${glanceIds.size} widget instances to update")
 
             // Update each widget instance with new state
-            glanceIds.forEach { glanceId ->
+            glanceIds.forEachIndexed { index, glanceId ->
+                Log.d(TAG, "Updating widget instance [$index]: $glanceId")
                 updateAppWidgetState(
                     context = context,
                     definition = CalendarWidgetStateDefinition,
@@ -87,10 +92,13 @@ class CalendarWidgetWorker @AssistedInject constructor(
             }
 
             // Trigger widget update to refresh UI
+            Log.d(TAG, "Triggering widget UI update...")
             CalendarGlanceWidget().updateAll(context)
 
+            Log.d(TAG, "========== CalendarWidgetWorker SUCCESS ==========")
             Result.success()
         } catch (e: Exception) {
+            Log.e(TAG, "========== CalendarWidgetWorker ERROR ==========", e)
             e.printStackTrace()
             Result.retry()
         }
