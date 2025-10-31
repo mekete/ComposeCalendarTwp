@@ -53,10 +53,10 @@ class CalendarWidgetWorker @AssistedInject constructor(
             // Convert to WidgetEvent
             val widgetEvents = eventsToShow.map { event ->
                 WidgetEvent(
-                    id = event.eventId,
+                    id = event.id,
                     title = event.summary,
-                    startTime = event.instanceStart.toInstant().toEpochMilli(),
-                    endTime = event.instanceEnd?.toInstant()?.toEpochMilli(),
+                    startTime = event.startTime.toInstant().toEpochMilli(),
+                    endTime = event.endTime?.toInstant()?.toEpochMilli(),
                     isAllDay = event.isAllDay,
                     color = event.color,
                     category = event.category
