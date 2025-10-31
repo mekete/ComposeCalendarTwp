@@ -130,15 +130,16 @@ interface EventDao {
     fun searchEvents(query: String): Flow<List<EventEntity>>
 
     /**
-     * Get upcoming events (from now onwards).
+     * Get upcoming events (from start of today onwards).
+     * Shows all events for today and future events.
      */
     @Query("""
         SELECT * FROM events
-        WHERE startTime >= :currentTimeMillis
+        WHERE startTime >= :startOfDayMillis
         ORDER BY startTime ASC
         LIMIT :limit
     """)
-    fun getUpcomingEvents(currentTimeMillis: Long, limit: Int = 10): Flow<List<EventEntity>>
+    fun getUpcomingEvents(startOfDayMillis: Long, limit: Int = 10): Flow<List<EventEntity>>
 
     // ========== UPDATE ==========
 

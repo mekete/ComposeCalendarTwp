@@ -75,11 +75,18 @@ class EventRepository @Inject constructor(
     }
 
     /**
-     * Get upcoming events (from now onwards).
+     * Get upcoming events (from start of today onwards).
+     * Shows all events for today and future events.
      */
     fun getUpcomingEvents(limit: Int = 10): Flow<List<EventInstance>> {
-        val currentTime = System.currentTimeMillis()
-        return eventDao.getUpcomingEvents(currentTime, limit).map { events ->
+        // Get start of today (midnight) to include all events for today
+        val startOfToday = ZonedDateTime.now()
+            .toLocalDate()
+            .atStartOfDay(ZonedDateTime.now().zone)
+            .toInstant()
+            .toEpochMilli()
+
+        return eventDao.getUpcomingEvents(startOfToday, limit).map { events ->
             events.map { it.toEventInstance() }
         }
     }
