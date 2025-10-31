@@ -201,4 +201,7 @@
     <string name="recurring">Recurring</string>
     <string name="reminder_minutes_before">%1$d min before</string>
 
+    <!-- Widget -->
+    <string name="widget_description">Ethiopian Calendar widget with date, time, and upcoming reminders</string>
+
 </resources>
