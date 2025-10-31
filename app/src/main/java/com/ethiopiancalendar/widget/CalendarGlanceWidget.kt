@@ -239,11 +239,11 @@ fun EventItem(event: WidgetEvent) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Color indicator dot
-        Box(
-            modifier = GlanceModifier
-                .size(8.dp)
-                .background(colorResource(event.color))
-        )
+//        Box(
+//            modifier = GlanceModifier
+//                .size(8.dp)
+//                .background(colorResource(event.color))
+//        )
 
         Spacer(modifier = GlanceModifier.width(8.dp))
 

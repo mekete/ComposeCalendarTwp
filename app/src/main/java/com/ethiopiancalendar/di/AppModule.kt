@@ -38,8 +38,7 @@ object AppModule {
             context,
             CalendarDatabase::class.java,
             CalendarDatabase.DATABASE_NAME
-        )
-            .fallbackToDestructiveMigration() // For development - replace with migrations in production
+        ).fallbackToDestructiveMigration(false) // For development - replace with migrations in production
             .build()
     }
 
