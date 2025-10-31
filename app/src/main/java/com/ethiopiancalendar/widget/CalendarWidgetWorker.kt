@@ -1,7 +1,6 @@
 package com.ethiopiancalendar.widget
 
 import android.content.Context
-import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.updateAll
@@ -34,55 +33,32 @@ class CalendarWidgetWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "========== CalendarWidgetWorker START ==========")
         return try {
-            // Fetch ALL events from repository (same as EventScreen)
-            Log.d(TAG, "Fetching all events from repository...")
-            val allEvents = eventRepository.getAllEvents().first()
-
-            // Log total events in database
-            Log.d(TAG, "Widget Update: Total events in database: ${allEvents.size}")
-            allEvents.forEachIndexed { index, event ->
-                Log.d(TAG, "  DB Event [$index]: ${event.summary} - Start: ${event.startTime}")
-            }
-
-            // Take the first 4 events (sorted by startTime ASC in the query)
-            val eventsToShow = allEvents.take(4)
-
-            // Log events selected for widget
-            Log.d(TAG, "Widget Update: Events selected for widget display: ${eventsToShow.size}")
+            // Fetch upcoming events from repository
+            val upcomingEvents = eventRepository.getUpcomingEvents(limit = 4).first()
 
             // Convert to WidgetEvent
-            val widgetEvents = eventsToShow.map { event ->
+            val widgetEvents = upcomingEvents.map { event ->
                 WidgetEvent(
-                    id = event.id,
+                    id = event.eventId,
                     title = event.summary,
-                    startTime = event.startTime.toInstant().toEpochMilli(),
-                    endTime = event.endTime?.toInstant()?.toEpochMilli(),
+                    startTime = event.instanceStart.toInstant().toEpochMilli(),
+                    endTime = event.instanceEnd?.toInstant()?.toEpochMilli(),
                     isAllDay = event.isAllDay,
                     color = event.color,
                     category = event.category
                 )
             }
 
-            // Log final widget events
-            Log.d(TAG, "Widget Update: Widget events after conversion: ${widgetEvents.size}")
-            widgetEvents.forEachIndexed { index, event ->
-                Log.d(TAG, "  Widget Event [$index]: ${event.title} - Start: ${event.startTime}")
-            }
-
             // Create new widget state
             val widgetState = CalendarWidgetState(events = widgetEvents)
-            Log.d(TAG, "Created widget state with ${widgetState.events.size} events")
 
             // Get all widget instances
             val glanceAppWidgetManager = GlanceAppWidgetManager(context)
             val glanceIds = glanceAppWidgetManager.getGlanceIds(CalendarGlanceWidget::class.java)
-            Log.d(TAG, "Found ${glanceIds.size} widget instances to update")
 
             // Update each widget instance with new state
-            glanceIds.forEachIndexed { index, glanceId ->
-                Log.d(TAG, "Updating widget instance [$index]: $glanceId")
+            glanceIds.forEach { glanceId ->
                 updateAppWidgetState(
                     context = context,
                     definition = CalendarWidgetStateDefinition,
@@ -92,20 +68,16 @@ class CalendarWidgetWorker @AssistedInject constructor(
             }
 
             // Trigger widget update to refresh UI
-            Log.d(TAG, "Triggering widget UI update...")
             CalendarGlanceWidget().updateAll(context)
 
-            Log.d(TAG, "========== CalendarWidgetWorker SUCCESS ==========")
             Result.success()
         } catch (e: Exception) {
-            Log.e(TAG, "========== CalendarWidgetWorker ERROR ==========", e)
             e.printStackTrace()
             Result.retry()
         }
     }
 
     companion object {
-        private const val TAG = "CalendarWidgetWorker"
         private const val WORK_NAME = "CalendarWidgetUpdateWork"
 
         /**

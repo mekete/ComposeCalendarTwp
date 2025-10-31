@@ -1,6 +1,5 @@
 package com.ethiopiancalendar.data.repository
 
-import android.util.Log
 import com.ethiopiancalendar.data.local.dao.EventDao
 import com.ethiopiancalendar.data.local.entity.EventEntity
 import com.ethiopiancalendar.data.local.entity.EventInstance
@@ -31,10 +30,6 @@ class EventRepository @Inject constructor(
     private val eventDao: EventDao
 ) {
 
-    companion object {
-        private const val TAG = "EventRepository"
-    }
-
     // ========== QUERY OPERATIONS (Flow-based) ==========
 
     /**
@@ -42,13 +37,7 @@ class EventRepository @Inject constructor(
      * UI will automatically update when events change.
      */
     fun getAllEvents(): Flow<List<EventEntity>> {
-        return eventDao.getAllEventsFlow().map { events ->
-            Log.d(TAG, "getAllEvents: Database returned ${events.size} total events")
-            events.forEachIndexed { index, event ->
-                Log.d(TAG, "  Event [$index]: ${event.summary} - Start: ${event.startTime}, Ethiopian: ${event.ethiopianYear}/${event.ethiopianMonth}/${event.ethiopianDay}")
-            }
-            events
-        }
+        return eventDao.getAllEventsFlow()
     }
 
     /**
@@ -92,18 +81,12 @@ class EventRepository @Inject constructor(
     fun getUpcomingEvents(limit: Int = 10): Flow<List<EventInstance>> {
         // Get start of today (midnight) to include all events for today
         val startOfToday = ZonedDateTime.now()
-            .toLocalDate()
-            .atStartOfDay(ZonedDateTime.now().zone)
-            .toInstant()
-            .toEpochMilli()
-
-        Log.d(TAG, "getUpcomingEvents: Querying database with startOfToday=$startOfToday, limit=$limit")
+                .toLocalDate()
+                .atStartOfDay(ZonedDateTime.now().zone)
+                .toInstant()
+                .toEpochMilli()
 
         return eventDao.getUpcomingEvents(startOfToday, limit).map { events ->
-            Log.d(TAG, "getUpcomingEvents: Database returned ${events.size} events")
-            events.forEachIndexed { index, event ->
-                Log.d(TAG, "  DB Event [$index]: ${event.summary} - Start: ${event.startTime}, Ethiopian: ${event.ethiopianYear}/${event.ethiopianMonth}/${event.ethiopianDay}")
-            }
             events.map { it.toEventInstance() }
         }
     }
@@ -251,13 +234,13 @@ class EventRepository @Inject constructor(
             if (weekDays.contains(currentDate.dayOfWeek)) {
                 // Create instance with same time as original event
                 val instanceStart = currentDate.withHour(event.startTime.hour)
-                    .withMinute(event.startTime.minute)
-                    .withSecond(event.startTime.second)
+                        .withMinute(event.startTime.minute)
+                        .withSecond(event.startTime.second)
 
                 val instanceEnd = event.endTime?.let {
                     currentDate.withHour(it.hour)
-                        .withMinute(it.minute)
-                        .withSecond(it.second)
+                            .withMinute(it.minute)
+                            .withSecond(it.second)
                 }
 
                 // Convert to Ethiopian calendar for display
