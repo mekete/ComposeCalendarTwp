@@ -35,14 +35,23 @@ class CalendarWidgetWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return try {
-            // Fetch upcoming events from repository
-            val upcomingEvents = eventRepository.getUpcomingEvents(limit = 4).first()
+            // Fetch ALL events from repository (same as EventScreen)
+            val allEvents = eventRepository.getAllEvents().first()
 
-            // Log total events fetched from repository
-            Log.d(TAG, "Widget Update: Total events fetched from repository: ${upcomingEvents.size}")
+            // Log total events in database
+            Log.d(TAG, "Widget Update: Total events in database: ${allEvents.size}")
+            allEvents.forEachIndexed { index, event ->
+                Log.d(TAG, "  DB Event [$index]: ${event.summary} - Start: ${event.startTime}")
+            }
+
+            // Take the first 4 events (sorted by startTime ASC in the query)
+            val eventsToShow = allEvents.take(4)
+
+            // Log events selected for widget
+            Log.d(TAG, "Widget Update: Events selected for widget display: ${eventsToShow.size}")
 
             // Convert to WidgetEvent
-            val widgetEvents = upcomingEvents.map { event ->
+            val widgetEvents = eventsToShow.map { event ->
                 WidgetEvent(
                     id = event.eventId,
                     title = event.summary,
@@ -54,10 +63,10 @@ class CalendarWidgetWorker @AssistedInject constructor(
                 )
             }
 
-            // Log events that will be displayed on widget
-            Log.d(TAG, "Widget Update: Events converted for widget display: ${widgetEvents.size}")
+            // Log final widget events
+            Log.d(TAG, "Widget Update: Widget events after conversion: ${widgetEvents.size}")
             widgetEvents.forEachIndexed { index, event ->
-                Log.d(TAG, "  [$index] ${event.title} - Start: ${event.startTime}")
+                Log.d(TAG, "  Widget Event [$index]: ${event.title} - Start: ${event.startTime}")
             }
 
             // Create new widget state

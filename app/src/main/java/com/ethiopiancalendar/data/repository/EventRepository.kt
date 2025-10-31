@@ -42,7 +42,13 @@ class EventRepository @Inject constructor(
      * UI will automatically update when events change.
      */
     fun getAllEvents(): Flow<List<EventEntity>> {
-        return eventDao.getAllEventsFlow()
+        return eventDao.getAllEventsFlow().map { events ->
+            Log.d(TAG, "getAllEvents: Database returned ${events.size} total events")
+            events.forEachIndexed { index, event ->
+                Log.d(TAG, "  Event [$index]: ${event.summary} - Start: ${event.startTime}, Ethiopian: ${event.ethiopianYear}/${event.ethiopianMonth}/${event.ethiopianDay}")
+            }
+            events
+        }
     }
 
     /**
