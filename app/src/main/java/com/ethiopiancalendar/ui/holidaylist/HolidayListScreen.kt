@@ -25,6 +25,7 @@ import com.ethiopiancalendar.domain.model.HolidayType
 import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
 import java.time.temporal.ChronoField
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -284,15 +285,21 @@ private fun HolidayListItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Holiday Type Color Indicator
+
+            Text(
+                text = String.format(Locale.US,"%02d",  holiday.holiday.ethiopianDay ),
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Thin
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+
+
             Box(
                 modifier = Modifier
-                    .size(12.dp)
-                    .background(
-                        color = holiday.holiday.type.getColor(),
-                        shape = MaterialTheme.shapes.small
-                    )
+                        .size(4.dp, 30.dp)
+                        .background(holiday.holiday.type.getColor())
             )
+
 
             Spacer(modifier = Modifier.width(12.dp))
 

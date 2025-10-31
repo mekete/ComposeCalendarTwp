@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
 import java.time.temporal.ChronoField
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -391,14 +392,19 @@ fun HolidayItem(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Color indicator
+        Text(
+            text = String.format(Locale.US,"%02d",  holiday.holiday.ethiopianDay ),
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Thin
+        )
+        Spacer(modifier = Modifier.width(8.dp))
         Box(
             modifier = Modifier
                     .size(4.dp, 30.dp)
                     .background(holiday.holiday.type.getColor())
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
