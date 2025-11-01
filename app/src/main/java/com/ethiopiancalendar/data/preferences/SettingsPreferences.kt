@@ -16,6 +16,14 @@ enum class CalendarType {
     HIRJI
 }
 
+enum class Language(val displayName: String) {
+    ENGLISH("English"),
+    AMHARIC("Amharic"),
+    OROMIFFA("Oromiffa"),
+    TIGRIGNA("Tigrigna"),
+    FRENCH("French")
+}
+
 class SettingsPreferences(private val context: Context) {
 
     // Calendar Display Settings
@@ -28,6 +36,7 @@ class SettingsPreferences(private val context: Context) {
     private val SHOW_US_HOLIDAYS_KEY = booleanPreferencesKey("show_us_holidays")
     private val USE_GEEZ_NUMBERS_KEY = booleanPreferencesKey("use_geez_numbers")
     private val USE_24_HOUR_FORMAT_KEY = booleanPreferencesKey("use_24_hour_format_in_widgets")
+    private val LANGUAGE_KEY = stringPreferencesKey("app_language")
 
     // Widget Settings
     private val DISPLAY_TWO_CLOCKS_KEY = booleanPreferencesKey("display_two_clocks")
@@ -96,6 +105,15 @@ class SettingsPreferences(private val context: Context) {
 
     val useTransparentBackground: Flow<Boolean> = context.settingsDataStore.data.map { preferences ->
         preferences[USE_TRANSPARENT_BACKGROUND_KEY] ?: false
+    }
+
+    val language: Flow<Language> = context.settingsDataStore.data.map { preferences ->
+        val languageString = preferences[LANGUAGE_KEY] ?: Language.AMHARIC.name
+        try {
+            Language.valueOf(languageString)
+        } catch (e: IllegalArgumentException) {
+            Language.AMHARIC
+        }
     }
 
     // Setter functions for updating settings
@@ -174,6 +192,12 @@ class SettingsPreferences(private val context: Context) {
     suspend fun setUseTransparentBackground(value: Boolean) {
         context.settingsDataStore.edit { preferences ->
             preferences[USE_TRANSPARENT_BACKGROUND_KEY] = value
+        }
+    }
+
+    suspend fun setLanguage(language: Language) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[LANGUAGE_KEY] = language.name
         }
     }
 }
