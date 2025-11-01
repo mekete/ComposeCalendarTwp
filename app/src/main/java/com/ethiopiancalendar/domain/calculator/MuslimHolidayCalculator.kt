@@ -9,6 +9,7 @@ import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
 import java.time.chrono.HijrahDate
 import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -95,7 +96,7 @@ class MuslimHolidayCalculator @Inject constructor(
         // Eid al-Fitr (Shawwal 1) — Hijrah month 10, day 1
         var eidFitrDate = HijrahDate.of(hijriYear, 10, 1)
         if (shouldApplyOffsets && offsets.eidAlFitr != 0) {
-            eidFitrDate = eidFitrDate.plusDays(offsets.eidAlFitr.toLong())
+            eidFitrDate = eidFitrDate.plus(offsets.eidAlFitr.toLong(), ChronoUnit.DAYS)
         }
         holidays.add(
             createMuslimHoliday(
@@ -111,7 +112,7 @@ class MuslimHolidayCalculator @Inject constructor(
         // Eid al-Adha (Dhu al-Hijjah 10) — Hijrah month 12, day 10
         var eidAdhaDate = HijrahDate.of(hijriYear, 12, 10)
         if (shouldApplyOffsets && offsets.eidAlAdha != 0) {
-            eidAdhaDate = eidAdhaDate.plusDays(offsets.eidAlAdha.toLong())
+            eidAdhaDate = eidAdhaDate.plus(offsets.eidAlAdha.toLong(), ChronoUnit.DAYS)
         }
         holidays.add(
             createMuslimHoliday(
@@ -127,8 +128,8 @@ class MuslimHolidayCalculator @Inject constructor(
         // Mawlid al-Nabi (Rabi' al-Awwal 12) — Hijrah month 3, day 12
         var mawlidDate = HijrahDate.of(hijriYear, 3, 12)
         if (shouldApplyOffsets && offsets.mawlid != 0) {
-            mawlidDate = mawlidDate.plusDays(offsets.mawlid.toLong())
-        }
+            mawlidDate = mawlidDate.plus(offsets.mawlid.toLong(), ChronoUnit.DAYS)
+         }
         holidays.add(
             createMuslimHoliday(
                 id = "muslim_mawlid_$hijriYear",

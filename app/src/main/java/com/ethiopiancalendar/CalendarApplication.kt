@@ -4,6 +4,7 @@ import android.app.Application
 import com.ethiopiancalendar.alarm.NotificationHelper
 import com.ethiopiancalendar.data.remote.RemoteConfigManager
 import com.ethiopiancalendar.widget.CalendarWidgetWorker
+import com.google.firebase.BuildConfig
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import javax.inject.Inject
