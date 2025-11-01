@@ -39,6 +39,7 @@ fun SettingsScreen(
     val useTransparentBackground by viewModel.useTransparentBackground.collectAsState()
 
     var showWidgetDialog by remember { mutableStateOf(false) }
+    var showCalendarDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -76,38 +77,36 @@ fun SettingsScreen(
                 )
             }
 
-            // Primary Calendar Selection
+            // Calendar to Display Button
             item {
-                CalendarTypeSelector(
-                    title = stringResource(R.string.settings_primary_calendar),
-                    selectedCalendar = primaryCalendar,
-                    onCalendarSelected = { viewModel.setPrimaryCalendar(it) }
-                )
-            }
-
-            // Display Dual Calendar Toggle
-            item {
-                SettingSwitchItem(
-                    title = stringResource(R.string.settings_display_dual_calendar),
-                    checked = displayDualCalendar,
-                    onCheckedChange = { viewModel.setDisplayDualCalendar(it) }
-                )
-            }
-
-            // Secondary Calendar Selection (only shown if dual calendar is enabled)
-            if (displayDualCalendar) {
-                item {
-                    CalendarTypeSelector(
-                        title = stringResource(R.string.settings_secondary_calendar),
-                        selectedCalendar = secondaryCalendar,
-                        onCalendarSelected = {
-                            // Prevent selecting the same calendar as primary
-                            if (it != primaryCalendar) {
-                                viewModel.setSecondaryCalendar(it)
-                            }
-                        },
-                        disabledCalendar = primaryCalendar
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCalendarDialog = true },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.settings_calendar_to_display),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = stringResource(R.string.cd_navigate),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
 
@@ -216,6 +215,19 @@ fun SettingsScreen(
                 onDismiss = { showWidgetDialog = false }
             )
         }
+
+        // Calendar Display Dialog
+        if (showCalendarDialog) {
+            CalendarDisplayDialog(
+                primaryCalendar = primaryCalendar,
+                displayDualCalendar = displayDualCalendar,
+                secondaryCalendar = secondaryCalendar,
+                onPrimaryCalendarChange = { viewModel.setPrimaryCalendar(it) },
+                onDisplayDualCalendarChange = { viewModel.setDisplayDualCalendar(it) },
+                onSecondaryCalendarChange = { viewModel.setSecondaryCalendar(it) },
+                onDismiss = { showCalendarDialog = false }
+            )
+        }
     }
 }
 
@@ -292,13 +304,6 @@ fun CalendarTypeSelector(
                 enabled = disabledCalendar != CalendarType.GREGOREAN,
                 onClick = { onCalendarSelected(CalendarType.GREGOREAN) }
             )
-
-            CalendarTypeOption(
-                text = stringResource(R.string.settings_calendar_hirji),
-                selected = selectedCalendar == CalendarType.HIRJI,
-                enabled = disabledCalendar != CalendarType.HIRJI,
-                onClick = { onCalendarSelected(CalendarType.HIRJI) }
-            )
         }
     }
 }
@@ -335,4 +340,118 @@ fun CalendarTypeOption(
                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         )
     }
+}
+
+@Composable
+fun CalendarDisplayDialog(
+    primaryCalendar: CalendarType,
+    displayDualCalendar: Boolean,
+    secondaryCalendar: CalendarType,
+    onPrimaryCalendarChange: (CalendarType) -> Unit,
+    onDisplayDualCalendarChange: (Boolean) -> Unit,
+    onSecondaryCalendarChange: (CalendarType) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.settings_calendar_display_dialog_title),
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Primary Calendar Section
+                Text(
+                    text = stringResource(R.string.settings_primary_calendar),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    CalendarTypeOption(
+                        text = stringResource(R.string.settings_calendar_ethiopian),
+                        selected = primaryCalendar == CalendarType.ETHIOPIAN,
+                        onClick = { onPrimaryCalendarChange(CalendarType.ETHIOPIAN) }
+                    )
+
+                    CalendarTypeOption(
+                        text = stringResource(R.string.settings_calendar_gregorean),
+                        selected = primaryCalendar == CalendarType.GREGOREAN,
+                        onClick = { onPrimaryCalendarChange(CalendarType.GREGOREAN) }
+                    )
+                }
+
+                HorizontalDivider()
+
+                // Display Dual Calendar Section
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_display_dual_calendar),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = displayDualCalendar,
+                        onCheckedChange = onDisplayDualCalendarChange
+                    )
+                }
+
+                // Secondary Calendar Section (shown only if dual calendar is enabled)
+                if (displayDualCalendar) {
+                    HorizontalDivider()
+
+                    Text(
+                        text = stringResource(R.string.settings_secondary_calendar),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        CalendarTypeOption(
+                            text = stringResource(R.string.settings_calendar_ethiopian),
+                            selected = secondaryCalendar == CalendarType.ETHIOPIAN,
+                            enabled = primaryCalendar != CalendarType.ETHIOPIAN,
+                            onClick = {
+                                if (primaryCalendar != CalendarType.ETHIOPIAN) {
+                                    onSecondaryCalendarChange(CalendarType.ETHIOPIAN)
+                                }
+                            }
+                        )
+
+                        CalendarTypeOption(
+                            text = stringResource(R.string.settings_calendar_gregorean),
+                            selected = secondaryCalendar == CalendarType.GREGOREAN,
+                            enabled = primaryCalendar != CalendarType.GREGOREAN,
+                            onClick = {
+                                if (primaryCalendar != CalendarType.GREGOREAN) {
+                                    onSecondaryCalendarChange(CalendarType.GREGOREAN)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.button_ok))
+            }
+        }
+    )
 }

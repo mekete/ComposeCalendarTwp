@@ -50,6 +50,8 @@
 
     <!-- Settings Screen Options -->
     <string name="settings_calendar_display">Calendar Display</string>
+    <string name="settings_calendar_to_display">Calendar to Display</string>
+    <string name="settings_calendar_display_dialog_title">Calendar Display Settings</string>
     <string name="settings_primary_calendar">Primary Calendar to display</string>
     <string name="settings_display_dual_calendar">Display dual calendar</string>
     <string name="settings_secondary_calendar">Secondary Calendar to display</string>
