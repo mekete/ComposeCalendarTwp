@@ -2,6 +2,8 @@ package com.ethiopiancalendar.ui.month
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ethiopiancalendar.data.preferences.CalendarType
+import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import com.ethiopiancalendar.data.repository.HolidayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MonthCalendarViewModel @Inject constructor(
-    private val holidayRepository: HolidayRepository
+    private val holidayRepository: HolidayRepository,
+    private val settingsPreferences: SettingsPreferences
 ) : ViewModel() {
 
     companion object {
@@ -32,6 +35,28 @@ class MonthCalendarViewModel @Inject constructor(
 
     // Calculate initial page (center of range)
     val initialPage = MONTHS_BEFORE
+
+    // Calendar display preferences
+    val primaryCalendar: StateFlow<CalendarType> = settingsPreferences.primaryCalendar
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CalendarType.ETHIOPIAN
+        )
+
+    val displayDualCalendar: StateFlow<Boolean> = settingsPreferences.displayDualCalendar
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
+    val secondaryCalendar: StateFlow<CalendarType> = settingsPreferences.secondaryCalendar
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CalendarType.GREGOREAN
+        )
 
     private val _selectedDate = MutableStateFlow<EthiopicDate?>(null)
     val selectedDate: StateFlow<EthiopicDate?> = _selectedDate.asStateFlow()
@@ -91,21 +116,30 @@ class MonthCalendarViewModel @Inject constructor(
                 val year = currentMonth.get(ChronoField.YEAR_OF_ERA)
                 val month = currentMonth.get(ChronoField.MONTH_OF_YEAR)
 
-                holidayRepository.getHolidaysForMonth(year, month).collect { holidays ->
-                    val dateList = generateDateListForMonth(currentMonth)
+                // Combine preferences with holiday data
+                combine(
+                    holidayRepository.getHolidaysForMonth(year, month),
+                    primaryCalendar,
+                    displayDualCalendar,
+                    secondaryCalendar
+                ) { holidays, primary, displayDual, secondary ->
+                    val dateList = generateDateListForMonth(currentMonth, primary)
 
-                    val state = MonthCalendarUiState.Success(
+                    MonthCalendarUiState.Success(
                         currentMonth = currentMonth,
                         dateList = dateList,
                         holidays = holidays,
-                        selectedDate = _selectedDate.value
+                        selectedDate = _selectedDate.value,
+                        primaryCalendar = primary,
+                        displayDualCalendar = displayDual,
+                        secondaryCalendar = secondary
                     )
-
+                }.collect { state ->
                     // Cache the result
                     monthDataCache[page] = state
                     emit(state)
 
-                    Timber.d("Loaded page $page: ${holidays.size} holidays for $currentMonth")
+                    Timber.d("Loaded page $page: ${state.holidays.size} holidays for $currentMonth")
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error loading month data for page $page")
@@ -117,8 +151,20 @@ class MonthCalendarViewModel @Inject constructor(
 
     /**
      * Generate 42 date cells for calendar grid (6 weeks × 7 days)
+     * Based on the primary calendar type (Ethiopian or Gregorian)
      */
-    private fun generateDateListForMonth(month: EthiopicDate): List<EthiopicDate> {
+    private fun generateDateListForMonth(month: EthiopicDate, primaryCalendar: CalendarType): List<EthiopicDate> {
+        return when (primaryCalendar) {
+            CalendarType.ETHIOPIAN -> generateEthiopianMonthGrid(month)
+            CalendarType.GREGOREAN -> generateGregorianMonthGrid(month)
+            CalendarType.HIRJI -> generateEthiopianMonthGrid(month) // Fallback to Ethiopian for now
+        }
+    }
+
+    /**
+     * Generate calendar grid based on Ethiopian month
+     */
+    private fun generateEthiopianMonthGrid(month: EthiopicDate): List<EthiopicDate> {
         val year = month.get(ChronoField.YEAR_OF_ERA)
         val monthValue = month.get(ChronoField.MONTH_OF_YEAR)
 
@@ -164,6 +210,63 @@ class MonthCalendarViewModel @Inject constructor(
                 dateList.add(nextDate)
                 if (i < remainingCells - 1) {
                     nextDate = nextDate.plus(1, ChronoUnit.DAYS) as EthiopicDate
+                }
+            }
+        }
+
+        return dateList
+    }
+
+    /**
+     * Generate calendar grid based on Gregorian month
+     * The input month is Ethiopian, but we'll find the corresponding Gregorian month
+     */
+    private fun generateGregorianMonthGrid(ethiopianMonth: EthiopicDate): List<EthiopicDate> {
+        // Convert Ethiopian date to Gregorian to find the Gregorian month
+        val gregorianDate = LocalDate.from(ethiopianMonth)
+        val year = gregorianDate.year
+        val month = gregorianDate.monthValue
+
+        // Get first day of the Gregorian month
+        val firstDayOfMonth = LocalDate.of(year, month, 1)
+        val daysInMonth = firstDayOfMonth.lengthOfMonth()
+
+        val dateList = mutableListOf<EthiopicDate>()
+
+        // Add days from previous month to fill first week
+        val firstDayWeekday = firstDayOfMonth.dayOfWeek.value
+        val dayOffset = (firstDayWeekday - 1) % 7
+
+        if (dayOffset > 0) {
+            var prevDate = firstDayOfMonth.minusDays(1)
+            val prevDatesToAdd = mutableListOf<LocalDate>()
+
+            for (i in 0 until dayOffset) {
+                prevDatesToAdd.add(prevDate)
+                if (i < dayOffset - 1) {
+                    prevDate = prevDate.minusDays(1)
+                }
+            }
+
+            // Convert to EthiopicDate and add in correct order
+            dateList.addAll(prevDatesToAdd.reversed().map { EthiopicDate.from(it) })
+        }
+
+        // Add days of current Gregorian month
+        for (day in 1..daysInMonth) {
+            val gregorianDay = LocalDate.of(year, month, day)
+            dateList.add(EthiopicDate.from(gregorianDay))
+        }
+
+        // Add days from next month to complete the grid
+        val remainingCells = 42 - dateList.size
+        if (remainingCells > 0) {
+            var nextDate = LocalDate.of(year, month, daysInMonth).plusDays(1)
+
+            for (i in 0 until remainingCells) {
+                dateList.add(EthiopicDate.from(nextDate))
+                if (i < remainingCells - 1) {
+                    nextDate = nextDate.plusDays(1)
                 }
             }
         }

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ethiopiancalendar.R
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ethiopiancalendar.data.preferences.CalendarType
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 import kotlinx.coroutines.launch
 import org.threeten.extra.chrono.EthiopicDate
@@ -208,6 +209,9 @@ fun MonthCalendarContent(
                                 it.actualEthiopicDate.get(ChronoField.MONTH_OF_YEAR) == date.get(ChronoField.MONTH_OF_YEAR) &&
                                 it.actualEthiopicDate.get(ChronoField.YEAR_OF_ERA) == date.get(ChronoField.YEAR_OF_ERA)
                     },
+                    primaryCalendar = state.primaryCalendar,
+                    displayDualCalendar = state.displayDualCalendar,
+                    secondaryCalendar = state.secondaryCalendar,
                     onClick = { onDateClick(date) }
                 )
             }
@@ -250,11 +254,15 @@ fun DateCell(
     isToday: Boolean,
     isSelected: Boolean,
     holidays: List<HolidayOccurrence>,
+    primaryCalendar: CalendarType,
+    displayDualCalendar: Boolean,
+    secondaryCalendar: CalendarType,
     onClick: () -> Unit
 ) {
     val isCurrentMonth = date.get(ChronoField.MONTH_OF_YEAR) == currentMonth
-    val dayOfMonth = date.get(ChronoField.DAY_OF_MONTH)
+    val ethiopianDayOfMonth = date.get(ChronoField.DAY_OF_MONTH)
     val gregorianDate = LocalDate.from(date)
+    val gregorianDayOfMonth = gregorianDate.dayOfMonth
     val monthNames = stringArrayResource(R.array.ethiopian_months)
 
     val backgroundColor = when {
@@ -286,7 +294,7 @@ fun DateCell(
                 .clip(CircleShape)
                 .background(backgroundColor)
                 .clickable { onClick() }
-                .padding(2.dp)  // Reduced padding
+                .padding(2.dp)
                 .semantics {
                     this.contentDescription = contentDesc
                 },
@@ -294,44 +302,135 @@ fun DateCell(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,  // Spread content evenly
+            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxSize()
         ) {
-            // Gregorian date (small, top)
+            // Determine what to display based on preferences
+            when {
+                // Dual calendar display
+                displayDualCalendar -> {
+                    if (primaryCalendar == CalendarType.ETHIOPIAN && secondaryCalendar == CalendarType.GREGOREAN) {
+                        // Ethiopian (large), Gregorian (small)
+                        Row(
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 2.dp, top = 2.dp)
+                        ) {
+                            Text(
+                                text = gregorianDayOfMonth.toString(),
+                                fontSize = 8.sp,
+                                color = textColor.copy(alpha = 0.6f),
+                            )
+                            holidays.take(3).forEach { holiday ->
+                                Box(
+                                    modifier = Modifier
+                                            .size(8.dp)
+                                            .padding(horizontal = 2.dp)
+                                            .clip(CircleShape)
+                                            .background(holiday.holiday.type.getColor())
+                                )
+                            }
+                        }
 
+                        Text(
+                            text = ethiopianDayOfMonth.toString(),
+                            fontSize = 14.sp,
+                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                            color = textColor
+                        )
+                    } else if (primaryCalendar == CalendarType.GREGOREAN && secondaryCalendar == CalendarType.ETHIOPIAN) {
+                        // Gregorian (large), Ethiopian (small)
+                        Row(
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 2.dp, top = 2.dp)
+                        ) {
+                            Text(
+                                text = ethiopianDayOfMonth.toString(),
+                                fontSize = 8.sp,
+                                color = textColor.copy(alpha = 0.6f),
+                            )
+                            holidays.take(3).forEach { holiday ->
+                                Box(
+                                    modifier = Modifier
+                                            .size(8.dp)
+                                            .padding(horizontal = 2.dp)
+                                            .clip(CircleShape)
+                                            .background(holiday.holiday.type.getColor())
+                                )
+                            }
+                        }
 
-            Row(
-                horizontalArrangement = Arrangement.Start,
+                        Text(
+                            text = gregorianDayOfMonth.toString(),
+                            fontSize = 14.sp,
+                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                            color = textColor
+                        )
+                    } else {
+                        // Fallback to Ethiopian primary
+                        Row(
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 2.dp, top = 2.dp)
+                        ) {
+                            holidays.take(3).forEach { holiday ->
+                                Box(
+                                    modifier = Modifier
+                                            .size(8.dp)
+                                            .padding(horizontal = 2.dp)
+                                            .clip(CircleShape)
+                                            .background(holiday.holiday.type.getColor())
+                                )
+                            }
+                        }
 
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 2.dp, top = 2.dp)
-            ) {
-                Text(
-                    text = gregorianDate.dayOfMonth.toString(),
-                    fontSize = 8.sp,  // Smaller font
-                    color = textColor.copy(alpha = 0.6f),
-                )
-                holidays.take(3).forEach { holiday ->
-                    Box(
+                        Text(
+                            text = ethiopianDayOfMonth.toString(),
+                            fontSize = 14.sp,
+                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                            color = textColor
+                        )
+                    }
+                }
+                // Single calendar display (primary only)
+                else -> {
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                                .size(8.dp)
-                                .padding(horizontal = 2.dp)
-                                .clip(CircleShape)
-                                .background(holiday.holiday.type.getColor())
+                                .fillMaxWidth()
+                                .padding(bottom = 2.dp, top = 2.dp)
+                    ) {
+                        holidays.take(3).forEach { holiday ->
+                            Box(
+                                modifier = Modifier
+                                        .size(8.dp)
+                                        .padding(horizontal = 2.dp)
+                                        .clip(CircleShape)
+                                        .background(holiday.holiday.type.getColor())
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = if (primaryCalendar == CalendarType.ETHIOPIAN) {
+                            ethiopianDayOfMonth.toString()
+                        } else {
+                            gregorianDayOfMonth.toString()
+                        },
+                        fontSize = 14.sp,
+                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                        color = textColor
                     )
                 }
             }
-
-            // Ethiopian date (large, main) - centered
-            Text(
-                text = dayOfMonth.toString(),
-                fontSize = 14.sp,  // Slightly smaller
-                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                color = textColor
-            )
-
         }
     }
 }
