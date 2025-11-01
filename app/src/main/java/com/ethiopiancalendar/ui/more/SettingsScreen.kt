@@ -31,12 +31,12 @@ fun SettingsScreen(
     val showMuslimHolidays by viewModel.showMuslimHolidays.collectAsState()
     val showUsHolidays by viewModel.showUsHolidays.collectAsState()
     val useGeezNumbers by viewModel.useGeezNumbers.collectAsState()
-    val use24HourFormat by viewModel.use24HourFormat.collectAsState()
 
     val displayTwoClocks by viewModel.displayTwoClocks.collectAsState()
     val primaryWidgetTimezone by viewModel.primaryWidgetTimezone.collectAsState()
     val secondaryWidgetTimezone by viewModel.secondaryWidgetTimezone.collectAsState()
     val useTransparentBackground by viewModel.useTransparentBackground.collectAsState()
+    val use24HourFormat by viewModel.use24HourFormat.collectAsState()
 
     var showWidgetDialog by remember { mutableStateOf(false) }
     var showCalendarDialog by remember { mutableStateOf(false) }
@@ -150,14 +150,6 @@ fun SettingsScreen(
                 )
             }
 
-            item {
-                SettingSwitchItem(
-                    title = stringResource(R.string.settings_use_24_hour_format),
-                    checked = use24HourFormat,
-                    onCheckedChange = { viewModel.setUse24HourFormat(it) }
-                )
-            }
-
             // Widget Options Section
             item {
                 Text(
@@ -208,10 +200,12 @@ fun SettingsScreen(
                 primaryTimezone = primaryWidgetTimezone,
                 secondaryTimezone = secondaryWidgetTimezone,
                 useTransparentBackground = useTransparentBackground,
+                use24HourFormat = use24HourFormat,
                 onDisplayTwoClocksChange = { viewModel.setDisplayTwoClocks(it) },
                 onPrimaryTimezoneChange = { viewModel.setPrimaryWidgetTimezone(it) },
                 onSecondaryTimezoneChange = { viewModel.setSecondaryWidgetTimezone(it) },
                 onUseTransparentBackgroundChange = { viewModel.setUseTransparentBackground(it) },
+                onUse24HourFormatChange = { viewModel.setUse24HourFormat(it) },
                 onDismiss = { showWidgetDialog = false }
             )
         }
