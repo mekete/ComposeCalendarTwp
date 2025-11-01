@@ -2,6 +2,7 @@ package com.ethiopiancalendar.ui.more
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ethiopiancalendar.data.preferences.CalendarDisplayMode
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,6 +17,13 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Calendar Display Settings
+    val calendarDisplayMode: StateFlow<CalendarDisplayMode> = settingsPreferences.calendarDisplayMode
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CalendarDisplayMode.DUAL
+        )
+
     val showOrthodoxDayNames: StateFlow<Boolean> = settingsPreferences.showOrthodoxDayNames
         .stateIn(
             scope = viewModelScope,
@@ -88,6 +96,12 @@ class SettingsViewModel @Inject constructor(
         )
 
     // Setter functions for Calendar Display Settings
+    fun setCalendarDisplayMode(mode: CalendarDisplayMode) {
+        viewModelScope.launch {
+            settingsPreferences.setCalendarDisplayMode(mode)
+        }
+    }
+
     fun setShowOrthodoxDayNames(value: Boolean) {
         viewModelScope.launch {
             settingsPreferences.setShowOrthodoxDayNames(value)
