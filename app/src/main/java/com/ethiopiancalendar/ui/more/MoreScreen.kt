@@ -23,7 +23,8 @@ import com.ethiopiancalendar.R
 
 @Composable
 fun MoreScreen(
-    onNavigateToTheme: () -> Unit = {}
+    onNavigateToTheme: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -51,6 +52,14 @@ fun MoreScreen(
                     icon = Icons.Default.Palette,
                     title = stringResource(R.string.menu_color_theme),
                     onClick = onNavigateToTheme
+                )
+            }
+
+            item {
+                SettingItem(
+                    icon = Icons.Default.Settings,
+                    title = stringResource(R.string.menu_settings),
+                    onClick = onNavigateToSettings
                 )
             }
 
