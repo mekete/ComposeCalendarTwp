@@ -135,7 +135,7 @@ fun SettingsScreen(
                     text = stringResource(R.string.settings_widget_options),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
+                    modifier = Modifier.padding(bottom = 8.dp, top = 16.dp)
                 )
             }
 
