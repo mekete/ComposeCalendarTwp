@@ -27,7 +27,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class ReminderReregistrationManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val eventDao: EventDao
 ) {
     private val alarmScheduler = AlarmScheduler(context)

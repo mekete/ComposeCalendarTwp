@@ -23,19 +23,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideContext(@ApplicationContext context: Context): Context {
+    fun provideContext(@param:ApplicationContext context: Context): Context {
         return context
     }
 
     @Provides
     @Singleton
-    fun provideThemePreferences(@ApplicationContext context: Context): ThemePreferences {
+    fun provideThemePreferences(@param:ApplicationContext context: Context): ThemePreferences {
         return ThemePreferences(context)
     }
 
     @Provides
     @Singleton
-    fun provideSettingsPreferences(@ApplicationContext context: Context): SettingsPreferences {
+    fun provideSettingsPreferences(@param:ApplicationContext context: Context): SettingsPreferences {
         return SettingsPreferences(context)
     }
 
@@ -49,7 +49,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCalendarDatabase(@ApplicationContext context: Context): CalendarDatabase {
+    fun provideCalendarDatabase(@param:ApplicationContext context: Context): CalendarDatabase {
         return Room.databaseBuilder(
             context,
             CalendarDatabase::class.java,
@@ -75,7 +75,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAppInitializationManager(
-        @ApplicationContext context: Context,
+        @param:ApplicationContext context: Context,
         settingsPreferences: SettingsPreferences,
         remoteConfigManager: RemoteConfigManager,
         database: CalendarDatabase
@@ -86,7 +86,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideReminderReregistrationManager(
-        @ApplicationContext context: Context,
+        @param:ApplicationContext context: Context,
         eventDao: EventDao
     ): ReminderReregistrationManager {
         return ReminderReregistrationManager(context, eventDao)
