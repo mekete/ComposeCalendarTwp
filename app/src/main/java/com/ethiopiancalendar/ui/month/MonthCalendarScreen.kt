@@ -1,6 +1,7 @@
 package com.ethiopiancalendar.ui.month
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -298,30 +300,35 @@ private fun EthiopianOnlyContent(
     textColor: Color,
     isToday: Boolean
 ) {
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 2.dp, top = 2.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
     ) {
-        holidays.take(3).forEach { holiday ->
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .padding(horizontal = 2.dp)
-                    .clip(CircleShape)
-                    .background(holiday.holiday.type.getColor())
-            )
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 2.dp)
+        ) {
+            holidays.take(3).forEach { holiday ->
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .padding(horizontal = 2.dp)
+                        .clip(CircleShape)
+                        .background(holiday.holiday.type.getColor())
+                )
+            }
         }
-    }
 
-    Text(
-        text = ethiopianDay.toString(),
-        fontSize = 14.sp,
-        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-        color = textColor
-    )
+        Text(
+            text = ethiopianDay.toString(),
+            fontSize = 14.sp,
+            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+            color = textColor,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 /**
@@ -334,30 +341,35 @@ private fun GregorianOnlyContent(
     textColor: Color,
     isToday: Boolean
 ) {
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 2.dp, top = 2.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
     ) {
-        holidays.take(3).forEach { holiday ->
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .padding(horizontal = 2.dp)
-                    .clip(CircleShape)
-                    .background(holiday.holiday.type.getColor())
-            )
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 2.dp)
+        ) {
+            holidays.take(3).forEach { holiday ->
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .padding(horizontal = 2.dp)
+                        .clip(CircleShape)
+                        .background(holiday.holiday.type.getColor())
+                )
+            }
         }
-    }
 
-    Text(
-        text = gregorianDay.toString(),
-        fontSize = 14.sp,
-        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-        color = textColor
-    )
+        Text(
+            text = gregorianDay.toString(),
+            fontSize = 14.sp,
+            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+            color = textColor,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 /**
@@ -371,35 +383,41 @@ private fun DualEthiopianPrimaryContent(
     textColor: Color,
     isToday: Boolean
 ) {
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 2.dp, top = 2.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = gregorianDay.toString(),
-            fontSize = 8.sp,
-            color = textColor.copy(alpha = 0.6f),
-        )
-        holidays.take(3).forEach { holiday ->
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .padding(horizontal = 2.dp)
-                    .clip(CircleShape)
-                    .background(holiday.holiday.type.getColor())
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 2.dp, top = 2.dp)
+        ) {
+            Text(
+                text = gregorianDay.toString(),
+                fontSize = 8.sp,
+                color = textColor.copy(alpha = 0.6f),
             )
+            holidays.take(3).forEach { holiday ->
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .padding(horizontal = 2.dp)
+                        .clip(CircleShape)
+                        .background(holiday.holiday.type.getColor())
+                )
+            }
         }
-    }
 
-    Text(
-        text = ethiopianDay.toString(),
-        fontSize = 14.sp,
-        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-        color = textColor
-    )
+        Text(
+            text = ethiopianDay.toString(),
+            fontSize = 14.sp,
+            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+            color = textColor
+        )
+    }
 }
 
 /**
@@ -413,35 +431,41 @@ private fun DualGregorianPrimaryContent(
     textColor: Color,
     isToday: Boolean
 ) {
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 2.dp, top = 2.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = ethiopianDay.toString(),
-            fontSize = 8.sp,
-            color = textColor.copy(alpha = 0.6f),
-        )
-        holidays.take(3).forEach { holiday ->
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .padding(horizontal = 2.dp)
-                    .clip(CircleShape)
-                    .background(holiday.holiday.type.getColor())
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 2.dp, top = 2.dp)
+        ) {
+            Text(
+                text = ethiopianDay.toString(),
+                fontSize = 8.sp,
+                color = textColor.copy(alpha = 0.6f),
             )
+            holidays.take(3).forEach { holiday ->
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .padding(horizontal = 2.dp)
+                        .clip(CircleShape)
+                        .background(holiday.holiday.type.getColor())
+                )
+            }
         }
-    }
 
-    Text(
-        text = gregorianDay.toString(),
-        fontSize = 14.sp,
-        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-        color = textColor
-    )
+        Text(
+            text = gregorianDay.toString(),
+            fontSize = 14.sp,
+            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+            color = textColor
+        )
+    }
 }
 
 /**
@@ -527,17 +551,31 @@ fun DateCell(
         }
     }
 
-    val backgroundColor = when {
-        isToday -> MaterialTheme.colorScheme.primaryContainer
-        isSelected -> MaterialTheme.colorScheme.secondaryContainer
-        else -> Color.Transparent
-    }
+    // Determine display mode once per cell
+    val displayMode = getDisplayMode(
+        primaryCalendar = primaryCalendar,
+        displayDualCalendar = displayDualCalendar,
+        secondaryCalendar = secondaryCalendar
+    )
+
+    // Check if dual calendar is being displayed
+    val isDualCalendar = displayMode == DateDisplayMode.DUAL_ETHIOPIAN_PRIMARY ||
+                         displayMode == DateDisplayMode.DUAL_GREGORIAN_PRIMARY
 
     val textColor = when {
         !isCurrentMonth -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-        isToday || isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
         else -> MaterialTheme.colorScheme.onSurface
     }
+
+    // Border color for today indicator
+    val borderColor = when {
+        isToday -> MaterialTheme.colorScheme.primary
+        isSelected -> MaterialTheme.colorScheme.secondary
+        else -> Color.Transparent
+    }
+
+    // Shape based on calendar mode
+    val shape = if (isDualCalendar) RoundedCornerShape(4.dp) else CircleShape
 
     // Accessibility content description
     val contentDesc = buildString {
@@ -553,36 +591,29 @@ fun DateCell(
     Box(
         modifier = Modifier
                 .aspectRatio(1f)
-                .clip(CircleShape)
-                .background(backgroundColor)
+                .clip(shape)
+                .then(
+                    if (borderColor != Color.Transparent) {
+                        Modifier.border(2.dp, borderColor, shape)
+                    } else {
+                        Modifier
+                    }
+                )
                 .clickable { onClick() }
                 .padding(2.dp)
                 .semantics {
                     this.contentDescription = contentDesc
                 },
-        contentAlignment = Alignment.Center
+        contentAlignment = if (isDualCalendar) Alignment.Center else Alignment.Center
     ) {
-        // Determine display mode once per cell
-        val displayMode = getDisplayMode(
-            primaryCalendar = primaryCalendar,
-            displayDualCalendar = displayDualCalendar,
-            secondaryCalendar = secondaryCalendar
+        DateCellContent(
+            ethiopianDay = ethiopianDayOfMonth,
+            gregorianDay = gregorianDayOfMonth,
+            displayMode = displayMode,
+            holidays = holidays,
+            textColor = textColor,
+            isToday = isToday
         )
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            DateCellContent(
-                ethiopianDay = ethiopianDayOfMonth,
-                gregorianDay = gregorianDayOfMonth,
-                displayMode = displayMode,
-                holidays = holidays,
-                textColor = textColor,
-                isToday = isToday
-            )
-        }
     }
 }
 
