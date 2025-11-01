@@ -2,7 +2,7 @@ package com.ethiopiancalendar.ui.more
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ethiopiancalendar.data.preferences.CalendarDisplayMode
+import com.ethiopiancalendar.data.preferences.CalendarType
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,11 +17,25 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Calendar Display Settings
-    val calendarDisplayMode: StateFlow<CalendarDisplayMode> = settingsPreferences.calendarDisplayMode
+    val primaryCalendar: StateFlow<CalendarType> = settingsPreferences.primaryCalendar
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CalendarDisplayMode.DUAL
+            initialValue = CalendarType.ETHIOPIAN
+        )
+
+    val displayDualCalendar: StateFlow<Boolean> = settingsPreferences.displayDualCalendar
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
+    val secondaryCalendar: StateFlow<CalendarType> = settingsPreferences.secondaryCalendar
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CalendarType.GREGOREAN
         )
 
     val showOrthodoxDayNames: StateFlow<Boolean> = settingsPreferences.showOrthodoxDayNames
@@ -96,9 +110,21 @@ class SettingsViewModel @Inject constructor(
         )
 
     // Setter functions for Calendar Display Settings
-    fun setCalendarDisplayMode(mode: CalendarDisplayMode) {
+    fun setPrimaryCalendar(calendar: CalendarType) {
         viewModelScope.launch {
-            settingsPreferences.setCalendarDisplayMode(mode)
+            settingsPreferences.setPrimaryCalendar(calendar)
+        }
+    }
+
+    fun setDisplayDualCalendar(value: Boolean) {
+        viewModelScope.launch {
+            settingsPreferences.setDisplayDualCalendar(value)
+        }
+    }
+
+    fun setSecondaryCalendar(calendar: CalendarType) {
+        viewModelScope.launch {
+            settingsPreferences.setSecondaryCalendar(calendar)
         }
     }
 
