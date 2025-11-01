@@ -61,9 +61,6 @@ class MonthCalendarViewModel @Inject constructor(
     private val _selectedDate = MutableStateFlow<EthiopicDate?>(null)
     val selectedDate: StateFlow<EthiopicDate?> = _selectedDate.asStateFlow()
 
-    // Cache for month data
-    private val monthDataCache = mutableMapOf<Int, MonthCalendarUiState>()
-
     /**
      * Get Ethiopian date for a specific page index
      */
@@ -103,11 +100,6 @@ class MonthCalendarViewModel @Inject constructor(
      * Load month data for a specific page
      */
     fun loadMonthDataForPage(page: Int): Flow<MonthCalendarUiState> {
-        // Check cache first
-        monthDataCache[page]?.let {
-            return flowOf(it)
-        }
-
         return flow {
             emit(MonthCalendarUiState.Loading)
 
@@ -117,28 +109,27 @@ class MonthCalendarViewModel @Inject constructor(
                 val month = currentMonth.get(ChronoField.MONTH_OF_YEAR)
 
                 // Combine preferences with holiday data
+                // This will automatically react to preference changes and date selection
                 combine(
                     holidayRepository.getHolidaysForMonth(year, month),
                     primaryCalendar,
                     displayDualCalendar,
-                    secondaryCalendar
-                ) { holidays, primary, displayDual, secondary ->
+                    secondaryCalendar,
+                    _selectedDate
+                ) { holidays, primary, displayDual, secondary, selected ->
                     val dateList = generateDateListForMonth(currentMonth, primary)
 
                     MonthCalendarUiState.Success(
                         currentMonth = currentMonth,
                         dateList = dateList,
                         holidays = holidays,
-                        selectedDate = _selectedDate.value,
+                        selectedDate = selected,
                         primaryCalendar = primary,
                         displayDualCalendar = displayDual,
                         secondaryCalendar = secondary
                     )
                 }.collect { state ->
-                    // Cache the result
-                    monthDataCache[page] = state
                     emit(state)
-
                     Timber.d("Loaded page $page: ${state.holidays.size} holidays for $currentMonth")
                 }
             } catch (e: Exception) {
@@ -284,13 +275,7 @@ class MonthCalendarViewModel @Inject constructor(
     // User actions
     fun selectDate(date: EthiopicDate) {
         _selectedDate.value = date
-        // Clear cache to refresh UI with new selection
-        monthDataCache.clear()
         Timber.d("Selected date: $date")
-    }
-
-    fun clearCache() {
-        monthDataCache.clear()
     }
 
     fun getTodayPage(): Int {
