@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ethiopiancalendar.R
+import com.ethiopiancalendar.data.model.getTimeZoneList
+import com.ethiopiancalendar.ui.components.AutocompleteTextField
 
 @Composable
 fun WidgetSettingsDialog(
@@ -25,8 +27,19 @@ fun WidgetSettingsDialog(
     onUse24HourFormatChange: (Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var primaryTimezoneText by remember { mutableStateOf(primaryTimezone) }
-    var secondaryTimezoneText by remember { mutableStateOf(secondaryTimezone) }
+    // Get the list of timezones
+    val timeZoneList = remember { getTimeZoneList() }
+
+    // Find display names for the current timezone IDs
+    val primaryDisplayName = remember(primaryTimezone) {
+        timeZoneList.find { it.zoneId == primaryTimezone }?.displayName ?: primaryTimezone
+    }
+    val secondaryDisplayName = remember(secondaryTimezone) {
+        timeZoneList.find { it.zoneId == secondaryTimezone }?.displayName ?: secondaryTimezone
+    }
+
+    var primaryTimezoneText by remember { mutableStateOf(primaryDisplayName) }
+    var secondaryTimezoneText by remember { mutableStateOf(secondaryDisplayName) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -60,31 +73,37 @@ fun WidgetSettingsDialog(
                     )
                 }
 
-                // Primary Widget timezone
-                OutlinedTextField(
+                // Primary Widget timezone with autocomplete
+                AutocompleteTextField(
                     value = primaryTimezoneText,
                     onValueChange = {
                         primaryTimezoneText = it
-                        onPrimaryTimezoneChange(it)
                     },
-                    label = { Text(stringResource(R.string.settings_primary_timezone)) },
-                    placeholder = { Text(stringResource(R.string.settings_timezone_hint)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    onTimezoneSelected = { timezone ->
+                        primaryTimezoneText = timezone.displayName
+                        onPrimaryTimezoneChange(timezone.zoneId)
+                    },
+                    timeZoneList = timeZoneList,
+                    label = stringResource(R.string.settings_primary_timezone),
+                    placeholder = stringResource(R.string.settings_timezone_hint),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                // Secondary Widget timezone
-                OutlinedTextField(
+                // Secondary Widget timezone with autocomplete
+                AutocompleteTextField(
                     value = secondaryTimezoneText,
                     onValueChange = {
                         secondaryTimezoneText = it
-                        onSecondaryTimezoneChange(it)
                     },
-                    label = { Text(stringResource(R.string.settings_secondary_timezone)) },
-                    placeholder = { Text(stringResource(R.string.settings_timezone_hint)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    enabled = displayTwoClocks
+                    onTimezoneSelected = { timezone ->
+                        secondaryTimezoneText = timezone.displayName
+                        onSecondaryTimezoneChange(timezone.zoneId)
+                    },
+                    timeZoneList = timeZoneList,
+                    label = stringResource(R.string.settings_secondary_timezone),
+                    placeholder = stringResource(R.string.settings_timezone_hint),
+                    enabled = displayTwoClocks,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 // Use transparent background
