@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ethiopiancalendar.data.preferences.CalendarType
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
+import com.ethiopiancalendar.data.repository.EventRepository
 import com.ethiopiancalendar.data.repository.HolidayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MonthCalendarViewModel @Inject constructor(
     private val holidayRepository: HolidayRepository,
+    private val eventRepository: EventRepository,
     private val settingsPreferences: SettingsPreferences
 ) : ViewModel() {
 
@@ -109,15 +111,16 @@ class MonthCalendarViewModel @Inject constructor(
                 val year = currentMonth.get(ChronoField.YEAR_OF_ERA)
                 val month = currentMonth.get(ChronoField.MONTH_OF_YEAR)
 
-                // Combine preferences with holiday data
+                // Combine preferences with holiday and event data
                 // This will automatically react to preference changes and date selection
                 combine(
                     holidayRepository.getHolidaysForMonth(year, month),
+                    eventRepository.getEventsForMonth(year, month),
                     primaryCalendar,
                     displayDualCalendar,
                     secondaryCalendar,
                     _selectedDate
-                ) { holidays, primary, displayDual, secondary, selected ->
+                ) { holidays, events, primary, displayDual, secondary, selected ->
                     val dateList = generateDateListForMonth(currentMonth, primary)
 
                     // Calculate Gregorian month/year when Gregorian is primary
@@ -131,6 +134,7 @@ class MonthCalendarViewModel @Inject constructor(
                         currentMonth = currentMonth,
                         dateList = dateList,
                         holidays = holidays,
+                        events = events,
                         selectedDate = selected,
                         primaryCalendar = primary,
                         displayDualCalendar = displayDual,
@@ -140,7 +144,7 @@ class MonthCalendarViewModel @Inject constructor(
                     )
                 }.collect { state ->
                     emit(state)
-                    Timber.d("Loaded page $page: ${state.holidays.size} holidays for $currentMonth")
+                    Timber.d("Loaded page $page: ${state.holidays.size} holidays, ${state.events.size} events for $currentMonth")
                 }
             } catch (e: CancellationException) {
                 // Don't log cancellation exceptions - they're expected when composition is left

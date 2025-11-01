@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ethiopiancalendar.R
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ethiopiancalendar.data.local.entity.EventInstance
 import com.ethiopiancalendar.data.preferences.CalendarType
 import com.ethiopiancalendar.domain.model.HolidayOccurrence
 import kotlinx.coroutines.launch
@@ -215,6 +216,11 @@ fun MonthCalendarContent(
                                 it.actualEthiopicDate.get(ChronoField.MONTH_OF_YEAR) == date.get(ChronoField.MONTH_OF_YEAR) &&
                                 it.actualEthiopicDate.get(ChronoField.YEAR_OF_ERA) == date.get(ChronoField.YEAR_OF_ERA)
                     },
+                    events = state.events.filter {
+                        it.ethiopianDay == date.get(ChronoField.DAY_OF_MONTH) &&
+                                it.ethiopianMonth == date.get(ChronoField.MONTH_OF_YEAR) &&
+                                it.ethiopianYear == date.get(ChronoField.YEAR_OF_ERA)
+                    },
                     primaryCalendar = state.primaryCalendar,
                     displayDualCalendar = state.displayDualCalendar,
                     secondaryCalendar = state.secondaryCalendar,
@@ -299,6 +305,7 @@ private fun getDisplayMode(
 private fun EthiopianOnlyContent(
     ethiopianDay: Int,
     holidays: List<HolidayOccurrence>,
+    events: List<EventInstance>,
     textColor: Color,
     isToday: Boolean
 ) {
@@ -327,6 +334,13 @@ private fun EthiopianOnlyContent(
                         .background(holiday.holiday.type.getColor())
                 )
             }
+
+            if (holidays.isEmpty() && events.isNotEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                        .background(Color(events.first().color))
+                )
+            }
         }
 
 
@@ -340,6 +354,7 @@ private fun EthiopianOnlyContent(
 private fun GregorianOnlyContent(
     gregorianDay: Int,
     holidays: List<HolidayOccurrence>,
+    events: List<EventInstance>,
     textColor: Color,
     isToday: Boolean
 ) {
@@ -371,6 +386,16 @@ private fun GregorianOnlyContent(
                         .background(holiday.holiday.type.getColor())
                 )
             }
+
+            if (holidays.isEmpty() && events.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .padding(horizontal = 2.dp)
+                        .clip(CircleShape)
+                        .background(Color(events.first().color))
+                )
+            }
         }
 
 
@@ -385,6 +410,7 @@ private fun DualEthiopianPrimaryContent(
     ethiopianDay: Int,
     gregorianDay: Int,
     holidays: List<HolidayOccurrence>,
+    events: List<EventInstance>,
     textColor: Color,
     isToday: Boolean
 ) {
@@ -429,6 +455,14 @@ private fun DualEthiopianPrimaryContent(
                             .background(holiday.holiday.type.getColor())
                 )
             }
+
+            if (holidays.isEmpty() && events.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(events.first().color))
+                )
+            }
         }
     }
 
@@ -439,6 +473,7 @@ private fun DualGregorianPrimaryContent(
     ethiopianDay: Int,
     gregorianDay: Int,
     holidays: List<HolidayOccurrence>,
+    events: List<EventInstance>,
     textColor: Color,
     isToday: Boolean
 ) {
@@ -480,6 +515,14 @@ private fun DualGregorianPrimaryContent(
                     modifier = Modifier
                             .fillMaxSize()
                             .background(holiday.holiday.type.getColor())
+                )
+            }
+
+            if (holidays.isEmpty() && events.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(events.first().color))
                 )
             }
         }
@@ -496,6 +539,7 @@ private fun DateCellContent(
     gregorianDay: Int,
     displayMode: DateDisplayMode,
     holidays: List<HolidayOccurrence>,
+    events: List<EventInstance>,
     textColor: Color,
     isToday: Boolean
 ) {
@@ -504,6 +548,7 @@ private fun DateCellContent(
             EthiopianOnlyContent(
                 ethiopianDay = ethiopianDay,
                 holidays = holidays,
+                events = events,
                 textColor = textColor,
                 isToday = isToday
             )
@@ -512,6 +557,7 @@ private fun DateCellContent(
             GregorianOnlyContent(
                 gregorianDay = gregorianDay,
                 holidays = holidays,
+                events = events,
                 textColor = textColor,
                 isToday = isToday
             )
@@ -521,6 +567,7 @@ private fun DateCellContent(
                 ethiopianDay = ethiopianDay,
                 gregorianDay = gregorianDay,
                 holidays = holidays,
+                events = events,
                 textColor = textColor,
                 isToday = isToday
             )
@@ -530,6 +577,7 @@ private fun DateCellContent(
                 ethiopianDay = ethiopianDay,
                 gregorianDay = gregorianDay,
                 holidays = holidays,
+                events = events,
                 textColor = textColor,
                 isToday = isToday
             )
@@ -546,6 +594,7 @@ fun DateCell(
     isToday: Boolean,
     isSelected: Boolean,
     holidays: List<HolidayOccurrence>,
+    events: List<EventInstance>,
     primaryCalendar: CalendarType,
     displayDualCalendar: Boolean,
     secondaryCalendar: CalendarType,
@@ -630,6 +679,7 @@ fun DateCell(
             gregorianDay = gregorianDayOfMonth,
             displayMode = displayMode,
             holidays = holidays,
+            events = events,
             textColor = textColor,
             isToday = isToday
         )
