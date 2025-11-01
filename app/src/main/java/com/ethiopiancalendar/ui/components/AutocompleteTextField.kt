@@ -3,8 +3,8 @@ package com.ethiopiancalendar.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -85,12 +85,14 @@ fun AutocompleteTextField(
             expanded = expanded && filteredTimezones.isNotEmpty(),
             onDismissRequest = { expanded = false },
             properties = PopupProperties(focusable = false),
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .heightIn(max = 300.dp)
+            modifier = Modifier.fillMaxWidth(0.9f)
         ) {
-            LazyColumn {
-                items(filteredTimezones) { timezone ->
+            Column(
+                modifier = Modifier
+                    .heightIn(max = 300.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                filteredTimezones.forEach { timezone ->
                     DropdownMenuItem(
                         text = {
                             Column {
