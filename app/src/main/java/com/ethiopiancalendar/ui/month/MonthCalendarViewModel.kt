@@ -119,6 +119,13 @@ class MonthCalendarViewModel @Inject constructor(
                 ) { holidays, primary, displayDual, secondary, selected ->
                     val dateList = generateDateListForMonth(currentMonth, primary)
 
+                    // Calculate Gregorian month/year when Gregorian is primary
+                    val (gregorianYear, gregorianMonth) = if (primary == CalendarType.GREGOREAN) {
+                        calculateGregorianMonthForDisplay(currentMonth)
+                    } else {
+                        Pair(null, null)
+                    }
+
                     MonthCalendarUiState.Success(
                         currentMonth = currentMonth,
                         dateList = dateList,
@@ -126,7 +133,9 @@ class MonthCalendarViewModel @Inject constructor(
                         selectedDate = selected,
                         primaryCalendar = primary,
                         displayDualCalendar = displayDual,
-                        secondaryCalendar = secondary
+                        secondaryCalendar = secondary,
+                        currentGregorianYear = gregorianYear,
+                        currentGregorianMonth = gregorianMonth
                     )
                 }.collect { state ->
                     emit(state)
@@ -282,6 +291,27 @@ class MonthCalendarViewModel @Inject constructor(
             13 -> if (year % 4 == 3) 6 else 5  // Pagume
             else -> 30
         }
+    }
+
+    /**
+     * Calculate which Gregorian month to display for a given Ethiopian month
+     * Uses the same logic as generateGregorianMonthGrid
+     */
+    private fun calculateGregorianMonthForDisplay(ethiopianMonth: EthiopicDate): Pair<Int, Int> {
+        val ethiopianYear = ethiopianMonth.get(ChronoField.YEAR_OF_ERA)
+        val ethiopianMonthValue = ethiopianMonth.get(ChronoField.MONTH_OF_YEAR)
+        val daysInEthiopianMonth = getDaysInMonth(ethiopianYear, ethiopianMonthValue)
+
+        // Use the last day of the Ethiopian month
+        val referenceDay = daysInEthiopianMonth
+        val referenceEthiopianDate = EthiopicDate.of(ethiopianYear, ethiopianMonthValue, referenceDay)
+
+        // Convert to Gregorian to find the Gregorian month to display
+        val gregorianDate = LocalDate.from(referenceEthiopianDate)
+        val year = gregorianDate.year
+        val month = gregorianDate.monthValue
+
+        return Pair(year, month)
     }
 
     // User actions

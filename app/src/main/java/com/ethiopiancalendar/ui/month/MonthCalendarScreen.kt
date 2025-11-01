@@ -202,6 +202,8 @@ fun MonthCalendarContent(
                 DateCell(
                     date = date,
                     currentMonth = state.currentMonth.get(ChronoField.MONTH_OF_YEAR),
+                    currentGregorianYear = state.currentGregorianYear,
+                    currentGregorianMonth = state.currentGregorianMonth,
                     isToday = date == EthiopicDate.now(),
                     isSelected = date == state.selectedDate,
                     holidays = state.holidays.filter {
@@ -251,6 +253,8 @@ fun WeekdayHeader() {
 fun DateCell(
     date: EthiopicDate,
     currentMonth: Int,
+    currentGregorianYear: Int?,
+    currentGregorianMonth: Int?,
     isToday: Boolean,
     isSelected: Boolean,
     holidays: List<HolidayOccurrence>,
@@ -259,11 +263,24 @@ fun DateCell(
     secondaryCalendar: CalendarType,
     onClick: () -> Unit
 ) {
-    val isCurrentMonth = date.get(ChronoField.MONTH_OF_YEAR) == currentMonth
     val ethiopianDayOfMonth = date.get(ChronoField.DAY_OF_MONTH)
     val gregorianDate = LocalDate.from(date)
     val gregorianDayOfMonth = gregorianDate.dayOfMonth
     val monthNames = stringArrayResource(R.array.ethiopian_months)
+
+    // Determine if the date is in the "current" month based on primary calendar
+    val isCurrentMonth = when (primaryCalendar) {
+        CalendarType.GREGOREAN -> {
+            // Check against Gregorian month when Gregorian is primary
+            currentGregorianYear != null && currentGregorianMonth != null &&
+                    gregorianDate.year == currentGregorianYear &&
+                    gregorianDate.monthValue == currentGregorianMonth
+        }
+        else -> {
+            // Check against Ethiopian month for Ethiopian and other calendars
+            date.get(ChronoField.MONTH_OF_YEAR) == currentMonth
+        }
+    }
 
     val backgroundColor = when {
         isToday -> MaterialTheme.colorScheme.primaryContainer
