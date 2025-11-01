@@ -1,6 +1,8 @@
 package com.ethiopiancalendar
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import com.ethiopiancalendar.alarm.NotificationHelper
 import com.ethiopiancalendar.data.initialization.AppInitializationManager
 import com.ethiopiancalendar.data.initialization.ReminderReregistrationManager
@@ -11,7 +13,10 @@ import timber.log.Timber
 import javax.inject.Inject
 //import com.shalom.composeclandar.BuildConfig;
 @HiltAndroidApp
-class CalendarApplication : Application() {
+class CalendarApplication : Application(), Configuration.Provider {
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     @Inject
     lateinit var remoteConfigManager: RemoteConfigManager
@@ -21,6 +26,11 @@ class CalendarApplication : Application() {
 
     @Inject
     lateinit var reminderReregistrationManager: ReminderReregistrationManager
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()
