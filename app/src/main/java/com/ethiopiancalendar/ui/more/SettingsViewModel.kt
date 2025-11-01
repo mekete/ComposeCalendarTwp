@@ -3,6 +3,7 @@ package com.ethiopiancalendar.ui.more
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ethiopiancalendar.data.preferences.CalendarType
+import com.ethiopiancalendar.data.preferences.Language
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -109,6 +110,13 @@ class SettingsViewModel @Inject constructor(
             initialValue = false
         )
 
+    val language: StateFlow<Language> = settingsPreferences.language
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = Language.AMHARIC
+        )
+
     // Setter functions for Calendar Display Settings
     fun setPrimaryCalendar(calendar: CalendarType) {
         viewModelScope.launch {
@@ -186,6 +194,12 @@ class SettingsViewModel @Inject constructor(
     fun setUseTransparentBackground(value: Boolean) {
         viewModelScope.launch {
             settingsPreferences.setUseTransparentBackground(value)
+        }
+    }
+
+    fun setLanguage(language: Language) {
+        viewModelScope.launch {
+            settingsPreferences.setLanguage(language)
         }
     }
 }

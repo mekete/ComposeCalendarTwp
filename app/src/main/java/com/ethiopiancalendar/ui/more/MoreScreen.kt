@@ -14,7 +14,13 @@ import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -25,9 +31,12 @@ import com.ethiopiancalendar.R
 @Composable
 fun MoreScreen(
     onNavigateToTheme: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val currentLanguage by settingsViewModel.language.collectAsState()
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -61,7 +70,7 @@ fun MoreScreen(
                     icon = Icons.Default.Language,
                     title = stringResource(R.string.menu_language),
                     onClick = {
-                        // TODO: Implement language selection
+                        showLanguageDialog = true
                     }
                 )
             }
@@ -84,6 +93,18 @@ fun MoreScreen(
                 )
             }
         }
+    }
+
+    if (showLanguageDialog) {
+        LanguageDialog(
+            currentLanguage = currentLanguage,
+            onLanguageSelected = { language ->
+                settingsViewModel.setLanguage(language)
+            },
+            onDismiss = {
+                showLanguageDialog = false
+            }
+        )
     }
 }
 
