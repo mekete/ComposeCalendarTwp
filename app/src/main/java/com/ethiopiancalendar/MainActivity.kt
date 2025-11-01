@@ -32,6 +32,7 @@ import com.ethiopiancalendar.ui.event.EventScreen
 import com.ethiopiancalendar.ui.holidaylist.HolidayListScreen
 import com.ethiopiancalendar.ui.month.MonthCalendarScreen
 import com.ethiopiancalendar.ui.more.MoreScreen
+import com.ethiopiancalendar.ui.more.SettingsScreen
 import com.ethiopiancalendar.ui.more.ThemeSettingScreen
 import com.ethiopiancalendar.ui.more.ThemeViewModel
 import com.ethiopiancalendar.ui.theme.EthiopianCalendarTheme
@@ -71,7 +72,7 @@ fun MainScreen() {
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = item.label) },
                         label = { Text(item.label) },
-                        selected = currentRoute == item.route || (currentRoute == "theme" && item.route == "more"),
+                        selected = currentRoute == item.route || ((currentRoute == "theme" || currentRoute == "settings") && item.route == "more"),
                         onClick = {
                             navController.navigate(item.route) {
                                 popUpTo(navController.graph.startDestinationId) {
@@ -105,11 +106,17 @@ fun MainScreen() {
             }
             composable("more") {
                 MoreScreen(
-                    onNavigateToTheme = { navController.navigate("theme") }
+                    onNavigateToTheme = { navController.navigate("theme") },
+                    onNavigateToSettings = { navController.navigate("settings") }
                 )
             }
             composable("theme") {
                 ThemeSettingScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable("settings") {
+                SettingsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

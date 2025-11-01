@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.ethiopiancalendar.data.local.CalendarDatabase
 import com.ethiopiancalendar.data.local.dao.EventDao
+import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import com.ethiopiancalendar.data.preferences.ThemePreferences
 import com.ethiopiancalendar.data.repository.EventRepository
 import dagger.Module
@@ -27,6 +28,12 @@ object AppModule {
     @Singleton
     fun provideThemePreferences(@ApplicationContext context: Context): ThemePreferences {
         return ThemePreferences(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSettingsPreferences(@ApplicationContext context: Context): SettingsPreferences {
+        return SettingsPreferences(context)
     }
 
     // ========== Room Database ==========

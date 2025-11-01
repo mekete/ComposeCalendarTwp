@@ -42,10 +42,29 @@
     <string name="menu_color_theme">Color and Theme</string>
     <string name="menu_privacy_policy">Privacy Policy</string>
     <string name="menu_language">Language</string>
+    <string name="menu_settings">Settings</string>
 
     <!-- Settings Labels -->
     <string name="label_theme_color">Theme Color</string>
     <string name="label_theme_mode">Theme Mode</string>
+
+    <!-- Settings Screen Options -->
+    <string name="settings_calendar_display">Calendar Display</string>
+    <string name="settings_show_orthodox_day_names">Show Orthodox day names</string>
+    <string name="settings_show_orthodox_fasting_holidays">Show Orthodox fasting days Holidays</string>
+    <string name="settings_show_muslim_holidays">Show additional Muslim Holidays</string>
+    <string name="settings_show_us_holidays">Show US Holidays</string>
+    <string name="settings_use_geez_numbers">Use Geez numbers</string>
+    <string name="settings_use_24_hour_format">Use 24 hour format in widgets</string>
+
+    <!-- Widget Settings -->
+    <string name="settings_widget_options">Widget Options</string>
+    <string name="settings_widget_dialog_title">Widget Settings</string>
+    <string name="settings_display_two_clocks">Display two clocks</string>
+    <string name="settings_primary_timezone">Primary Widget time zone</string>
+    <string name="settings_secondary_timezone">Secondary Widget time zone</string>
+    <string name="settings_use_transparent_background">Use transparent background</string>
+    <string name="settings_timezone_hint">Enter timezone (e.g., America/New_York)</string>
 
     <!-- Common Labels -->
     <string name="label_holidays">Holidays</string>
