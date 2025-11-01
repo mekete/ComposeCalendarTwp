@@ -2,16 +2,14 @@ package com.ethiopiancalendar.data.initialization
 
 import android.content.Context
 import android.os.Build
-import com.ethiopiancalendar.BuildConfig
+import android.os.Bundle
 import com.ethiopiancalendar.data.local.CalendarDatabase
 import com.ethiopiancalendar.data.preferences.CalendarType
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import com.ethiopiancalendar.data.remote.RemoteConfigManager
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.installations.FirebaseInstallations
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +21,7 @@ import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.google.firebase.analytics.analytics
 
 /**
  * Manages app initialization logic on launch.
@@ -31,7 +30,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class AppInitializationManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext
+    private val context: Context,
     private val settingsPreferences: SettingsPreferences,
     private val remoteConfigManager: RemoteConfigManager,
     private val database: CalendarDatabase
@@ -120,10 +120,10 @@ class AppInitializationManager @Inject constructor(
             subscribeToFCMTopics(listOf("general", "holiday-updates"))
 
             // Log first install event
-            firebaseAnalytics.logEvent("app_first_install") {
-                param("version_code", versionCode.toLong())
-                param("version_name", versionName)
-            }
+            firebaseAnalytics.logEvent("app_first_install", Bundle().apply {
+                putInt("user_type",  versionCode.toLong())
+                putString("screen_count", versionName)
+            })
 
             Timber.d("First-time setup completed")
         } catch (e: Exception) {
@@ -158,11 +158,11 @@ class AppInitializationManager @Inject constructor(
             settingsPreferences.setVersionName(newVersionName)
 
             // Log upgrade event
-            firebaseAnalytics.logEvent("app_upgraded") {
-                param("old_version_code", oldVersionCode.toLong())
-                param("new_version_code", newVersionCode.toLong())
-                param("new_version_name", newVersionName)
-            }
+            firebaseAnalytics.logEvent("app_upgraded", Bundle().apply {
+                putLong("old_version_code", oldVersionCode.toLong())
+                putLong("new_version_code", newVersionCode.toLong())
+                putString("new_version_name", newVersionName)
+            })
 
             Timber.d("Version upgrade completed")
         } catch (e: Exception) {
@@ -296,15 +296,15 @@ class AppInitializationManager @Inject constructor(
             val country = settingsPreferences.deviceCountryCode.first()
             val deviceLocale = getDeviceLocale()
 
-            firebaseAnalytics.logEvent("app_launch") {
-                param("app_version", BuildConfig.VERSION_NAME)
-                param("version_code", BuildConfig.VERSION_CODE.toLong())
-                param("device_locale", deviceLocale)
-                param("primary_calendar", primaryCalendar.name)
-                param("secondary_calendar", secondaryCalendar.name)
-                param("country", country)
-                param("android_version", Build.VERSION.SDK_INT.toLong())
-            }
+            firebaseAnalytics.logEvent("app_launch", Bundle().apply {
+                putString("app_version", BuildConfig.VERSION_NAME)
+                putLong("version_code", BuildConfig.VERSION_CODE.toLong())
+//                param("device_locale", deviceLocale)
+//                param("primary_calendar", primaryCalendar.name)
+//                param("secondary_calendar", secondaryCalendar.name)
+//                param("country", country)
+                putLong("android_version", Build.VERSION.SDK_INT.toLong())
+            })
 
             Timber.d("Launch event logged to Firebase Analytics")
         } catch (e: Exception) {

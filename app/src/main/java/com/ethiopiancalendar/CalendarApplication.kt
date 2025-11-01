@@ -9,7 +9,7 @@ import com.ethiopiancalendar.widget.CalendarWidgetWorker
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import javax.inject.Inject
-
+//import com.shalom.composeclandar.BuildConfig;
 @HiltAndroidApp
 class CalendarApplication : Application() {
 
@@ -26,7 +26,7 @@ class CalendarApplication : Application() {
         super.onCreate()
 
         // Initialize Timber for logging
-        if (com.ethiopiancalendar.BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
 
@@ -40,7 +40,7 @@ class CalendarApplication : Application() {
 
         // 1.4 Initialize Firebase Remote Config for Muslim holiday offsets
         // This is called in AppInitializationManager but we keep it here for immediate config
-        remoteConfigManager.initialize(isDebug = com.ethiopiancalendar.BuildConfig.DEBUG)
+        remoteConfigManager.initialize(isDebug =  BuildConfig.DEBUG)
 
         // Execute comprehensive app initialization:
         // 1.1 Locale & Chronology Initialization
