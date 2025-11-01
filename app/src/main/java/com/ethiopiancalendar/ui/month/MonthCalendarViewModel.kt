@@ -213,8 +213,20 @@ class MonthCalendarViewModel @Inject constructor(
      * The input month is Ethiopian, but we'll find the corresponding Gregorian month
      */
     private fun generateGregorianMonthGrid(ethiopianMonth: EthiopicDate): List<EthiopicDate> {
-        // Convert Ethiopian date to Gregorian to find the Gregorian month
-        val gregorianDate = LocalDate.from(ethiopianMonth)
+        // Use the last day of the Ethiopian month as reference to find the Gregorian month.
+        // This ensures when an Ethiopian month spans two Gregorian months,
+        // we show the Gregorian month that contains the end of the Ethiopian month,
+        // which is more intuitive when the primary calendar is Gregorian.
+        val ethiopianYear = ethiopianMonth.get(ChronoField.YEAR_OF_ERA)
+        val ethiopianMonthValue = ethiopianMonth.get(ChronoField.MONTH_OF_YEAR)
+        val daysInEthiopianMonth = getDaysInMonth(ethiopianYear, ethiopianMonthValue)
+
+        // Use the last day of the Ethiopian month
+        val referenceDay = daysInEthiopianMonth
+        val referenceEthiopianDate = EthiopicDate.of(ethiopianYear, ethiopianMonthValue, referenceDay)
+
+        // Convert to Gregorian to find the Gregorian month to display
+        val gregorianDate = LocalDate.from(referenceEthiopianDate)
         val year = gregorianDate.year
         val month = gregorianDate.monthValue
 
