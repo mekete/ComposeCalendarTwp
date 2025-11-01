@@ -1,0 +1,687 @@
+package com.shalom.calendar.utility;
+
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+
+import com.shalom.calendar.R;
+
+import org.joda.time.Chronology;
+import org.joda.time.chrono.EthiopicChronology;
+import org.joda.time.chrono.GregorianChronology;
+import org.joda.time.chrono.IslamicChronology;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class DateTimeUtil {
+
+    public static final long DAY_IN_MILLI = 24 * 3600 * 1000;
+    public static final long WEEK_IN_MILLI = 7 * DAY_IN_MILLI;
+
+
+    public static final int LENGTH_SINGLE_LETTER = 0;
+    public static final int LENGTH_SHORT = 0;
+    public static final int LENGTH_FULL = 0;
+    //
+
+    public static String[] getDateRangeEthio() {
+        String[] ssss = new String[30];
+        for (int i = 0; i < 30; i++) {
+            if (i < 9) {
+                ssss[i] = "0" + (i + 1) + "";
+            } else {
+                ssss[i] = "" + (i + 1) + "";
+            }
+        }
+        return ssss;
+    }
+
+    public static String[] getDateRangeGreg() {
+        String[] ssss = new String[31];
+        for (int i = 0; i < 31; i++) {
+            if (i < 9) {
+                ssss[i] = "0" + (i + 1);
+            } else {
+                ssss[i] = "" + (i + 1);
+            }
+        }
+        return ssss;
+    }
+
+    public static final String CHRONOLOGY_GREGORIAN = "Gregorian";
+    public static final String CHRONOLOGY_ISLAMIC = "Islamic";
+    public static final String CHRONOLOGY_NONE = "None";
+    public static final String CHRONOLOGY_ETHIOPIC = "Ethiopic";
+
+    public static final String getChronologyAsString(Chronology chronology) {
+        if (GregorianChronology.getInstance().equals(chronology)) {
+            return CHRONOLOGY_GREGORIAN;
+        } else if (EthiopicChronology.getInstance().equals(chronology)) {
+            return CHRONOLOGY_ETHIOPIC;
+        } else if (IslamicChronology.getInstance().equals(chronology)) {
+            return CHRONOLOGY_ISLAMIC;
+        }
+        return CHRONOLOGY_NONE;
+    }
+
+    public static Chronology getChronologyFromString(String chronology) {
+        if (CHRONOLOGY_GREGORIAN.equals(chronology)) {
+            return GregorianChronology.getInstance();
+        } else if (CHRONOLOGY_ETHIOPIC.equals(chronology)) {
+            return EthiopicChronology.getInstance();
+        } else if (CHRONOLOGY_ISLAMIC.equals(chronology)) {
+            return IslamicChronology.getInstance();
+        }
+        return null;
+    }
+
+    public static String getDayTimePeriod(int hourOfDay, Context context) {
+        String dayTime;
+        if (hourOfDay > 24 || hourOfDay<0) {
+            return "Invalid";
+        }
+        if (hourOfDay < 6) {
+            dayTime = context.getString(R.string.alarm_day_period_lelit);
+        } else if (hourOfDay < 8) {
+            dayTime = context.getString(R.string.alarm_day_period_maleda);
+        } else if (hourOfDay < 12) {
+            dayTime = context.getString(R.string.alarm_day_period_tewat);
+        } else if (hourOfDay < 14) {
+            dayTime = context.getString(R.string.alarm_day_period_qetir);
+        } else if (hourOfDay < 18) {
+            dayTime = context.getString(R.string.alarm_day_period_keseat_behuala);//after noon.. We don't have a good word for "LateEvening "
+        } else if (hourOfDay < 23) {
+            dayTime = context.getString(R.string.alarm_day_period_mishit);
+        } else {//>mata 4 saat eske lelitu 11 in ethiopia
+            dayTime = context.getString(R.string.alarm_day_period_lelit);
+        }
+        return dayTime;
+    }
+
+    public static boolean isEthioLeapYear(int ethioYear) {
+        return ethioYear % 4 == 3;
+    }
+
+    public static boolean isGregLeapYear(int gregYear) {
+        return ((gregYear % 4 == 0) && (gregYear % 100 != 0)) || (gregYear % 400 == 0);
+    }
+
+    public static boolean isMoreThanOneDay(long dateTime) {
+        long now = new Date().getTime();
+        return (new Date().getTime() - dateTime) > DAY_IN_MILLI;
+    }
+
+    public static boolean isMoreThanOneWeek(long dateTime) {
+        long now = new Date().getTime();
+        return (new Date().getTime() - dateTime) > WEEK_IN_MILLI;
+    }
+
+
+    public static String currentDateTimeAsString( ) {
+
+        return currentDateTimeAsString("yyyyMMddHHmm") ;
+
+    }
+    public static String currentDateTimeAsString(String format) {
+
+        return new SimpleDateFormat(format).format(new Date());
+
+    }
+
+    public static final class KerodTimeZone {
+        public String zoneId;
+        public String searchableCities;
+        public String displayName;
+
+
+        public KerodTimeZone(String displayName, String zoneId, String searchableCities) {
+            this.zoneId = zoneId;
+            this.displayName = displayName;
+            this.searchableCities = searchableCities;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return displayName;
+        }
+
+        public static List<KerodTimeZone> getExpandedTimeZoneList() {
+
+            List<KerodTimeZone> timeZoneList = new ArrayList<>();
+
+            timeZoneList.add(new KerodTimeZone("Papua New Guinea, Lae", "Pacific/Port_Moresby", "papua new guinea---port moresby---lae"));
+            timeZoneList.add(new KerodTimeZone("USA, Honolulu, Hawaii", "Pacific/Honolulu", "united states of america---honolulu"));
+            timeZoneList.add(new KerodTimeZone("Fiji, Suva, Central", "Pacific/Fiji", "fiji---suva"));
+            timeZoneList.add(new KerodTimeZone("New Zealand, Takapuna, Auckland", "Pacific/Auckland", "new zealand---auckland---manukau---wellington---christchurch---takapuna"));
+            timeZoneList.add(new KerodTimeZone("France, St.-Denis, La Réunion", "Indian/Reunion", "france---st.-denis"));
+            timeZoneList.add(new KerodTimeZone("Mauritius, Curepipe", "Indian/Mauritius", "mauritius---port louis---curepipe"));
+            timeZoneList.add(new KerodTimeZone("Maldives, Male", "Indian/Maldives", "maldives---male"));
+            timeZoneList.add(new KerodTimeZone("Madagascar, Toliara, Toliary", "Indian/Antananarivo", "madagascar---antananarivo---antsirabe---toamasina---fianarantsoa---mahajanga---toliara"));
+            timeZoneList.add(new KerodTimeZone("Switzerland, Luzern, Lucerne", "Europe/Zurich", "switzerland---zürich---geneva---basel---bern---lausanne---luzern"));
+            timeZoneList.add(new KerodTimeZone("Ukraine, Melitopol, Zaporizhzhya", "Europe/Zaporozhye", "ukraine---zaporizhzhya---melitopol"));
+            timeZoneList.add(new KerodTimeZone("Croatia, Rijeka, Primorsko-Goranska", "Europe/Zagreb", "croatia---zagreb---split---rijeka"));
+            timeZoneList.add(new KerodTimeZone("Poland, Grudziadz, Kuyavian-Pomeranian", "Europe/Warsaw", "poland---warsaw---katowice---lódz---kraków---wroclaw---gdansk---poznan---bytom---szczecin---bydgoszcz---lublin---gliwice---bialystok---gdynia---kielce---rzeszow---olsztyn---opole---elblag---zielona gora---koszalin---grudziadz"));
+            timeZoneList.add(new KerodTimeZone("Russia, Volzhskiy, Volgograd", "Europe/Volgograd", "russia---volgograd---volzhskiy"));
+            timeZoneList.add(new KerodTimeZone("Lithuania, Panevežys, Panevezio", "Europe/Vilnius", "lithuania---vilnius---kaunas---klaipeda---siauliai---panevežys"));
+            timeZoneList.add(new KerodTimeZone("Austria, Innsbruck, Tirol", "Europe/Vienna", "austria---vienna---linz---graz---salzburg---innsbruck"));
+            timeZoneList.add(new KerodTimeZone("Ukraine, Uzhgorod, Transcarpathia", "Europe/Uzhgorod", "ukraine---uzhgorod"));
+            timeZoneList.add(new KerodTimeZone("Russia, Dimitrovgrad, Ul'yanovsk", "Europe/Ulyanovsk", "russia---ulyanovsk---dimitrovgrad"));
+            timeZoneList.add(new KerodTimeZone("Albania, Shkoder, Shkodër", "Europe/Tirane", "albania---tirana---elbasan---durres---shkoder"));
+            timeZoneList.add(new KerodTimeZone("Estonia, Tallinn, Harju", "Europe/Tallinn", "estonia---tallinn"));
+            timeZoneList.add(new KerodTimeZone("Sweden, Västerås, Västmanland", "Europe/Stockholm", "sweden---stockholm---göteborg---malmö---uppsala---västerås"));
+            timeZoneList.add(new KerodTimeZone("Bulgaria, Pleven", "Europe/Sofia", "bulgaria---sofia---plovdiv---varna---burgas---ruse---stara zagora---pleven"));
+            timeZoneList.add(new KerodTimeZone("Macedonia, Skopje, Centar", "Europe/Skopje", "macedonia---skopje"));
+            timeZoneList.add(new KerodTimeZone("Ukraine, Kerch, Crimea", "Europe/Simferopol", "ukraine---sevastapol---simferopol---kerch"));
+            timeZoneList.add(new KerodTimeZone("Russia, Balakovo, Saratov", "Europe/Saratov", "russia---saratov---engels---balakovo"));
+            timeZoneList.add(new KerodTimeZone("Bosnia and Herzegovina, Mostar, Herzegovina-Neretva", "Europe/Sarajevo", "bosnia and herzegovina---sarajevo---banja luka---zenica---tuzla---mostar"));
+            timeZoneList.add(new KerodTimeZone("Russia, Novokuybishevsk, Samara", "Europe/Samara", "russia---samara---tolyatti---izhevsk---syzran---novokuybishevsk"));
+            timeZoneList.add(new KerodTimeZone("Italy, Sassari, Sardegna", "Europe/Rome", "italy---milan---rome---turin---palermo---genoa---salerno---catania---bologna---bari---verona---venice---cagliari---messina---pescara---trieste---reggio di calabria---modena---como---caserta---parma---bergamo---taranto---foggia---pisa---livorno---perugia---treviso---ravenna---siracusa---lecce---ferrara---udine---trento---sassari"));
+            timeZoneList.add(new KerodTimeZone("Latvia, Daugavpils", "Europe/Riga", "latvia---riga---daugavpils"));
+            timeZoneList.add(new KerodTimeZone("Czech Republic, Liberec, Liberecký", "Europe/Prague", "czech republic---prague---ostrava---brno---pizen---zlin---liberec"));
+            timeZoneList.add(new KerodTimeZone("Montenegro, Podgorica", "Europe/Podgorica", "montenegro---podgorica"));
+            timeZoneList.add(new KerodTimeZone("France, Amiens, Picardie", "Europe/Paris", "france---paris---marseille---lyon---toulouse---lille---nice---bordeaux---nantes---strasbourg---rouen---montpellier---grenoble---metz---toulon---saint-etienne---le havre---rennes---tours---nancy---clermont-ferrand---angers---reims---orleans---mulhouse---dijon---nimes---caen---limoges---aix-en-provence---melun---le mans---brest---perpignan---besancon---amiens"));
+            timeZoneList.add(new KerodTimeZone("Norway, Bærum, Akershus", "Europe/Oslo", "norway---oslo---bergen---trondheim---stavanger---bærum"));
+            timeZoneList.add(new KerodTimeZone("Russia, Cherkessk, Karachay-Cherkess", "Europe/Moscow", "russia---moscow---nizhny novgorod---kazan---krasnodar---yaroslavl---voronezh---makhachkala---ryazan---lipetsk---naberezhnyye chelny---cheboksary---bryansk---ivanovo---kursk---tver---stavropol---vladikavkaz---orel---belgorod---sochi---vladimir---kaluga---smolensk---saransk---yoshkar ola---tambov---archangel---naltchik---murmansk---cherepovets---kostroma---taganrog---vologda---podolsk---petrozavodsk---dzerzhinsk---syktyvkar---novorossiysk---groznyy---velikiy novgorod---nizhnekamsk---shakhty---rybinsk---starsy oskol---armavir---pskov---severodvinsk---kolpino---noginsk---novocherkassk---kovrov---maykop---nevinnomyssk---kislovodsk---serpukhov---kolomna---orekhovo-zuevo---murom---arzamas---volgodonsk---almetyevsk---yelets---sergiyev posad---bataysk---cherkessk"));
+            timeZoneList.add(new KerodTimeZone("Belarus, Mazyr, Homyel'", "Europe/Minsk", "belarus---minsk---homyel---mahilyow---vitsyebsk---hrodna---babruysk---baranavichy---orsha---barysaw---pinsk---mazyr"));
+            timeZoneList.add(new KerodTimeZone("Malta, Valletta", "Europe/Malta", "malta---valletta"));
+            timeZoneList.add(new KerodTimeZone("Spain, Algeciras, Andalucía", "Europe/Madrid", "spain---madrid---seville---valencia---bilbao---zaragoza---malaga---murcia---vigo---palma---la coruña---gijon---alicante---san sebastián---oviedo---vitoria---santander---castello---cartagena---cadiz---marbella---almeria---burgos---mataro---leon---albacete---logrono---huelva---badajoz---ourense---tarragona---algeciras"));
+            timeZoneList.add(new KerodTimeZone("UK, Exeter, Devon", "Europe/London", "united kingdom---leeds---sheffield---cardiff---nottingham---newcastle---edinburgh---leicester---bradford---southend-on-sea---southampton---belfast---coventry---stoke---portsmouth---brighton---sunderland---kingston upon hull---bournemouth---middlesbrough---reading---plymouth---swansea---luton---blackpool---norwich---oxford---dundee---ipswich---cambridge---exeter"));
+            timeZoneList.add(new KerodTimeZone("Slovenia, Maribor", "Europe/Ljubljana", "slovenia---ljubljana---maribor"));
+            timeZoneList.add(new KerodTimeZone("Portugal, Setubal, Lisboa", "Europe/Lisbon", "portugal---lisbon---porto---braga---setubal"));
+            timeZoneList.add(new KerodTimeZone("Ukraine, Drohobych, L'viv", "Europe/Kiev", "ukraine---kiev---kharkiv---dnipropetrovsk---donetsk---lvov---kryvyy rih---mariupol---luhansk---mykolayiv---vinnytsya---horlivka---khmelnytskyy---makiyivka---poltava---chernihiv---sumy---cherkasy---zhytomyr---kherson---chernivtsi---rivne---kirovohrad---ternopil---ivano-frankivsk---lutsk---kremenchuk---bila tserkva---kramatorsk---nikopol---lysychansk---kamyanets-podilskyy---drohobych"));
+            timeZoneList.add(new KerodTimeZone("Russia, Kaliningrad", "Europe/Kaliningrad", "russia---kaliningrad"));
+            timeZoneList.add(new KerodTimeZone("Turkey, Karaman", "Europe/Istanbul", "turkey---istanbul---ankara---izmir---bursa---adana---gaziantep---konya---antalya---diyarbakir---icel---samsun---tarsus---kayseri---trabzon---eskisehir---malatya---sanliurfa---erzurum---izmit---kahramanmaras---denizli---van---hatay---sakarya---batman---elazig---adapazari---balikesir---sivas---manisa---iskenderun---kirikkale---adiyaman---rize---aydin---corum---kutahya---isparta---antioch---afyon---usak---ordu---tokat---zonguldak---erzincan---nusaybin---edirne---siirt---karabuk---tekirdag---karaman"));
+            timeZoneList.add(new KerodTimeZone("Finland, Oulu, Northern Ostrobothnia", "Europe/Helsinki", "finland---helsinki---tampere---turku---oulu"));
+            timeZoneList.add(new KerodTimeZone("Gibraltar, Gibraltar", "Europe/Gibraltar", "gibraltar---gibraltar"));
+            timeZoneList.add(new KerodTimeZone("Ireland, Cork", "Europe/Dublin", "ireland---cork"));
+            timeZoneList.add(new KerodTimeZone("Denmark, Aalborg, Nordjylland", "Europe/Copenhagen", "denmark---københavn---copenhagen---århus---odense---aalborg"));
+            timeZoneList.add(new KerodTimeZone("Moldova, Balti", "Europe/Chisinau", "moldova---chisinau---tiraspol---balti"));
+            timeZoneList.add(new KerodTimeZone("Hungary, Kecskemet, Bács-Kiskun", "Europe/Budapest", "hungary---budapest---debrecen---miskolc---szeged---pecs---nyiregyhaza---gyor---szekesfehervar---kecskemet"));
+            timeZoneList.add(new KerodTimeZone("Romania, Piatra-Neamt, Neamt", "Europe/Bucharest", "romania---bucharest---iasi---timisoara---galati---craiova---cluj-napoca---brasov---constanta---ploiesti---braila---oradea---bacau---pitesti---arad---sibiu---tirgu mures---baia mare---buzau---botosani---satu mare---rimnicu vilcea---drobeta-turnu severin---piatra-neamt"));
+            timeZoneList.add(new KerodTimeZone("Belgium, Brugge", "Europe/Brussels", "belgium---brussels---antwerpen---liege---gent---charleroi---brugge"));
+            timeZoneList.add(new KerodTimeZone("Slovakia, Kosice, Košický", "Europe/Bratislava", "slovakia---bratislava---kosice"));
+            timeZoneList.add(new KerodTimeZone("Germany, Gera, Thüringen", "Europe/Berlin", "germany---berlin---frankfurt---stuttgart---hamburg---mannheim---munich---essen---cologne---düsseldorf---duisburg---bremen---hannover---nürnberg---dortmund---wuppertal---dresden---leipzig---bonn---saarbrucken---wiesbaden---karlsruhe---bielefeld---augsburg---heidelberg---chemnitz---münster---kiel---kassel---braunschweig---freiburg---magdeburg---lubeck---koblenz---rostock---osnabrück---erfurt---mainz---potsdam---furth---oldenburg---wurzburg---regensburg---ulm---ingolstadt---gottingen---bremerhaven---gera"));
+            timeZoneList.add(new KerodTimeZone("Kosovo, Prizren", "Europe/Belgrade", "kosovo---belgrade---pristina---nis---novi sad---kragujevac---prizren"));
+            timeZoneList.add(new KerodTimeZone("Greece, Larissa, Thessalia", "Europe/Athens", "greece---thessaloniki---piraiévs---patra---iraklio---larissa"));
+            timeZoneList.add(new KerodTimeZone("Russia, Astrakhan, Astrakhan'", "Europe/Astrakhan", "russia---astrakhan"));
+            timeZoneList.add(new KerodTimeZone("Netherlands, Leeuwarden, Friesland", "Europe/Amsterdam", "netherlands---the hague---amsterdam---rotterdam---utrecht---eindhoven---haarlem---arnhem---'s-hertogenbosch---maastricht---zwolle---leeuwarden"));
+            timeZoneList.add(new KerodTimeZone("Australia, Wollongong, New South Wales", "Australia/Sydney", "australia---canberra---wollongong"));
+            timeZoneList.add(new KerodTimeZone("Australia, Geelong, Victoria", "Australia/Melbourne", "australia---cranbourne---geelong"));
+            timeZoneList.add(new KerodTimeZone("Australia, Townsville, Queensland", "Australia/Brisbane", "australia---brisbane---gold coast---cairns---townsville"));
+            timeZoneList.add(new KerodTimeZone("Australia, Adelaide, South Australia", "Australia/Adelaide", "australia---adelaide"));
+            timeZoneList.add(new KerodTimeZone("Iceland, Reykjavík, Suðurnes", "Atlantic/Reykjavik", "iceland---reykjavík"));
+            timeZoneList.add(new KerodTimeZone("Portugal, Funchal, Madeira", "Atlantic/Madeira", "portugal---funchal"));
+            timeZoneList.add(new KerodTimeZone("Cape Verde, Praia", "Atlantic/Cape_Verde", "cape verde---praia"));
+            timeZoneList.add(new KerodTimeZone("Spain, Santa Cruz de Tenerife", "Atlantic/Canary", "spain---las palmas---santa cruz de tenerife"));
+            timeZoneList.add(new KerodTimeZone("Armenia, Gyumri, Shirak", "Asia/Yerevan", "armenia---yerevan---gyumri"));
+            timeZoneList.add(new KerodTimeZone("Russia, Noyabrsk, Yamal-Nenets", "Asia/Yekaterinburg", "russia---yekaterinburg---chelyabinsk---ufa---orenburg---tyumen---nizhny tagil---surgut---kurgan---magnitogorsk---sterlitamak---kamensk uralskiy---zlatoust---orsk---berezniki---miass---nizhenvartovsk---pervouralsk---neftekamsk---nefteyugansk---salavat---noyabrsk"));
+            timeZoneList.add(new KerodTimeZone("Russia, Blagoveshchensk, Amur", "Asia/Yakutsk", "russia---yakutsk---blagoveshchensk"));
+            timeZoneList.add(new KerodTimeZone("Russia, Ussuriysk, Primor'ye", "Asia/Vladivostok", "russia---vladivostok---khabarovsk---komsomolsk na amure---nakhodka---ussuriysk"));
+            timeZoneList.add(new KerodTimeZone("Laos, Vientiane, Vientiane [prefecture]", "Asia/Vientiane", "laos---vientiane"));
+            timeZoneList.add(new KerodTimeZone("China, Golmud, Gansu", "Asia/Urumqi", "china---urumqi---maoming---zhanjiang---shihezi---yumen---hami---korla---turpan---lhasa---dunhuang---karamay---golmud"));
+            timeZoneList.add(new KerodTimeZone("Mongolia, Ulaanbaatar", "Asia/Ulaanbaatar", "mongolia---ulaanbaatar"));
+            timeZoneList.add(new KerodTimeZone("Russia, Tomsk", "Asia/Tomsk", "russia---tomsk"));
+            timeZoneList.add(new KerodTimeZone("Japan, Kitami, Hokkaido", "Asia/Tokyo", "japan---tokyo---osaka---yokohama---nagoya---sapporo---fukuoka---sendai---kyoto---hiroshima---kobe---kawasaki---kitakyushu---hamamatsu---okayama---kumamoto---shizuoka---naha---hachioji---utsunomiya---niigata---kagoshima---matsuyama---kanazawa---nagano---otsu---nagasaki---oita---gifu---wakayama---tsu---tokushima---asahikawa---kawagoe---takamatsu---toyama---iwaki---kochi---miyazaki---maebashi---koriyama---akita---mito---morioka---hakodate---aomori---fukushima---yamagata---fukui---shimonoseki---hachinohe---sasebo---matsumoto---kure---kofu---kushiro---nagaoka---hirosaki---obihiro---tomakomai---matsue---tottori---otaru---muroran---takaoka---kitami"));
+            timeZoneList.add(new KerodTimeZone("Iran, Fasa, Fars", "Asia/Tehran", "iran---tehran---mashhad---isfahan---karaj---tabriz---shiraz---qom---ahvaz---kermanshah---zahedan---kerman---rasht---yazd---khomeini shahr---bandar-e-abbas---ardabil---qazvin---zanjan---khorramabad---sanandaj---dezful---abadan---hamadan---sari---gorgan---birjand---borujerd---kashan---neyshabur---sabzewar---amol---bojnurd---khvoy---zabol---malayer---varamin---sirjan---bandar-e bushehr---mahabad---maragheh---gonbad-e kavus---saveh---masjed soleyman---shar e kord---quchan---kashmar---shahrud---marv dasht---qomsheh---semnan---fasa"));
+            timeZoneList.add(new KerodTimeZone("Georgia, Batumi, Ajaria", "Asia/Tbilisi", "georgia---tbilisi---kutaisi---rustavi---batumi"));
+            timeZoneList.add(new KerodTimeZone("Uzbekistan, Iskandar, Tashkent", "Asia/Tashkent", "uzbekistan---tashkent---namangan---andijon---fargona---qoqon---jizzax---angren---chirchiq---olmaliq---iskandar"));
+            timeZoneList.add(new KerodTimeZone("Taiwan, Douliou, Yunlin", "Asia/Taipei", "taiwan---taipei---new taipei---kaohsiung---taichung---tainan---zhongli---hsinchu---changhua---taoyuan---keelung---chiayi---pingtung---hualien---pingzhen---zhubei---bade---yangmei---taitung---nantou---yilan---miaoli---douliou"));
+            timeZoneList.add(new KerodTimeZone("Singapore, Singapore", "Asia/Singapore", "singapore---singapore"));
+            timeZoneList.add(new KerodTimeZone("China, Huanghua, Hebei", "Asia/Shanghai", "china---shanghai---beijing---guangzhou---wuhan---tianjin---dongguan---shenzhen---shenyeng---nanjing---taiyuan---dalian---hangzhou---zhangzhou---jinan---changsha---zhengzhou---qingdao---shijianzhuang---xiangtan---nanchang---fuzhou---zibo---shuyang---tangshan---hefei---xuzhou---taian---wenzhou---luoyang---xiamen---suzhou---handan---shantou---datong---fushun---wuxi---anshan---yantai---xinyang---luan---jinxi---ningbo---huainan---ganzhou---linyi---zaozhuang---changzhou---nanyang---baoding---zhuhai---maanshan---changde---weifang---shangqiu---xinyi---jianmen---benxi---shangrao---huaiyin---huaibei---xiantao---zhuzhou---hengyang---zhucheng---qinhuangdao---kaifeng---xuanzhou---yangquan---pingdingshan---yancheng---anyang---yueyang---quanzhou---xinxiang---chifeng---nantong---lingyuan---zhangjiakou---heze---foshan---jinzhou---yiyang---xiangfan---dandong---zhenjiang---liaoyang---bengbu---fuxin---jiaxing---lianyungang---qingyuan---changzhi---yongzhou---huzhou---langfang---yingkow---huangshi---jiaozuo---yichang---shaoguan---puyang---wuhu---shiyan---jinhua---taizhou---xiangtai---shaoxing---tongliao---rizhao---jiujiang---yangzhou---yuci---linfen---jiangmen---cangzhou---jincheng---shashi---xinyu---jian---jiaojing---anqing---hengshui---xuchang---chaoyang---tongling---chaozhou---zhaoqing---luohe---zhuozhou---shuozhou---jingmen---xuanhua---jingdezhen---dezhou---chengde---zhoukou---putian---changping---longyan---weihai---tieling---wafangdian---huizhou---meizhou---hangu---heyuan---chenzhou---hebi---linchuan---liaocheng---quzhou---hailar---xinzhou---laiyang---ulanhot---linhai---zicheng---nanping---beipiao---ninde---jinshi---shishou---huangyan---zhuanghe---fuyang---puqi---xiaogan---dingzhou---lianxian---guangshui---jieshou---lishui---zalantun---yunxian---macheng---laiwu---xilinhot---buizhou---zhijiang---linqing---yakeshi---sanming---huanghua"));
+            timeZoneList.add(new KerodTimeZone("South Korea, Andong, Daegu", "Asia/Seoul", "south korea---seoul---busan---incheon---daegu---daejeon---gwangju---changwon---suwon---ulsan---songnam---goyang---puch'on---cheongju---ansan---jeonju---pohang---jeju---yeosu---mokpo---iksan---gunsan---wonju---chuncheon---gangneung---gyeongju---andong"));
+            timeZoneList.add(new KerodTimeZone("Uzbekistan, Khiwa, Khorezm", "Asia/Samarkand", "uzbekistan---samarqand---qarshi---bukhara---shahrisabz---nukus---navoi---termiz---kattaqorgon---denow---urgentch---khiwa"));
+            timeZoneList.add(new KerodTimeZone("Russia, Yuzhno Sakhalinsk, Sakhalin", "Asia/Sakhalin", "russia---yuzhno sakhalinsk"));
+            timeZoneList.add(new KerodTimeZone("Saudi Arabia, Jizan", "Asia/Riyadh", "saudi arabia---riyadh---jeddah---ad damman---makkah---medina---at taif---al hufuf---tabuk---buraydah---hail---najran---al kharj---al mubarraz---hafar al batin---al jubayl---yanbu al bahr---al-qatif---abha---arar---sakakah---jizan"));
+            timeZoneList.add(new KerodTimeZone("Myanmar, Yaynangyoung, Magway", "Asia/Rangoon", "myanmar---rangoon---mandalay---naypyidaw---mawlamyine---bago---myeik---pathein---monywa---sittwe---taunggyi---hinthada---myingyan---dawei---pakokku---pyay---mudon---myitkyina---magway---letpadan---taungoo---yaynangyoung"));
+            timeZoneList.add(new KerodTimeZone("Kazakhstan, Rudny, Qostanay", "Asia/Qyzylorda", "kazakhstan---oostanay---qyzylorda---rudny"));
+            timeZoneList.add(new KerodTimeZone("Qatar, Doha, Ad Dawhah", "Asia/Qatar", "qatar---doha"));
+            timeZoneList.add(new KerodTimeZone("North Korea, Sariwon, Hwanghae-bukto", "Asia/Pyongyang", "north korea---pyongyang---nampo---hamhung---hungnam---chongjin---sunchon---wonsan---kaesong---kanggye---hyeson---haeju---kimchaek---manpo---sinuiju---sariwon"));
+            timeZoneList.add(new KerodTimeZone("Indonesia, Palangkaraya, Kalimantan Tengah", "Asia/Pontianak", "indonesia---pontianak---singkawang---palangkaraya"));
+            timeZoneList.add(new KerodTimeZone("Cambodia, Battambang, Batdâmbâng", "Asia/Phnom_Penh", "cambodia---phnom penh---battambang"));
+            timeZoneList.add(new KerodTimeZone("Kazakhstan, Oral, West Kazakhstan", "Asia/Oral", "kazakhstan---oral"));
+            timeZoneList.add(new KerodTimeZone("Russia, Omsk", "Asia/Omsk", "russia---omsk"));
+            timeZoneList.add(new KerodTimeZone("Russia, Novosibirsk", "Asia/Novosibirsk", "russia---novosibirsk"));
+            timeZoneList.add(new KerodTimeZone("Russia, Leninsk Kuznetsky, Kemerovo", "Asia/Novokuznetsk", "russia---novokuznetsk---kemerovo---prokopyevsk---leninsk kuznetsky"));
+            timeZoneList.add(new KerodTimeZone("Cyprus, Lemosos, Limassol", "Asia/Nicosia", "cyprus---nicosia---lemosos"));
+            timeZoneList.add(new KerodTimeZone("Oman, Ibri, Al Dhahira", "Asia/Muscat", "oman---muscat---as sib---salalah---suhar---ibri"));
+            timeZoneList.add(new KerodTimeZone("Philippines, Tuguegarao, Cagayan", "Asia/Manila", "philippines---manila---quezon city---davao---cagayan de oro---cebu---general santos---bacolod---zamboanga---iligan---naga---pasay city---iloilo---baguio city---batangas---legazpi---angeles---olongapo---tacloban---cotabato---san pablo---cabanatuan---butuan---tarlac---dagupan---pagadian---laoag---puerto princesa---ormac---tuguegarao"));
+            timeZoneList.add(new KerodTimeZone("Indonesia, Bontang, Kalimantan Timur", "Asia/Makassar", "indonesia---ujungpandang---bandjarmasin---denpasar---palu---samarinda---manado---balikpapan---mataram---kupang---gorontalo---singaraja---pinrang---kendari---martapura---majene---tarakan---raba---bontang"));
+            timeZoneList.add(new KerodTimeZone("Macau S.A.R, Macau", "Asia/Macau", "macau s.a.r---macau"));
+            timeZoneList.add(new KerodTimeZone("Kuwait, Hawalli", "Asia/Kuwait", "kuwait---kuwait---al jahra---hawalli"));
+            timeZoneList.add(new KerodTimeZone("Malaysia, Bintulu, Sarawak", "Asia/Kuching", "malaysia---kuching---kota kinabalu---sandakan---tawau---miri---sibu---bintulu"));
+            timeZoneList.add(new KerodTimeZone("Malaysia, Muar, Johor", "Asia/Kuala_Lumpur", "malaysia---kuala lumpur---kelang---johor bahru---ipoh---malacca---shah alam---butterworth---kota baharu---seremban---kuantan---kuala terengganu---sungai petani---alor setar---taiping---batu pahat---keluang---muar"));
+            timeZoneList.add(new KerodTimeZone("Russia, Kyzyl, Tuva", "Asia/Krasnoyarsk", "russia---krasnoyarsk---abakan---norilsk---achinsk---kyzyl"));
+            timeZoneList.add(new KerodTimeZone("India, Valparai, Kolkata", "Asia/Kolkata", "india---mumbai---delhi---kolkata---bangalore---chennai---ahmedabad---pune---surat---kanpur---haora---jaipur---lucknow---nagpur---indore---patna---bhopal---ludhiana---vadodara---kalyan---agra---faridabad---nasik---asansol---coimbatore---meerut---vishakhapatnam---ghaziabad---varanasi---rajkot---jabalpur---amritsar---allahabad---madurai---bhilai---srinagar---warangal---sholapur---vijayawada---jodhpur---jamshedpur---chandigarh---ranchi---gwalior---mysore---thiruvananthapuram---tiruchirappalli---hubli---jullundur---bhubaneshwar---kota---bareilly---aligarh---raipur---moradabad---bhiwandi---dhanbad---kozhikode---gorakhpur---amravati---kolhapur---dehra dun---jammu---jhansi---belgaum---sangli---mangalore---nanded---cuttack---malegaon---raurkela---ajmer---tiruppur---nellore---guntur---siliguri---bhavnagar---guwahati---tirunelveli---shimoga---bikaner---ujjain---saharanpur---bhatpara---gulbarga---davangere---akola---chandrapur---udaipur---bilaspur---tuticorin---hisar---dhule---kollam---bellary---ahmednagar---shillong---latur---bhagalpur---bhilwara---tumkur---kurnool---muzaffarnagar---nizamabad---rajapalaiyam---parbhani---muzaffarpur---mathura---patiala---brahmapur---shahjahanpur---sikar---new delhi---rohtak---firozabad---rajahmundry---barddhaman---rampur---kakinada---panipat---bhuj---sagar---alwar---aizawl---ratlam---bijapur---tirupati---karimnagar---etawah---bidar---sonipat---imphal---hapur---hospet---raichur---mirzapur---sambalpur---khammam---bharatpur---pondicherry---karnal---thanjavur---nagercoil---pathankot---mandya---pali---agartala---puri---dindigul---haldia---bulandshahr---purnia---gurgaon---burhanpur---gandhinagar---machilipatnam---bhiwani---ongole---proddatur---porbandar---bahraich---bhusawal---vellore---nandyal---alappuzha---simla---sirsa---chirala---medinipur---tonk---fatehpur---sitapur---navsari---budaun---cuddalore---hoshiarpur---kanchipuram---faizabad---silchar---hindupur---ambala---krishnanagar---dibrugarh---kumbakonam---tiruvannamalai---kolar---pilibhit---abohar---alipur duar---hathras---baramula---port blair---valparai"));
+            timeZoneList.add(new KerodTimeZone("Nepal, Birganj, Narayani", "Asia/Kathmandu", "nepal---kathmandu---pokhara---lalitpur---biratnagar---hetauda---birganj"));
+            timeZoneList.add(new KerodTimeZone("China, Hotan, Xinjiang Uygur", "Asia/Kashgar", "china---kashgar---yining---aksu---shache---hotan"));
+            timeZoneList.add(new KerodTimeZone("Pakistan, Turbat, Baluchistan", "Asia/Karachi", "pakistan---karachi---lahore---faisalabad---saidu---rawalpindi---multan---gujranwala---hyderabad---peshawar---abbottabad---quetta---islamabad---bannu---bahawalpur---sargodha---sialkote---sukkur---larkana---sheikhu pura---rahim yar khan---jhang---gujrat---mardan---kasur---mirput khas---kohat---dera ghazi khan---sahiwal---nawabshah---okara---chiniot---sadiqabad---gilgit---turbat"));
+            timeZoneList.add(new KerodTimeZone("Russia, Petropavlovsk Kamchatskiy, Kamchatka", "Asia/Kamchatka", "russia---petropavlovsk kamchatskiy"));
+            timeZoneList.add(new KerodTimeZone("Afghanistan, Ghazni", "Asia/Kabul", "afghanistan---kabul---kandahar---herat---jalalabad---mazar-e sharif---kondoz---lashkar gah---meymaneh---baghlan---balkh---ghazni"));
+            timeZoneList.add(new KerodTimeZone("Israel, Nazareth, HaZafon", "Asia/Jerusalem", "israel---tel aviv-yafo---jerusalem---haifa---beer sheva---nazareth"));
+            timeZoneList.add(new KerodTimeZone("Indonesia, Biak, Papua", "Asia/Jayapura", "indonesia---ambon---jayapura---ternate---sorong---biak"));
+            timeZoneList.add(new KerodTimeZone("Indonesia, Magelang, Jawa Tengah", "Asia/Jakarta", "indonesia---jakarta---surabaya---bandung---bekasi---medan---palembang---semarang---cilacap---bogor---padang---bandar lampung---malang---pekanbaru---yogyakarta---surakarta---jambi---binjai---bengkulu---banda aceh---pasuruan---bukittinggi---jember---sukabumi---pematangsiantar---tasikmalaya---pakalongan---cirebon---tegal---kediri---tebingtinggi---madiun---padangsidempuan---probolinggo---tanjungpinang---salatiga---serang---sibolga---banyuwangi---blitar---indramayu---pati---langsa---lhokseumawe---mojokerto---magelang"));
+            timeZoneList.add(new KerodTimeZone("Russia, Bratsk, Irkutsk", "Asia/Irkutsk", "russia---irkutsk---ulan ude---angarsk---bratsk"));
+            timeZoneList.add(new KerodTimeZone("Hong Kong S.A.R., Hong Kong", "Asia/Hong_Kong", "hong kong s.a.r.---hong kong"));
+            timeZoneList.add(new KerodTimeZone("Vietnam, Tan An, Long An", "Asia/Ho_Chi_Minh", "vietnam---ho chi minh city---hanoi---haiphong---da nang---can tho---bien hoa---hue---qui nhon---vinh---thai nguyen---nha trang---viet tri---ca mau---long xuyen---rach gia---phan thiet---buon me thuot---thu dau mot---nam dinh---soc trang---vung tau---thai binh---thanh hoa---da lat---bac lieu---quang ngai---ha tinh---hong gai---cao lanh---lang son---phan rang---tra vinh---ninh binh---play ku---tay ninh---my tho---son tay---dong hoi---vinh long---hoa binh---tan an"));
+            timeZoneList.add(new KerodTimeZone("Palestine, Nablus", "Asia/Hebron", "palestine---al khalil---nablus"));
+            timeZoneList.add(new KerodTimeZone("China, Nancha, Heilongjiang", "Asia/Harbin", "china---harbin---changchun---jilin---qiqihar---mudangiang---daqing---jiamusi---jixi---hegang---siping---shuangyashan---liaoyuan---yichun---yanji---qitaihe---baicheng---baishan---hulan ergi---suihua---fuyu---jiutai---anda---dunhua---zhaodong---beian---nongan---shuangcheng---taonan---tieli---hailun---nancha"));
+            timeZoneList.add(new KerodTimeZone("Palestine, Gaza", "Asia/Gaza", "palestine---gaza"));
+            timeZoneList.add(new KerodTimeZone("Tajikistan, Uroteppa, Leninabad", "Asia/Dushanbe", "tajikistan---dushanbe---khujand---qurghonteppa---konibodom---uroteppa"));
+            timeZoneList.add(new KerodTimeZone("United Arab Emirates, Dubai", "Asia/Dubai", "united arab emirates---dubai---sharjah---abu dhabi---al ayn---ras al khaymah"));
+            timeZoneList.add(new KerodTimeZone("East Timor, Dili", "Asia/Dili", "east timor---dili"));
+            timeZoneList.add(new KerodTimeZone("Bangladesh, Pabna, Rajshahi", "Asia/Dhaka", "bangladesh---dhaka---chittagong---khulna---rajshahi---comilla---mymensingh---rangpur---jessore---sylhet---saidpur---narayanganj---barisal---tangail---jamalpur---nawabganj---pabna"));
+            timeZoneList.add(new KerodTimeZone("Syria, Al Qamishli, Hasaka (Al Haksa)", "Asia/Damascus", "syria---damascus---aleppo---hims---hamah---al ladhiqiyah---douma---dayr az zawr---ar raqqah---tartus---dar'a---idlib---al hasakah---al qamishli"));
+            timeZoneList.add(new KerodTimeZone("Sri Lanka, Batticaloa", "Asia/Colombo", "sri lanka---colombo---moratuwa---jaffna---sri jawewardenepura kotte---kandy---trincomalee---batticaloa"));
+            timeZoneList.add(new KerodTimeZone("China, Tongren, Guizhou", "Asia/Chongqing", "china---chongqing---chengdu---xian---hechi---guiyang---lanzhou---nanchong---kunming---wanzhou---haikou---luzhou---nanning---liuzhou---suining---hohhot---baotou---xianyang---ankang---neijiang---baoshan---xining---zigong---lupanshui---mianyang---guilin---baoji---yangjiang---zunyi---yinchuan---leshan---zhanyi---tianshui---anshun---yibin---beihai---xingyi---wuwei---zhaotang---panzhihua---linxia---longxi---wuzhou---yaan---guangyuan---mengzi---jining---chuxiong---sanya---xichang---tongchuan---yuxi---wuhai---qinzhou---weinan---zhangye---simao---pingliang---deyang---hanzhong---gejiu---jinchang---hancheng---jiayuguan---bose---tengchong---yulin---shizuishan---dali---wenshan---tongren"));
+            timeZoneList.add(new KerodTimeZone("Russia, Chita", "Asia/Chita", "russia---chita"));
+            timeZoneList.add(new KerodTimeZone("Brunei, Bandar Seri Begawan, Brunei and Muara", "Asia/Brunei", "brunei---bandar seri begawan"));
+            timeZoneList.add(new KerodTimeZone("Kyrgyzstan, Jalal Abad, Jalal-Abad", "Asia/Bishkek", "kyrgyzstan---bishkek---osh---jalal abad"));
+            timeZoneList.add(new KerodTimeZone("Lebanon, Trablous, North Lebanon", "Asia/Beirut", "lebanon---beirut---trablous"));
+            timeZoneList.add(new KerodTimeZone("Russia, Rubtsovsk, Altay", "Asia/Barnaul", "russia---barnaul---biysk---rubtsovsk"));
+            timeZoneList.add(new KerodTimeZone("Thailand, Trang", "Asia/Bangkok", "thailand---bangkok---samut prakan---chiang mai---nakhon ratchasima---nonthaburi---hat yai---udon thani---chon buri---khon kaen---ubon ratchathani---lampang---nakhon si thammarat---pathum thani---surat thani---phitsanulok---yala---nakhon pathom---ayutthaya---nakhon sawan---phuket---trang"));
+            timeZoneList.add(new KerodTimeZone("Azerbaijan, Sumqayt, Sumqayit", "Asia/Baku", "azerbaijan---baku---ganca---sumqayt"));
+            timeZoneList.add(new KerodTimeZone("Bahrain, Manama", "Asia/Bahrain", "bahrain---manama"));
+            timeZoneList.add(new KerodTimeZone("Iraq, Zakho, Dihok", "Asia/Baghdad", "iraq---baghdad---mosul---basra---irbil---as sulaymaniyah---dahuk---an najaf---kirkuk---al hillah---karbala---an nasiriyah---ad diwaniyah---al amarah---al kut---ar ramadi---baqubah---al fallujah---az aubayr---as samawah---samarra---tall afar---ash shatrah---zakho"));
+            timeZoneList.add(new KerodTimeZone("Kazakhstan, Atyrau", "Asia/Atyrau", "kazakhstan---atyrau"));
+            timeZoneList.add(new KerodTimeZone("Turkmenistan, Mary", "Asia/Ashgabat", "turkmenistan---ashgabat---turkmenabat---dasoguz---mary"));
+            timeZoneList.add(new KerodTimeZone("Kazakhstan, Aktobe, Aqtöbe", "Asia/Aqtobe", "kazakhstan---aktobe"));
+            timeZoneList.add(new KerodTimeZone("Kazakhstan, Mangyshlak, Mangghystau", "Asia/Aqtau", "kazakhstan---mangyshlak"));
+            timeZoneList.add(new KerodTimeZone("Jordan, As Salt, Balqa", "Asia/Amman", "jordan---amman---az zarqa---irbid---as salt"));
+            timeZoneList.add(new KerodTimeZone("Kazakhstan, Zhezqazghan, Qaraghandy", "Asia/Almaty", "kazakhstan---almaty---shymkent---qaraghandy---astana---taraz---pavlodar---semey---oskemen---petropavlovsk---temirtau---kokshetau---ekibastuz---zhezqazghan"));
+            timeZoneList.add(new KerodTimeZone("Yemen, Zabid, Al Hudaydah", "Asia/Aden", "yemen---sanaa---aden---taizz---al hudaydah---ibb---al mukalla---dhamar---hajjah---sadah---zabid"));
+            timeZoneList.add(new KerodTimeZone("Canada, Winnipeg, Manitoba", "America/Winnipeg", "canada---winnipeg"));
+            timeZoneList.add(new KerodTimeZone("Canada, Kelowna, British Columbia", "America/Vancouver", "canada---abbotsford---kelowna"));
+            timeZoneList.add(new KerodTimeZone("Canada, Sarnia, Ontario", "America/Toronto", "canada---toronto---ottawa---kitchener---oshawa---barrie---sudbury---sarnia"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Ensenada, Baja California", "America/Tijuana", "mexico---tijuana---mexicali---ensenada"));
+            timeZoneList.add(new KerodTimeZone("Honduras, La Ceiba, Atlántida", "America/Tegucigalpa", "honduras---tegucigalpa---san pedro sula---la ceiba"));
+            timeZoneList.add(new KerodTimeZone("Canada, St. John’s, Newfoundland and Labrador", "America/St_Johns", "canada---st. john’s"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Barbacena, Minas Gerais", "America/Sao_Paulo", "brazil---sao paulo---rio de janeiro---belo horizonte---brasilia---porto alegre---curitiba---campinas---goiania---santos---vitória---niteroi---nova iguacu---duque de caxias---joinville---sao jose dos campos---santo andre---florianopolis---sorocaba---novo hamburgo---ribeirao preto---londrina---uberlandia---sao jose dos pinhais---canoas---juiz de fora---jundiai---campos---caxias do sul---foz do iguacu---sao jose do rio preto---volta redonda---americana---piracicaba---taubate---maringa---ipatinga---bauru---montes claros---pelotas---blumenau---franca---petropolis---anapolis---ponta grossa---itajai---limeira---uberaba---cascavel---itu---governador valadares---presidente prudente---sete lagoas---marilia---cabo frio---criciuma---divinopolis---rio claro---sao carlos---cachoeiro de itapemirim---barra mansa---aracatuba---passo fundo---nova friburgo---xapeco---guaratingueta---lajes---paranagua---macae---jaragua do sul---braganca paulista---pocos de caldas---pindamonhangaba---guarapuava---itapetininga---santa cruz do sul---catanduva---conselheiro lafaiete---apucarana---jau---bage---pouso alegre---barbacena"));
+            timeZoneList.add(new KerodTimeZone("Dominican Republic, Puerto Plata", "America/Santo_Domingo", "dominican republic---santo domingo---san pedro de macoris---la romana---san cristobal---san francisco de macoris---la vega---higuey---puerto plata"));
+            timeZoneList.add(new KerodTimeZone("Chile, Punta Arenas, Magallanes y Antártica Chilena", "America/Santiago", "chile---vina del mar---antofagasta---talcahuano---temuco---san bernardo---iquique---rancagua---talca---arica---puerto montt---coquimbo---la serena---chillan---valdivia---osorno---los angeles---calama---copiapo---curico---punta arenas"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Rio Branco, Acre", "America/Rio_Branco", "brazil---rio branco"));
+            timeZoneList.add(new KerodTimeZone("Canada, Regina, Saskatchewan", "America/Regina", "canada---saskatoon---regina"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Garanhuns, Pernambuco", "America/Recife", "brazil---recife---jaboatao---olinda---caruaru---petrolina---cabo de santo agostinho---carpina---garanhuns"));
+            timeZoneList.add(new KerodTimeZone("Puerto Rico, Ponce", "America/Puerto_Rico", "puerto rico---mayaguez---ponce"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Porto Velho, Rondônia", "America/Porto_Velho", "brazil---porto velho"));
+            timeZoneList.add(new KerodTimeZone("Haiti, Les Cayes, Sud", "America/Port-au-Prince", "haiti---port-au-prince---cap-haitien---gonaives---les cayes"));
+            timeZoneList.add(new KerodTimeZone("Trinidad and Tobago, Port-of-Spain, Port of Spain", "America/Port_of_Spain", "trinidad and tobago---port-of-spain"));
+            timeZoneList.add(new KerodTimeZone("USA, Glendale, Arizona", "America/Phoenix", "united states of america---phoenix---mesa---tucson---glendale"));
+            timeZoneList.add(new KerodTimeZone("Suriname, Paramaribo", "America/Paramaribo", "suriname---paramaribo"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Ciudad Juárez, Chihuahua", "America/Ojinaga", "mexico---ciudad juárez"));
+            timeZoneList.add(new KerodTimeZone("USA, Poughkeepsie, New York", "America/New_York", "united states of america---new york---philadelphia---miami---boston---atlanta---washington, d.c.---pittsburgh---baltimore---tampa---cleveland---fort lauderdale---cincinnati---charlotte---virginia beach---raleigh---orlando---new haven---west palm beach---providence---buffalo---bridgeport---st. petersburg---hartford---dayton---akron---stamford---knoxville---lowell---syracuse---sarasota---covington---greensboro---allentown---harrisburg---newark---durham---hampton---miami beach---lexington---winston-salem---trenton---chattanooga---columbus---youngstown---sanford---tallahassee---coral springs---waterbury---melbourne---canton---gainesville---savannah---manchester---paterson---roanoke---kissimmee---naples---daytona beach---erie---fort pierce---york---ft. myers---niagara falls---cape coral---wilmington---new bedford---scranton---asheville---macon---schenectady---poughkeepsie"));
+            timeZoneList.add(new KerodTimeZone("The Bahamas, Nassau", "America/Nassau", "the bahamas---nassau"));
+            timeZoneList.add(new KerodTimeZone("Canada, Trois-Rivières, Québec", "America/Montreal", "canada---montréal---québec---sherbrooke---trois-rivières"));
+            timeZoneList.add(new KerodTimeZone("Uruguay, Salto", "America/Montevideo", "uruguay---montevideo---rivera---salto"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Ciudad Madero, Tamaulipas", "America/Monterrey", "mexico---monterrey---torreon---saltillo---tampico---gomez palacio---ciudad victoria---monclova---ciudad madero"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Fresnillo, Zacatecas", "America/Mexico_City", "mexico---mexico city---puebla---toluca---nezahualcoyotl---san luis potosi---queretaro---aguascalientes---acapulco---morelia---cuernavaca---veracruz---tuxtla gutierrez---xalapa---oaxaca---villahermosa---celaya---irapuato---pachuca---tlaxcala---coatzacoalcos---uruapan---tehuacan---orizaba---poza rica de hidalgo---tapachula---zumpango---puerto vallarta---cordoba---zacatecas---minatitlan---colima---chilpancingo---san cristobal de las casas---san juan del rio---teziutlan---lazaro cardenas---ciudad valles---iguala---fresnillo"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Ciudad del Carmen, Campeche", "America/Merida", "mexico---campeche---ciudad del carmen"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Los Mochis, Sinaloa", "America/Mazatlan", "mexico---culiacan---mazatlan---tepic---los mochis"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Piedras Negras, Coahuila", "America/Matamoros", "mexico---reynosa---matamoros---nuevo laredo---piedras negras"));
+            timeZoneList.add(new KerodTimeZone("France, Fort-de-France, Martinique", "America/Martinique", "france---fort-de-france"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Manaus, Amazonas", "America/Manaus", "brazil---manaus"));
+            timeZoneList.add(new KerodTimeZone("Nicaragua, Esteli, Estelí", "America/Managua", "nicaragua---managua---chinandega---masaya---matagalpa---esteli"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Rio Largo, Alagoas", "America/Maceio", "brazil---maceio---aracaju---arapiraca---rio largo"));
+            timeZoneList.add(new KerodTimeZone("USA, Olympia, Washington", "America/Los_Angeles", "united states of america---san diego---seattle---irvine---long beach---sacramento---san bernardino---oakland---fresno---stockton---tacoma---oceanside---bakersfield---san mateo---vancouver---berkeley---riverside---everett---spokane---modesto---reno---palm springs---eugene---salem---pasadena---vallejo---visalia---national city---olympia"));
+            timeZoneList.add(new KerodTimeZone("Peru, Tumbes", "America/Lima", "peru---callao---arequipa---chiclayo---iquitos---huancayo---piura---cusco---chimbote---pucallpa---ica---tacna---juliaca---ayacucho---huanuco---cajamarca---chincha alta---sullana---puno---cerro de pasco---tumbes"));
+            timeZoneList.add(new KerodTimeZone("Bolivia, Tarija", "America/La_Paz", "bolivia---cochabamba---oruro---quillacollo---sucre---potosi---tarija"));
+            timeZoneList.add(new KerodTimeZone("USA, Louisville, Kentucky", "America/Kentucky/Louisville", "united states of america---louisville"));
+            timeZoneList.add(new KerodTimeZone("Jamaica, Montego Bay, Saint James", "America/Jamaica", "jamaica---spanish town---montego bay"));
+            timeZoneList.add(new KerodTimeZone("USA, Elkhart, Indiana", "America/Indiana/Indianapolis", "united states of america---indianapolis---fort wayne---south bend---elkhart"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Navajoa, Sonora", "America/Hermosillo", "mexico---hermosillo---mazatlán---ciudad obregon---navajoa"));
+            timeZoneList.add(new KerodTimeZone("Cuba, Sancti Spiritus, Sancti Spíritus", "America/Havana", "cuba---havana---santiago de cuba---camaguey---holguin---guantanamo---santa clara---las tunas---bayamo---pinar del rio---cienfuegos---matanzas---ciego de avila---sancti spiritus"));
+            timeZoneList.add(new KerodTimeZone("Canada, Halifax, Nova Scotia", "America/Halifax", "canada---halifax"));
+            timeZoneList.add(new KerodTimeZone("Ecuador, Loja", "America/Guayaquil", "ecuador---guayaquil---quito---cuenca---ambato---machala---portoviejo---manta---riobamba---esmeraldas---ibarra---loja"));
+            timeZoneList.add(new KerodTimeZone("Guatemala, El Progreso", "America/Guatemala", "guatemala---guatemala---quetzaltenango---el progreso"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Parnaiba, Piauí", "America/Fortaleza", "brazil---fortaleza---natal---joao pessoa---teresina---são luís---campina grande---juazeiro do norte---imperatriz---timon---mossoro---crato---sobral---caxias---parnaiba"));
+            timeZoneList.add(new KerodTimeZone("El Salvador, Nueva San Salvador, La Libertad", "America/El_Salvador", "el salvador---san salvador---santa ana---san miguel---sonsonate---nueva san salvador"));
+            timeZoneList.add(new KerodTimeZone("Canada, Edmonton, Alberta", "America/Edmonton", "canada---calgary---edmonton"));
+            timeZoneList.add(new KerodTimeZone("USA, Kalamazoo, Michigan", "America/Detroit", "united states of america---detroit---grand rapids---flint---lansing---ann arbor---kalamazoo"));
+            timeZoneList.add(new KerodTimeZone("USA, Billings, Montana", "America/Denver", "united states of america---denver---albuquerque---el paso---salt lake city---colorado springs---provo---ogden---fort collins---pueblo---boulder---greeley---billings"));
+            timeZoneList.add(new KerodTimeZone("Curacao, Willemstad", "America/Curacao", "curacao---willemstad"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Rondonopolis, Mato Grosso", "America/Cuiaba", "brazil---cuiaba---varzea grande---rondonopolis"));
+            timeZoneList.add(new KerodTimeZone("Costa Rica, Cartago", "America/Costa_Rica", "costa rica---alajuela---cartago"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Hidalgo del Parral, Chihuahua", "America/Chihuahua", "mexico---chihuahua---delicias---hidalgo del parral"));
+            timeZoneList.add(new KerodTimeZone("USA, Murfreesboro, Tennessee", "America/Chicago", "united states of america---chicago---houston---dallas---minneapolis---st. louis---ft. worth---milwaukee---austin---memphis---nashville---birmingham---tulsa---oklahoma city---omaha---arlington---new orleans---st. paul---wichita---joliet---gary---kansas city---laredo---baton rouge---des moines---madison---aurora---metairie---corpus christi---elgin---mcallen---little rock---shreveport---mobile---lubbock---evanston---rockford---montgomery---amarillo---davenport---brownsville---barlett---waukesha---lakeville---green bay---cedar rapids---sioux falls---pensacola---evansville---waukegan---waco---peoria---denton---appleton---independence---fargo---topeka---clarksville---killeen---edinburg---norman---fayetteville---bryan---abilene---beaumont---racine---rochester---rock island---tyler---tuscaloosa---murfreesboro"));
+            timeZoneList.add(new KerodTimeZone("Venezuela, Anaco, Anzoátegui", "America/Caracas", "venezuela---caracas---maracaibo---maracay---barquisimeto---ciudad guayana---puerto la cruz---barcelona---maturin---cabimas---ciudad bolivar---los teques---cumana---barinas---acarigua---coro---maiquetia---punto fijo---el tigre---puerto cabello---valera---porlamar---guanare---ocumare del tuy---carora---carupano---calabozo---san fernando de apure---anaco"));
+            timeZoneList.add(new KerodTimeZone("Mexico, Chetumal, Quintana Roo", "America/Cancun", "mexico---cancun---chetumal"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Dourados, Mato Grosso do Sul", "America/Campo_Grande", "brazil---campo grande---dourados"));
+            timeZoneList.add(new KerodTimeZone("USA, Boise, Idaho", "America/Boise", "united states of america---boise"));
+            timeZoneList.add(new KerodTimeZone("Colombia, Cienaga, Magdalena", "America/Bogota", "colombia---bogota---medellin---cali---barranquilla---bucaramanga---cucuta---soledad---pereira---bello---santa marta---ibague---pasto---manizales---villavicencio---neiva---armenia---valledupar---monteria---popayan---buenaventura---sincelejo---barrancabermeja---tulua---tunja---girardot---sogamoso---riohacha---cienaga"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Boa Vista, Roraima", "America/Boa_Vista", "brazil---boa vista"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Castanhal, Pará", "America/Belem", "brazil---belem---vila velha---macapá---maraba---castanhal"));
+            timeZoneList.add(new KerodTimeZone("Barbados, Bridgetown, Saint Michael", "America/Barbados", "barbados---bridgetown"));
+            timeZoneList.add(new KerodTimeZone("Brazil, Alagoinhas, Bahia", "America/Bahia", "brazil---salvador---feira de santana---vitoria da conquista---itabuna---ilheus---jequie---alagoinhas"));
+            timeZoneList.add(new KerodTimeZone("Paraguay, Encarnacion, Itapúa", "America/Asuncion", "paraguay---asuncion---ciudad del este---encarnacion"));
+            timeZoneList.add(new KerodTimeZone("Argentina, Tucumán", "America/Argentina/Tucuman", "argentina---tucumán"));
+            timeZoneList.add(new KerodTimeZone("Argentina, Neuquen, Neuquén", "America/Argentina/Salta", "argentina---salta---neuquen"));
+            timeZoneList.add(new KerodTimeZone("Argentina, Mendoza", "America/Argentina/Mendoza", "argentina---mendoza"));
+            timeZoneList.add(new KerodTimeZone("Argentina, La Rioja", "America/Argentina/La_Rioja", "argentina---la rioja"));
+            timeZoneList.add(new KerodTimeZone("Argentina, San Salvador de Jujuy, Jujuy", "America/Argentina/Jujuy", "argentina---san salvador de jujuy"));
+            timeZoneList.add(new KerodTimeZone("Argentina, Rio Cuarto, Córdoba", "America/Argentina/Cordoba", "argentina---córdoba---resistencia---corrientes---posadas---santiago del estero---parana---rio cuarto"));
+            timeZoneList.add(new KerodTimeZone("Argentina, Catamarca", "America/Argentina/Catamarca", "argentina---catamarca"));
+            timeZoneList.add(new KerodTimeZone("Argentina, San Nicolas, Ciudad de Buenos Aires", "America/Argentina/Buenos_Aires", "argentina---buenos aires---mar del plata---la plata---bahia blanca---san nicolas"));
+            timeZoneList.add(new KerodTimeZone("USA, Anchorage, Alaska", "America/Anchorage", "united states of america---anchorage"));
+            timeZoneList.add(new KerodTimeZone("Namibia, Windhoek, Khomas", "Africa/Windhoek", "namibia---windhoek"));
+            timeZoneList.add(new KerodTimeZone("Tunisia, Gafsa", "Africa/Tunis", "tunisia---tunis---sfax---sousse---gabes---qairouan---bizerte---zarzis---nabeul---gafsa"));
+            timeZoneList.add(new KerodTimeZone("Libya, Sabha", "Africa/Tripoli", "libya---banghazi---misratah---az zawiyah---al khums---tubruq---ajdabiya---al marj---zuwarah---gharyan---surt---darnah---sabha"));
+            timeZoneList.add(new KerodTimeZone("Benin, Djougou, Donga", "Africa/Porto-Novo", "benin---cotonou---porto-novo---parakou---djougou"));
+            timeZoneList.add(new KerodTimeZone("Burkina Faso, Bobo Dioulasso, Houet", "Africa/Ouagadougou", "burkina faso---ouagadougou---bobo dioulasso"));
+            timeZoneList.add(new KerodTimeZone("Mauritania, Nema, Hodh ech Chargui", "Africa/Nouakchott", "mauritania---nouakchott---nema"));
+            timeZoneList.add(new KerodTimeZone("Niger, Agadez", "Africa/Niamey", "niger---niamey---zinder---maradi---agadez"));
+            timeZoneList.add(new KerodTimeZone("Chad, Bongor, Mayo-Kebbi Est", "Africa/Ndjamena", "chad---ndjamena---moundou---sarh---abeche---bongor"));
+            timeZoneList.add(new KerodTimeZone("Kenya, Kitale, Rift Valley", "Africa/Nairobi", "kenya---nairobi---mombasa---nakuru---kisumu---eldoret---kitale"));
+            timeZoneList.add(new KerodTimeZone("Liberia, Monrovia, Montserrado", "Africa/Monrovia", "liberia---monrovia"));
+            timeZoneList.add(new KerodTimeZone("Somaliland, Burco", "Africa/Mogadishu", "somaliland---mogadishu---hargeysa---kismaayo---berbera---ceerigaabo---jamaame---baydhabo---burco"));
+            timeZoneList.add(new KerodTimeZone("Swaziland, Manzini", "Africa/Mbabane", "swaziland---manzini"));
+            timeZoneList.add(new KerodTimeZone("Lesotho, Maseru", "Africa/Maseru", "lesotho---maseru"));
+            timeZoneList.add(new KerodTimeZone("Mozambique, Pemba, Cabo Delgado", "Africa/Maputo", "mozambique---maputo---beira---matola---nampula---chimoio---nacala---quelimane---xai-xai---tete---maxixe---pemba"));
+            timeZoneList.add(new KerodTimeZone("Equatorial Guinea, Bata, Litoral", "Africa/Malabo", "equatorial guinea---malabo---bata"));
+            timeZoneList.add(new KerodTimeZone("Zambia, Luanshya, Copperbelt", "Africa/Lusaka", "zambia---lusaka---kitwe---ndola---kabwe---chingola---kasama---livingstone---mufulira---luanshya"));
+            timeZoneList.add(new KerodTimeZone("Congo (Kinshasa), Kamina, Katanga", "Africa/Lubumbashi", "congo (kinshasa)---lubumbashi---mbuji-mayi---kananga---kisangani---likasi---kolwezi---bukavu---butembo---beni---tshikapa---kindu---kalemie---uvira---mwene-ditu---goma---isiro---gandajika---kamina"));
+            timeZoneList.add(new KerodTimeZone("Angola, Malanje", "Africa/Luanda", "angola---luanda---huambo---lobito---benguela---namibe---lubango---kuito---malanje"));
+            timeZoneList.add(new KerodTimeZone("Togo, Lome, Maritime", "Africa/Lome", "togo---lome"));
+            timeZoneList.add(new KerodTimeZone("Gabon, Port-Gentil, Ogooué-Maritime", "Africa/Libreville", "gabon---libreville---port-gentil"));
+            timeZoneList.add(new KerodTimeZone("Nigeria, Birnin Kebbi, Kebbi", "Africa/Lagos", "nigeria---lagos---kano---ibadan---kaduna---port harcourt---benin city---ikare---aba---abuja---zaria---jos---maiduguri---ilorin---enugu---warri---sokoto---ogbomosho---uyo---ife---oyo---ado ekiti---abeokuta---katsina---akure---oshogbo---awka---calabar---umuahia---gombe---ondo---damaturu---minna---makurdi---bauchi---sapele---owerri---mubi---iwo---ijebu ode---owo---gusau---bida---funtua---nsukka---jalingo---birnin kebbi"));
+            timeZoneList.add(new KerodTimeZone("Congo (Kinshasa), Bandundu", "Africa/Kinshasa", "congo (kinshasa)---kinshasa---kikwit---mbandaka---matadi---boma---gemena---mbanza-ngungu---bumba---bandundu"));
+            timeZoneList.add(new KerodTimeZone("Rwanda, Nyanza, Southern", "Africa/Kigali", "rwanda---kigali---nyanza"));
+            timeZoneList.add(new KerodTimeZone("Sudan, Sennar", "Africa/Khartoum", "sudan---khartoum---omdurman---port sudan---niyala---kassala---el obeid---medani---kosti---el fasher---gedaref---geneina---el manaqil---atbara---kadugli---shendi---ad damazin---sennar"));
+            timeZoneList.add(new KerodTimeZone("Uganda, Lira", "Africa/Kampala", "uganda---kampala---mbale---jinja---arua---gulu---entebbe---lira"));
+            timeZoneList.add(new KerodTimeZone("South Sudan, Juba, Central Equatoria", "Africa/Juba", "south sudan---malakal---yei---juba"));
+            timeZoneList.add(new KerodTimeZone("South Africa, Potchefstroom, North West", "Africa/Johannesburg", "south africa---cape town---johannesburg---durban---benoni---pretoria---port elizabeth---vereeniging---pietermaritzburg---bloemfontein---east london---welkom---uitenhage---springs---mbombela---polokwane---klerksdorp---paarl---thohoyandou---kimberley---bhisho---rustenburg---george---worcester---vryheid---umtata---potchefstroom"));
+            timeZoneList.add(new KerodTimeZone("Zimbabwe, Gweru, Midlands", "Africa/Harare", "zimbabwe---harare---bulawayo---chitungwiza---mutare---gweru"));
+            timeZoneList.add(new KerodTimeZone("Botswana, Gaborone, South-East", "Africa/Gaborone", "botswana---gaborone"));
+            timeZoneList.add(new KerodTimeZone("Sierra Leone, Kenema, Eastern", "Africa/Freetown", "sierra leone---freetown---bo---kenema"));
+            timeZoneList.add(new KerodTimeZone("Morocco, Laayoune, Laâyoune - Boujdour - Sakia El Hamra", "Africa/El_Aaiun", "morocco---laayoune"));
+            timeZoneList.add(new KerodTimeZone("Cameroon, Nkongsamba, Littoral", "Africa/Douala", "cameroon---douala---yaounde---bamenda---garoua---bafoussam---maroua---bertoua---limbe---ngaoundere---kumba---edea---nkongsamba"));
+            timeZoneList.add(new KerodTimeZone("Djibouti, Djibouti", "Africa/Djibouti", "djibouti---djibouti"));
+            timeZoneList.add(new KerodTimeZone("Tanzania, Iringa", "Africa/Dar_es_Salaam", "tanzania---dar es salaam---moshi---zanzibar---arusha---mbeya---morogoro---tanga---dodoma---kigoma---tabora---musoma---songea---iringa"));
+            timeZoneList.add(new KerodTimeZone("Senegal, Diourbel", "Africa/Dakar", "senegal---dakar---thies---kaolack---saint-louis---ziguinchor---diourbel"));
+            timeZoneList.add(new KerodTimeZone("Guinea, Kankan", "Africa/Conakry", "guinea---conakry---gueckedou---nzerekore---boke---kankan"));
+            timeZoneList.add(new KerodTimeZone("Spain, Melilla", "Africa/Ceuta", "spain---melilla"));
+            timeZoneList.add(new KerodTimeZone("Morocco, Goulimine, Guelmim - Es-Semara", "Africa/Casablanca", "morocco---casablanca---rabat---fez---marrakesh---agadir---tangier---meknes---kenitra---oujda---safi---er rachidia---ksar el kebir---taza---el jadida---settat---larache---goulimine"));
+            timeZoneList.add(new KerodTimeZone("Egypt, Girga, Suhaj", "Africa/Cairo", "egypt---cairo---el giza---bur said---luxor---el mansura---suez---ismailia---asyut---tanta---sohag---damanhûr---el minya---beni suef---el faiyum---zagazig---aswan---qena---dumyat---shibin el kom---kom ombo---mallawi---benha---hurghada---el arish---kafr el sheikh---rashid---samalut---girga"));
+            timeZoneList.add(new KerodTimeZone("Burundi, Bujumbura, Bujumbura Mairie", "Africa/Bujumbura", "burundi---bujumbura"));
+            timeZoneList.add(new KerodTimeZone("Congo, Pointe-Noire, Kouilou", "Africa/Brazzaville", "congo (brazzaville)---brazzaville---pointe-noire"));
+            timeZoneList.add(new KerodTimeZone("Malawi, Mzuzu, Mzimba", "Africa/Blantyre", "malawi---lilongwe---blantyre---mzuzu"));
+            timeZoneList.add(new KerodTimeZone("Guinea Bissau, Bissau", "Africa/Bissau", "guinea bissau---bissau"));
+            timeZoneList.add(new KerodTimeZone("The Gambia, Brikama, Banjul", "Africa/Banjul", "the gambia---brikama"));
+            timeZoneList.add(new KerodTimeZone("Central African Republic, Bangui", "Africa/Bangui", "central african republic---bangui"));
+            timeZoneList.add(new KerodTimeZone("Mali, Koutiala, Sikasso", "Africa/Bamako", "mali---bamako---sikasso---segou---koutiala"));
+            timeZoneList.add(new KerodTimeZone("Eritrea, Asmara", "Africa/Asmara", "eritrea---asmara---keren---massawa---mendefera---assab"));
+            timeZoneList.add(new KerodTimeZone("Algeria, Oum el Bouaghi", "Africa/Algiers", "algeria---algiers---oran---constantine---chlef---arak---blida---annaba---setif---bejaia---batna---biskra---sidi bel abbes---skikda---tiarat---tlimcen---el oued---ouargla---tebessa---djelfa---mostaganem---jijel---medea---tizi-ouzou---bechar---souk ahras---saida---bordj bou arreridj---ghardaia---m'sila---guelma---bouira---laghouat---mascara---oum el bouaghi"));
+            timeZoneList.add(new KerodTimeZone("Ethiopia, Addis Ababa", "Africa/Addis_Ababa", "ethiopia---addis ababa---nazret---adama---dire dawa---bahir dar---harar---dessie---gondar---hawasa---jimma---mekelle--adigrat---tigray---amhara---afar---oromia---arba minch---somali---debre zeit---debre brhan---bishoftu---shashemene---benishangul"));
+            timeZoneList.add(new KerodTimeZone("Ghana, Koforidua, Eastern", "Africa/Accra", "ghana---accra---kumasi---tamale---sekondi---tema---obuasi---cape coast---koforidua"));
+            timeZoneList.add(new KerodTimeZone("Ivory Coast, Gagnoa, Fromager", "Africa/Abidjan", "ivory coast---abidjan---bouake---daloa---san-pedro---yamoussoukro---korhogo---man---divo---gagnoa"));
+            return timeZoneList;
+
+
+        }
+
+    }
+}
+
+
+
+
+
+
+package com.shalom.calendar;
+
+import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.RemoteViews;
+import android.widget.SeekBar;
+import android.widget.Switch;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+import com.shalom.calendar.manager.SettingManager;
+import com.shalom.calendar.service.CalendarWidget;
+import com.shalom.calendar.service.CalendarWidgetDaily;
+import com.shalom.calendar.utility.DateTimeUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.TimeZone;
+
+public class WidgetConfigActivity extends AppCompatActivity {
+    private CoordinatorLayout mCoordinatorLayout;
+    boolean intentFromMainPreference;
+    private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_widget_config);
+        intentFromMainPreference = getIntent().getExtras().getBoolean(CalendarWidget.EXTRA_ACTION_SOURCE_GENERAL_PREFERENCE, false);
+        mCoordinatorLayout = findViewById(R.id.cool_main_content);
+        initToolbar();
+        checkIfWidgetConfigIsCancelled(this);
+        initComponents();
+    }
+
+    private void initComponents() {
+        //List<String> searchArrayList = Arrays.asList(TimeZone.getAvailableIDs());
+        List<DateTimeUtil.KerodTimeZone> searchArrayList = DateTimeUtil.KerodTimeZone.getExpandedTimeZoneList();
+        CustomAdapter adapter = new CustomAdapter(this, android.R.layout.simple_list_item_1, searchArrayList);
+        //
+        AutoCompleteTextView actvTimeZonePrimary = findViewById(R.id.actv_time_zone_primary);
+        actvTimeZonePrimary.setHint(SettingManager.getTodayWidgetPrimaryTimeZoneName());
+        actvTimeZonePrimary.setAdapter(adapter);
+        AutoCompleteTextView actvTimeZoneSecondary = findViewById(R.id.actv_time_zone_secondary);
+        actvTimeZoneSecondary.setHint(SettingManager.getTodayWidgetSecondaryTimeZoneName());
+        actvTimeZoneSecondary.setAdapter(adapter);
+
+
+        actvTimeZonePrimary.setOnItemClickListener((adapterView, view, position, l) -> {
+            if (adapterView.getItemAtPosition(position) != null) {
+                DateTimeUtil.KerodTimeZone selectedZoneId = (DateTimeUtil.KerodTimeZone) adapterView.getItemAtPosition(position);
+                SettingManager.setTodayWidgetPrimaryTimeZoneId(selectedZoneId.zoneId);
+                SettingManager.setTodayWidgetPrimaryTimeZoneName(selectedZoneId.displayName);
+
+                confirmConfigurationAndSetIntentResult(view);
+            }
+        });
+        actvTimeZoneSecondary.setOnItemClickListener((adapterView, view, position, id) -> {
+            if (adapterView.getItemAtPosition(position) != null) {
+                DateTimeUtil.KerodTimeZone selectedItem = (DateTimeUtil.KerodTimeZone) adapterView.getItemAtPosition(position);
+                SettingManager.setTodayWidgetSecondaryTimeZoneId(selectedItem.zoneId);
+                SettingManager.setTodayWidgetSecondaryTimeZoneName(selectedItem.displayName);
+
+                confirmConfigurationAndSetIntentResult(view);
+
+            }
+
+        });
+        SeekBar skbrTransparency = findViewById(R.id.skbr_transparency);
+        skbrTransparency.setProgress(SettingManager.getWidgetColorTransparency());
+        skbrTransparency.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                SettingManager.setWidgetColorTransparency(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+
+        Switch swtcShowSecondaryClock = findViewById(R.id.swtc_show_secondary);
+        swtcShowSecondaryClock.setChecked(!SettingManager.isSecondaryTimeWidgetHidden());
+        swtcShowSecondaryClock.setOnCheckedChangeListener((view, checked) -> {
+            SettingManager.setSecondaryTimeWidgetHidden(!checked);
+            actvTimeZoneSecondary.setEnabled(checked);
+            confirmConfigurationAndSetIntentResult(view);
+        });
+
+
+        Switch swtcUseTransparentBackground = findViewById(R.id.swtc_use_transparent_background);
+        swtcUseTransparentBackground.setChecked(SettingManager.isUseTransparentBackgroundForWidgets());
+        swtcUseTransparentBackground.setOnCheckedChangeListener((view, checked) -> {
+            SettingManager.setUseTransparentBackgroundForWidgets(checked);
+            confirmConfigurationAndSetIntentResult(view);
+        });
+        if (!intentFromMainPreference) {
+            View btnnSavePreference = findViewById(R.id.btnn_save_widget_setting);
+            btnnSavePreference.setVisibility(View.VISIBLE);
+            btnnSavePreference.setOnClickListener(v -> {
+                confirmConfigurationAndSetIntentResult(v);
+                finish();
+            });
+        }
+
+    }
+
+
+    void checkIfWidgetConfigIsCancelled(Context context) {
+        Intent intentFromWidget = getIntent();
+        Bundle extras = intentFromWidget.getExtras();
+        if (extras != null) {
+            appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+        }
+
+        Intent resultValue = new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        //by default we will not apply setting unless it came from the main setting....
+        setResult(Activity.RESULT_CANCELED, resultValue);
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            Log.e("TAG", "11111 checkWidgetConfig:" + "\nit is not coming from widget... may be from preference or other intent " + appWidgetId);
+
+            if (intentFromMainPreference) {
+                AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
+                ComponentName widgetComponent = new ComponentName(context, CalendarWidgetDaily.class);
+                int[] appWidgetIds = widgetManager.getAppWidgetIds(widgetComponent);
+                if (appWidgetIds != null && appWidgetIds.length > 0) {
+                    appWidgetId = appWidgetIds[0];
+                }
+            } else {
+                finish();
+            }
+        }
+    }
+
+
+    public void confirmConfigurationAndSetIntentResult(View v) {
+        AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
+        RemoteViews widgetView = new RemoteViews(getPackageName(), R.layout.widget_light);
+
+        Intent serviceIntent = new Intent(this, CalendarWidgetDaily.class);
+        serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
+
+
+        CalendarWidgetDaily.setupClockViews(widgetView, SettingManager.getSecondaryLocale(), widgetManager, appWidgetId);
+        widgetManager.updateAppWidget(appWidgetId, widgetView);
+
+        Intent resultValue = new Intent();
+        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        setResult(RESULT_OK, resultValue);
+        //finish();
+    }
+
+    private void initToolbar() {
+        try {
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException ex) {
+            //Method invocation 'setDisplayHomeAsUpEnabled' may produce 'java.lang.NullPointerException'
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return true;
+    }
+
+    private static final class CustomAdapter extends ArrayAdapter<DateTimeUtil.KerodTimeZone> implements Filterable {
+
+        private final List<DateTimeUtil.KerodTimeZone> mOriginalList;
+        private List<DateTimeUtil.KerodTimeZone> mFilteredList;
+        private Filter mFilter;
+
+        public CustomAdapter(Context context, int resource, List<DateTimeUtil.KerodTimeZone> objects) {
+            super(context, resource, objects);
+            mOriginalList = objects;
+            mFilteredList = objects;
+        }
+
+        @Override
+        public int getCount() {
+            return mFilteredList.size();
+        }
+
+        @Override
+        public DateTimeUtil.KerodTimeZone getItem(int position) {
+            return mFilteredList.get(position);
+        }
+
+        @Override
+        public Filter getFilter() {
+            if (mFilter == null) {
+                mFilter = new CustomFilter();
+            }
+            return mFilter;
+        }
+
+        private class CustomFilter extends Filter {
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+
+                FilterResults results = new FilterResults();
+
+
+                if (TextUtils.isEmpty(constraint)) {
+                    results.count = 0;
+                    results.values = new ArrayList<String>();
+                } else {
+                    List<DateTimeUtil.KerodTimeZone> filteredList = new ArrayList<>();
+                    for (DateTimeUtil.KerodTimeZone item : mOriginalList) {
+                        if (item.searchableCities.toLowerCase().contains(constraint.toString().toLowerCase())) {
+                            filteredList.add(item);
+                        }
+                    }
+                    results.values = filteredList;
+                    results.count = filteredList.size();
+                }
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+               // mFilteredList = (List<DateTimeUtil.KerodTimeZone>) results.values;
+                mFilteredList = (List<DateTimeUtil.KerodTimeZone>) results.values;
+                notifyDataSetChanged();
+            }
+        }
+    }
+
+}

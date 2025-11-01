@@ -7,13 +7,17 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CalendarViewDay
 import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.SwapHorizontalCircle
 import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.ViewAgenda
+import androidx.compose.material.icons.filled.ViewDay
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -134,9 +138,9 @@ data class BottomNavItem(
 fun getBottomNavItems(): List<BottomNavItem> {
     return listOf(
         BottomNavItem("month", stringResource(R.string.nav_month), Icons.Default.CalendarMonth),
-        BottomNavItem("event", stringResource(R.string.nav_today), Icons.Default.Event),
-        BottomNavItem("holiday", stringResource(R.string.nav_holiday), Icons.Default.Celebration),
-        BottomNavItem("converter", stringResource(R.string.nav_convert), Icons.Default.SwapHoriz),
+        BottomNavItem("event", stringResource(R.string.nav_today), Icons.Default.ViewDay),
+        BottomNavItem("holiday", stringResource(R.string.nav_holiday), Icons.Default.ViewAgenda),
+        BottomNavItem("converter", stringResource(R.string.nav_convert), Icons.Default.SwapHorizontalCircle),
         BottomNavItem("more", stringResource(R.string.nav_more), Icons.Default.MoreVert)
     )
 }

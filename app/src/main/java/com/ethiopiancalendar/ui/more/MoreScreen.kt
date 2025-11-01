@@ -58,8 +58,17 @@ fun MoreScreen(
 
             item {
                 SettingItem(
+                    icon = Icons.Default.Language,
+                    title = stringResource(R.string.menu_language),
+                    onClick = {
+                        // TODO: Implement language selection
+                    }
+                )
+            }
+            item {
+                SettingItem(
                     icon = Icons.Default.Settings,
-                    title = stringResource(R.string.menu_settings),
+                    title = stringResource(R.string.menu_additional_settings),
                     onClick = onNavigateToSettings
                 )
             }
@@ -71,16 +80,6 @@ fun MoreScreen(
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.freeprivacypolicy.com/blog/privacy-policy-url/"))
                         context.startActivity(intent)
-                    }
-                )
-            }
-
-            item {
-                SettingItem(
-                    icon = Icons.Default.Language,
-                    title = stringResource(R.string.menu_language),
-                    onClick = {
-                        // TODO: Implement language selection
                     }
                 )
             }
