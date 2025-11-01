@@ -17,7 +17,9 @@ sealed class MonthCalendarUiState {
         val selectedDate: EthiopicDate?,
         val primaryCalendar: CalendarType,
         val displayDualCalendar: Boolean,
-        val secondaryCalendar: CalendarType
+        val secondaryCalendar: CalendarType,
+        val currentGregorianYear: Int?,
+        val currentGregorianMonth: Int?
     ) : MonthCalendarUiState()
 
     data class Error(val message: String) : MonthCalendarUiState()
