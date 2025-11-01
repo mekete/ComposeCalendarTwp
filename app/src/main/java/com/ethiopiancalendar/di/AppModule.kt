@@ -6,6 +6,7 @@ import com.ethiopiancalendar.data.local.CalendarDatabase
 import com.ethiopiancalendar.data.local.dao.EventDao
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import com.ethiopiancalendar.data.preferences.ThemePreferences
+import com.ethiopiancalendar.data.remote.RemoteConfigManager
 import com.ethiopiancalendar.data.repository.EventRepository
 import dagger.Module
 import dagger.Provides
@@ -34,6 +35,12 @@ object AppModule {
     @Singleton
     fun provideSettingsPreferences(@ApplicationContext context: Context): SettingsPreferences {
         return SettingsPreferences(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRemoteConfigManager(settingsPreferences: SettingsPreferences): RemoteConfigManager {
+        return RemoteConfigManager(settingsPreferences)
     }
 
     // ========== Room Database ==========

@@ -3,6 +3,7 @@ package com.ethiopiancalendar.data.preferences
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +44,12 @@ class SettingsPreferences(private val context: Context) {
     private val PRIMARY_WIDGET_TIMEZONE_KEY = stringPreferencesKey("primary_widget_timezone")
     private val SECONDARY_WIDGET_TIMEZONE_KEY = stringPreferencesKey("secondary_widget_timezone")
     private val USE_TRANSPARENT_BACKGROUND_KEY = booleanPreferencesKey("use_transparent_background")
+
+    // Muslim Holiday Offset Settings (from Firebase Remote Config)
+    private val DAY_OFFSET_EID_AL_ADHA_KEY = intPreferencesKey("config_day_offset_eid_al_adha")
+    private val DAY_OFFSET_EID_AL_FITR_KEY = intPreferencesKey("config_day_offset_eid_al_fitir")
+    private val DAY_OFFSET_MAWLID_KEY = intPreferencesKey("config_day_offset_mewlid")
+    private val DAY_OFFSET_ETHIO_YEAR_KEY = intPreferencesKey("config_day_offset_ethio_year")
 
     // Flow properties for observing settings
     val primaryCalendar: Flow<CalendarType> = context.settingsDataStore.data.map { preferences ->
@@ -114,6 +121,23 @@ class SettingsPreferences(private val context: Context) {
         } catch (e: IllegalArgumentException) {
             Language.AMHARIC
         }
+    }
+
+    // Muslim Holiday Offset Flows
+    val dayOffsetEidAlAdha: Flow<Int> = context.settingsDataStore.data.map { preferences ->
+        preferences[DAY_OFFSET_EID_AL_ADHA_KEY] ?: 0
+    }
+
+    val dayOffsetEidAlFitr: Flow<Int> = context.settingsDataStore.data.map { preferences ->
+        preferences[DAY_OFFSET_EID_AL_FITR_KEY] ?: 0
+    }
+
+    val dayOffsetMawlid: Flow<Int> = context.settingsDataStore.data.map { preferences ->
+        preferences[DAY_OFFSET_MAWLID_KEY] ?: 0
+    }
+
+    val dayOffsetEthioYear: Flow<Int> = context.settingsDataStore.data.map { preferences ->
+        preferences[DAY_OFFSET_ETHIO_YEAR_KEY] ?: 0
     }
 
     // Setter functions for updating settings
@@ -198,6 +222,31 @@ class SettingsPreferences(private val context: Context) {
     suspend fun setLanguage(language: Language) {
         context.settingsDataStore.edit { preferences ->
             preferences[LANGUAGE_KEY] = language.name
+        }
+    }
+
+    // Setter functions for Muslim Holiday Offsets
+    suspend fun setDayOffsetEidAlAdha(offset: Int) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[DAY_OFFSET_EID_AL_ADHA_KEY] = offset
+        }
+    }
+
+    suspend fun setDayOffsetEidAlFitr(offset: Int) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[DAY_OFFSET_EID_AL_FITR_KEY] = offset
+        }
+    }
+
+    suspend fun setDayOffsetMawlid(offset: Int) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[DAY_OFFSET_MAWLID_KEY] = offset
+        }
+    }
+
+    suspend fun setDayOffsetEthioYear(year: Int) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[DAY_OFFSET_ETHIO_YEAR_KEY] = year
         }
     }
 }
