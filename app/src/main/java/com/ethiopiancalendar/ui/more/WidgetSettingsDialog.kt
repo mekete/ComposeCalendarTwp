@@ -17,10 +17,12 @@ fun WidgetSettingsDialog(
     primaryTimezone: String,
     secondaryTimezone: String,
     useTransparentBackground: Boolean,
+    use24HourFormat: Boolean,
     onDisplayTwoClocksChange: (Boolean) -> Unit,
     onPrimaryTimezoneChange: (String) -> Unit,
     onSecondaryTimezoneChange: (String) -> Unit,
     onUseTransparentBackgroundChange: (Boolean) -> Unit,
+    onUse24HourFormatChange: (Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     var primaryTimezoneText by remember { mutableStateOf(primaryTimezone) }
@@ -99,6 +101,23 @@ fun WidgetSettingsDialog(
                     Switch(
                         checked = useTransparentBackground,
                         onCheckedChange = onUseTransparentBackgroundChange
+                    )
+                }
+
+                // Use 24 hour format
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_use_24_hour_format),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = use24HourFormat,
+                        onCheckedChange = onUse24HourFormatChange
                     )
                 }
             }

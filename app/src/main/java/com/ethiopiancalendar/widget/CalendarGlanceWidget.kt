@@ -5,6 +5,8 @@ import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -36,6 +38,10 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import  com.ethiopiancalendar.R;
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+
+private val Context.settingsDataStore by preferencesDataStore(name = "settings_preferences")
 /**
  * CalendarGlanceWidget - Home screen widget for Ethiopian Calendar
  *
@@ -106,11 +112,7 @@ fun TimeZoneItem(label: String, date: String, time: String) {
             Text(text = date, style = TextStyle(fontSize = 16.sp, color = GlanceTheme.colors.onSurfaceVariant))
         }
         Spacer(modifier = GlanceModifier.width(12.dp))
-        Row (horizontalAlignment = Alignment.End) {
-            Text(text = time, style = TextStyle(fontSize = 40.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onBackground))
-            Spacer(modifier = GlanceModifier.height(4.dp))
-            Text(text = "AM", style = TextStyle(fontSize = 16.sp, color = GlanceTheme.colors.onSurfaceVariant))
-        }
+        Text(text = time, style = TextStyle(fontSize = 40.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onBackground))
     }
 }
 
@@ -135,6 +137,7 @@ fun RemindersSection(events: List<WidgetEvent>) {
 
 @Composable
 fun EventItem(event: WidgetEvent) {
+    val context = LocalContext.current
     Row(modifier = GlanceModifier.fillMaxWidth().padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) { // Color indicator dot
         //        Box(
         //            modifier = GlanceModifier
@@ -150,7 +153,7 @@ fun EventItem(event: WidgetEvent) {
             Spacer(modifier = GlanceModifier.height(2.dp))
 
             // Event time
-            Text(text = formatEventTime(event), style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
+            Text(text = formatEventTime(event, context), style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
         }
     }
 }
@@ -175,8 +178,15 @@ fun getWidgetData(context: Context, state: CalendarWidgetState): WidgetData {
     val dateFormatter = DateTimeFormatter.ofPattern("EEE, MMM d, yyyy")
     val formattedDate = now.format(dateFormatter)
 
-    // Format time: "07:15 AM"
-    val timeFormatter = DateTimeFormatter.ofPattern("hh:mm")
+    // Read 24-hour format preference
+    val use24HourFormat = runBlocking {
+        val preferences = context.settingsDataStore.data.first()
+        preferences[booleanPreferencesKey("use_24_hour_format_in_widgets")] ?: false
+    }
+
+    // Format time based on preference (include AM/PM for 12-hour format)
+    val timePattern = if (use24HourFormat) "HH:mm" else "h:mm a"
+    val timeFormatter = DateTimeFormatter.ofPattern(timePattern)
 
     // Get Nairobi time
     val nairobiZone = ZoneId.of("Africa/Nairobi")
@@ -189,8 +199,15 @@ fun getWidgetData(context: Context, state: CalendarWidgetState): WidgetData {
 }
 
 // Format event time for display
-fun formatEventTime(event: WidgetEvent): String {
-    val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+fun formatEventTime(event: WidgetEvent, context: Context): String {
+    // Read 24-hour format preference
+    val use24HourFormat = runBlocking {
+        val preferences = context.settingsDataStore.data.first()
+        preferences[booleanPreferencesKey("use_24_hour_format_in_widgets")] ?: false
+    }
+
+    val timePattern = if (use24HourFormat) "HH:mm" else "h:mm a"
+    val timeFormatter = DateTimeFormatter.ofPattern(timePattern)
     val dateFormatter = DateTimeFormatter.ofPattern("MMM d")
 
     val startTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(event.startTime), ZoneId.systemDefault())
