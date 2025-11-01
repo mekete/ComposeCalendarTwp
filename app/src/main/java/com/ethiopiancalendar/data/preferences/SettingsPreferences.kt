@@ -10,9 +10,16 @@ import kotlinx.coroutines.flow.map
 
 private val Context.settingsDataStore by preferencesDataStore(name = "settings_preferences")
 
+enum class CalendarDisplayMode {
+    ETHIOPIAN_ONLY,
+    GREGOREAN_ONLY,
+    DUAL
+}
+
 class SettingsPreferences(private val context: Context) {
 
     // Calendar Display Settings
+    private val CALENDAR_DISPLAY_MODE_KEY = stringPreferencesKey("calendar_display_mode")
     private val SHOW_ORTHODOX_DAY_NAMES_KEY = booleanPreferencesKey("show_orthodox_day_names")
     private val SHOW_ORTHODOX_FASTING_HOLIDAYS_KEY = booleanPreferencesKey("show_orthodox_fasting_holidays")
     private val SHOW_MUSLIM_HOLIDAYS_KEY = booleanPreferencesKey("show_muslim_holidays")
@@ -27,6 +34,15 @@ class SettingsPreferences(private val context: Context) {
     private val USE_TRANSPARENT_BACKGROUND_KEY = booleanPreferencesKey("use_transparent_background")
 
     // Flow properties for observing settings
+    val calendarDisplayMode: Flow<CalendarDisplayMode> = context.settingsDataStore.data.map { preferences ->
+        val modeString = preferences[CALENDAR_DISPLAY_MODE_KEY] ?: CalendarDisplayMode.DUAL.name
+        try {
+            CalendarDisplayMode.valueOf(modeString)
+        } catch (e: IllegalArgumentException) {
+            CalendarDisplayMode.DUAL
+        }
+    }
+
     val showOrthodoxDayNames: Flow<Boolean> = context.settingsDataStore.data.map { preferences ->
         preferences[SHOW_ORTHODOX_DAY_NAMES_KEY] ?: false
     }
@@ -68,6 +84,12 @@ class SettingsPreferences(private val context: Context) {
     }
 
     // Setter functions for updating settings
+    suspend fun setCalendarDisplayMode(mode: CalendarDisplayMode) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[CALENDAR_DISPLAY_MODE_KEY] = mode.name
+        }
+    }
+
     suspend fun setShowOrthodoxDayNames(value: Boolean) {
         context.settingsDataStore.edit { preferences ->
             preferences[SHOW_ORTHODOX_DAY_NAMES_KEY] = value

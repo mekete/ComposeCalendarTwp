@@ -50,6 +50,10 @@
 
     <!-- Settings Screen Options -->
     <string name="settings_calendar_display">Calendar Display</string>
+    <string name="settings_calendar_to_display">Calendar to display</string>
+    <string name="settings_calendar_ethiopian_only">Ethiopian Only</string>
+    <string name="settings_calendar_gregorean_only">Gregorean Only</string>
+    <string name="settings_calendar_dual">Dual Ethiopian and Gregorean</string>
     <string name="settings_show_orthodox_day_names">Show Orthodox day names</string>
     <string name="settings_show_orthodox_fasting_holidays">Show Orthodox fasting days Holidays</string>
     <string name="settings_show_muslim_holidays">Show additional Muslim Holidays</string>

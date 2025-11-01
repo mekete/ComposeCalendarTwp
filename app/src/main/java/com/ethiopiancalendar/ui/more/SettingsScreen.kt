@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.R
+import com.ethiopiancalendar.data.preferences.CalendarDisplayMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,6 +23,7 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val calendarDisplayMode by viewModel.calendarDisplayMode.collectAsState()
     val showOrthodoxDayNames by viewModel.showOrthodoxDayNames.collectAsState()
     val showOrthodoxFastingHolidays by viewModel.showOrthodoxFastingHolidays.collectAsState()
     val showMuslimHolidays by viewModel.showMuslimHolidays.collectAsState()
@@ -69,6 +71,13 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
+            item {
+                CalendarDisplayModeSelector(
+                    selectedMode = calendarDisplayMode,
+                    onModeSelected = { viewModel.setCalendarDisplayMode(it) }
                 )
             }
 
@@ -211,5 +220,79 @@ fun SettingSwitchItem(
                 onCheckedChange = onCheckedChange
             )
         }
+    }
+}
+
+@Composable
+fun CalendarDisplayModeSelector(
+    selectedMode: CalendarDisplayMode,
+    onModeSelected: (CalendarDisplayMode) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.settings_calendar_to_display),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            CalendarDisplayModeOption(
+                text = stringResource(R.string.settings_calendar_ethiopian_only),
+                selected = selectedMode == CalendarDisplayMode.ETHIOPIAN_ONLY,
+                onClick = { onModeSelected(CalendarDisplayMode.ETHIOPIAN_ONLY) }
+            )
+
+            CalendarDisplayModeOption(
+                text = stringResource(R.string.settings_calendar_gregorean_only),
+                selected = selectedMode == CalendarDisplayMode.GREGOREAN_ONLY,
+                onClick = { onModeSelected(CalendarDisplayMode.GREGOREAN_ONLY) }
+            )
+
+            CalendarDisplayModeOption(
+                text = stringResource(R.string.settings_calendar_dual),
+                selected = selectedMode == CalendarDisplayMode.DUAL,
+                onClick = { onModeSelected(CalendarDisplayMode.DUAL) }
+            )
+        }
+    }
+}
+
+@Composable
+fun CalendarDisplayModeOption(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.primary
+            )
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
