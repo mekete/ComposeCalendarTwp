@@ -1,7 +1,10 @@
 package com.ethiopiancalendar.domain.calculator
 
+import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import com.ethiopiancalendar.domain.model.Holiday
 import com.ethiopiancalendar.domain.model.HolidayType
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.threeten.extra.chrono.EthiopicDate
 import java.time.LocalDate
 import java.time.chrono.HijrahDate
@@ -20,7 +23,9 @@ import javax.inject.Singleton
  *  - Filters to only return holidays that fall inside the requested Ethiopian year
  */
 @Singleton
-class MuslimHolidayCalculator @Inject constructor() {
+class MuslimHolidayCalculator @Inject constructor(
+    private val settingsPreferences: SettingsPreferences
+) {
 
     companion object {
         const val UID_EID_AL_FITR = 101
@@ -53,7 +58,7 @@ class MuslimHolidayCalculator @Inject constructor() {
 
         for (hijriYear in startHijrah.get(ChronoField.YEAR_OF_ERA)..endHijrah.get(ChronoField.YEAR_OF_ERA)) {
             if (includePublicHolidays) {
-                holidays.addAll(getPublicMuslimHolidays(hijriYear))
+                holidays.addAll(getPublicMuslimHolidays(hijriYear, ethiopianYear))
             }
 
             if (includeWorkingHolidays) {
@@ -71,11 +76,27 @@ class MuslimHolidayCalculator @Inject constructor() {
     }
 
     // Public (typically day-off) Muslim holidays for a given Hijri year
-    private fun getPublicMuslimHolidays(hijriYear: Int): List<Holiday> {
+    private fun getPublicMuslimHolidays(hijriYear: Int, ethiopianYear: Int): List<Holiday> {
         val holidays = mutableListOf<Holiday>()
 
+        // Get offset values from preferences
+        val offsets = runBlocking {
+            HolidayOffsets(
+                eidAlAdha = settingsPreferences.dayOffsetEidAlAdha.first(),
+                eidAlFitr = settingsPreferences.dayOffsetEidAlFitr.first(),
+                mawlid = settingsPreferences.dayOffsetMawlid.first(),
+                configuredYear = settingsPreferences.dayOffsetEthioYear.first()
+            )
+        }
+
+        // Only apply offsets if the current Ethiopian year matches the configured year
+        val shouldApplyOffsets = offsets.configuredYear == ethiopianYear
+
         // Eid al-Fitr (Shawwal 1) — Hijrah month 10, day 1
-        val eidFitrDate = HijrahDate.of(hijriYear, 10, 1)
+        var eidFitrDate = HijrahDate.of(hijriYear, 10, 1)
+        if (shouldApplyOffsets && offsets.eidAlFitr != 0) {
+            eidFitrDate = eidFitrDate.plusDays(offsets.eidAlFitr.toLong())
+        }
         holidays.add(
             createMuslimHoliday(
                 id = "muslim_eid_fitr_$hijriYear",
@@ -88,7 +109,10 @@ class MuslimHolidayCalculator @Inject constructor() {
         )
 
         // Eid al-Adha (Dhu al-Hijjah 10) — Hijrah month 12, day 10
-        val eidAdhaDate = HijrahDate.of(hijriYear, 12, 10)
+        var eidAdhaDate = HijrahDate.of(hijriYear, 12, 10)
+        if (shouldApplyOffsets && offsets.eidAlAdha != 0) {
+            eidAdhaDate = eidAdhaDate.plusDays(offsets.eidAlAdha.toLong())
+        }
         holidays.add(
             createMuslimHoliday(
                 id = "muslim_eid_adha_$hijriYear",
@@ -101,7 +125,10 @@ class MuslimHolidayCalculator @Inject constructor() {
         )
 
         // Mawlid al-Nabi (Rabi' al-Awwal 12) — Hijrah month 3, day 12
-        val mawlidDate = HijrahDate.of(hijriYear, 3, 12)
+        var mawlidDate = HijrahDate.of(hijriYear, 3, 12)
+        if (shouldApplyOffsets && offsets.mawlid != 0) {
+            mawlidDate = mawlidDate.plusDays(offsets.mawlid.toLong())
+        }
         holidays.add(
             createMuslimHoliday(
                 id = "muslim_mawlid_$hijriYear",
@@ -115,6 +142,16 @@ class MuslimHolidayCalculator @Inject constructor() {
 
         return holidays
     }
+
+    /**
+     * Data class to hold holiday offset values
+     */
+    private data class HolidayOffsets(
+        val eidAlAdha: Int,
+        val eidAlFitr: Int,
+        val mawlid: Int,
+        val configuredYear: Int
+    )
 
     // Working / observance Muslim holidays for a given Hijri year
     private fun getWorkingMuslimHolidays(hijriYear: Int): List<Holiday> {

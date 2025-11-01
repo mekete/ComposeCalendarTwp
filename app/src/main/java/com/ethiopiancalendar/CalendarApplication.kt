@@ -2,12 +2,17 @@ package com.ethiopiancalendar
 
 import android.app.Application
 import com.ethiopiancalendar.alarm.NotificationHelper
+import com.ethiopiancalendar.data.remote.RemoteConfigManager
 import com.ethiopiancalendar.widget.CalendarWidgetWorker
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltAndroidApp
 class CalendarApplication : Application() {
+
+    @Inject
+    lateinit var remoteConfigManager: RemoteConfigManager
 
     override fun onCreate() {
         super.onCreate()
@@ -24,6 +29,9 @@ class CalendarApplication : Application() {
 
         // Schedule periodic widget updates
         CalendarWidgetWorker.schedule(this)
+
+        // Initialize Firebase Remote Config for Muslim holiday offsets
+        remoteConfigManager.initialize(isDebug = BuildConfig.DEBUG)
 
         Timber.d("Ethiopian Calendar App started")
     }

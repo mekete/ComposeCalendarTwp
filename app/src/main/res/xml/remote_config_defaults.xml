@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <!-- Muslim Holiday Date Offset Configuration -->
+    <!-- These values are fetched from Firebase Remote Config and control the date adjustments for Muslim holidays -->
+
+    <!-- Day offset for Eid al-Adha (can be -1, 0, or +1) -->
+    <entry>
+        <key>config_day_offset_eid_al_adha</key>
+        <value>0</value>
+    </entry>
+
+    <!-- Day offset for Eid al-Fitr (can be -1, 0, or +1) -->
+    <entry>
+        <key>config_day_offset_eid_al_fitir</key>
+        <value>0</value>
+    </entry>
+
+    <!-- Day offset for Mawlid al-Nabi (can be -1, 0, or +1) -->
+    <entry>
+        <key>config_day_offset_mewlid</key>
+        <value>0</value>
+    </entry>
+
+    <!-- Ethiopian year for which the offsets apply (0 means offsets are not applied) -->
+    <entry>
+        <key>config_day_offset_ethio_year</key>
+        <value>0</value>
+    </entry>
+</defaultsMap>
