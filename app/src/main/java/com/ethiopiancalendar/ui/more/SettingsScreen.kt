@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ethiopiancalendar.R
-import com.ethiopiancalendar.data.preferences.CalendarDisplayMode
+import com.ethiopiancalendar.data.preferences.CalendarType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +23,9 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val calendarDisplayMode by viewModel.calendarDisplayMode.collectAsState()
+    val primaryCalendar by viewModel.primaryCalendar.collectAsState()
+    val displayDualCalendar by viewModel.displayDualCalendar.collectAsState()
+    val secondaryCalendar by viewModel.secondaryCalendar.collectAsState()
     val showOrthodoxDayNames by viewModel.showOrthodoxDayNames.collectAsState()
     val showOrthodoxFastingHolidays by viewModel.showOrthodoxFastingHolidays.collectAsState()
     val showMuslimHolidays by viewModel.showMuslimHolidays.collectAsState()
@@ -74,11 +76,39 @@ fun SettingsScreen(
                 )
             }
 
+            // Primary Calendar Selection
             item {
-                CalendarDisplayModeSelector(
-                    selectedMode = calendarDisplayMode,
-                    onModeSelected = { viewModel.setCalendarDisplayMode(it) }
+                CalendarTypeSelector(
+                    title = stringResource(R.string.settings_primary_calendar),
+                    selectedCalendar = primaryCalendar,
+                    onCalendarSelected = { viewModel.setPrimaryCalendar(it) }
                 )
+            }
+
+            // Display Dual Calendar Toggle
+            item {
+                SettingSwitchItem(
+                    title = stringResource(R.string.settings_display_dual_calendar),
+                    checked = displayDualCalendar,
+                    onCheckedChange = { viewModel.setDisplayDualCalendar(it) }
+                )
+            }
+
+            // Secondary Calendar Selection (only shown if dual calendar is enabled)
+            if (displayDualCalendar) {
+                item {
+                    CalendarTypeSelector(
+                        title = stringResource(R.string.settings_secondary_calendar),
+                        selectedCalendar = secondaryCalendar,
+                        onCalendarSelected = {
+                            // Prevent selecting the same calendar as primary
+                            if (it != primaryCalendar) {
+                                viewModel.setSecondaryCalendar(it)
+                            }
+                        },
+                        disabledCalendar = primaryCalendar
+                    )
+                }
             }
 
             item {
@@ -224,9 +254,11 @@ fun SettingSwitchItem(
 }
 
 @Composable
-fun CalendarDisplayModeSelector(
-    selectedMode: CalendarDisplayMode,
-    onModeSelected: (CalendarDisplayMode) -> Unit
+fun CalendarTypeSelector(
+    title: String,
+    selectedCalendar: CalendarType,
+    onCalendarSelected: (CalendarType) -> Unit,
+    disabledCalendar: CalendarType? = null
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -241,58 +273,66 @@ fun CalendarDisplayModeSelector(
                 .padding(16.dp)
         ) {
             Text(
-                text = stringResource(R.string.settings_calendar_to_display),
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            CalendarDisplayModeOption(
-                text = stringResource(R.string.settings_calendar_ethiopian_only),
-                selected = selectedMode == CalendarDisplayMode.ETHIOPIAN_ONLY,
-                onClick = { onModeSelected(CalendarDisplayMode.ETHIOPIAN_ONLY) }
+            CalendarTypeOption(
+                text = stringResource(R.string.settings_calendar_ethiopian),
+                selected = selectedCalendar == CalendarType.ETHIOPIAN,
+                enabled = disabledCalendar != CalendarType.ETHIOPIAN,
+                onClick = { onCalendarSelected(CalendarType.ETHIOPIAN) }
             )
 
-            CalendarDisplayModeOption(
-                text = stringResource(R.string.settings_calendar_gregorean_only),
-                selected = selectedMode == CalendarDisplayMode.GREGOREAN_ONLY,
-                onClick = { onModeSelected(CalendarDisplayMode.GREGOREAN_ONLY) }
+            CalendarTypeOption(
+                text = stringResource(R.string.settings_calendar_gregorean),
+                selected = selectedCalendar == CalendarType.GREGOREAN,
+                enabled = disabledCalendar != CalendarType.GREGOREAN,
+                onClick = { onCalendarSelected(CalendarType.GREGOREAN) }
             )
 
-            CalendarDisplayModeOption(
-                text = stringResource(R.string.settings_calendar_dual),
-                selected = selectedMode == CalendarDisplayMode.DUAL,
-                onClick = { onModeSelected(CalendarDisplayMode.DUAL) }
+            CalendarTypeOption(
+                text = stringResource(R.string.settings_calendar_hirji),
+                selected = selectedCalendar == CalendarType.HIRJI,
+                enabled = disabledCalendar != CalendarType.HIRJI,
+                onClick = { onCalendarSelected(CalendarType.HIRJI) }
             )
         }
     }
 }
 
 @Composable
-fun CalendarDisplayModeOption(
+fun CalendarTypeOption(
     text: String,
     selected: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = selected,
             onClick = onClick,
+            enabled = enabled,
             colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary
+                selectedColor = MaterialTheme.colorScheme.primary,
+                disabledSelectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                disabledUnselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
             )
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant
+                   else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         )
     }
 }

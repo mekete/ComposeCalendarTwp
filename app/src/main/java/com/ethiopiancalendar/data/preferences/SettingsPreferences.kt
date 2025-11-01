@@ -10,16 +10,18 @@ import kotlinx.coroutines.flow.map
 
 private val Context.settingsDataStore by preferencesDataStore(name = "settings_preferences")
 
-enum class CalendarDisplayMode {
-    ETHIOPIAN_ONLY,
-    GREGOREAN_ONLY,
-    DUAL
+enum class CalendarType {
+    ETHIOPIAN,
+    GREGOREAN,
+    HIRJI
 }
 
 class SettingsPreferences(private val context: Context) {
 
     // Calendar Display Settings
-    private val CALENDAR_DISPLAY_MODE_KEY = stringPreferencesKey("calendar_display_mode")
+    private val PRIMARY_CALENDAR_KEY = stringPreferencesKey("primary_calendar")
+    private val DISPLAY_DUAL_CALENDAR_KEY = booleanPreferencesKey("display_dual_calendar")
+    private val SECONDARY_CALENDAR_KEY = stringPreferencesKey("secondary_calendar")
     private val SHOW_ORTHODOX_DAY_NAMES_KEY = booleanPreferencesKey("show_orthodox_day_names")
     private val SHOW_ORTHODOX_FASTING_HOLIDAYS_KEY = booleanPreferencesKey("show_orthodox_fasting_holidays")
     private val SHOW_MUSLIM_HOLIDAYS_KEY = booleanPreferencesKey("show_muslim_holidays")
@@ -34,12 +36,25 @@ class SettingsPreferences(private val context: Context) {
     private val USE_TRANSPARENT_BACKGROUND_KEY = booleanPreferencesKey("use_transparent_background")
 
     // Flow properties for observing settings
-    val calendarDisplayMode: Flow<CalendarDisplayMode> = context.settingsDataStore.data.map { preferences ->
-        val modeString = preferences[CALENDAR_DISPLAY_MODE_KEY] ?: CalendarDisplayMode.DUAL.name
+    val primaryCalendar: Flow<CalendarType> = context.settingsDataStore.data.map { preferences ->
+        val calendarString = preferences[PRIMARY_CALENDAR_KEY] ?: CalendarType.ETHIOPIAN.name
         try {
-            CalendarDisplayMode.valueOf(modeString)
+            CalendarType.valueOf(calendarString)
         } catch (e: IllegalArgumentException) {
-            CalendarDisplayMode.DUAL
+            CalendarType.ETHIOPIAN
+        }
+    }
+
+    val displayDualCalendar: Flow<Boolean> = context.settingsDataStore.data.map { preferences ->
+        preferences[DISPLAY_DUAL_CALENDAR_KEY] ?: false
+    }
+
+    val secondaryCalendar: Flow<CalendarType> = context.settingsDataStore.data.map { preferences ->
+        val calendarString = preferences[SECONDARY_CALENDAR_KEY] ?: CalendarType.GREGOREAN.name
+        try {
+            CalendarType.valueOf(calendarString)
+        } catch (e: IllegalArgumentException) {
+            CalendarType.GREGOREAN
         }
     }
 
@@ -84,9 +99,21 @@ class SettingsPreferences(private val context: Context) {
     }
 
     // Setter functions for updating settings
-    suspend fun setCalendarDisplayMode(mode: CalendarDisplayMode) {
+    suspend fun setPrimaryCalendar(calendar: CalendarType) {
         context.settingsDataStore.edit { preferences ->
-            preferences[CALENDAR_DISPLAY_MODE_KEY] = mode.name
+            preferences[PRIMARY_CALENDAR_KEY] = calendar.name
+        }
+    }
+
+    suspend fun setDisplayDualCalendar(value: Boolean) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[DISPLAY_DUAL_CALENDAR_KEY] = value
+        }
+    }
+
+    suspend fun setSecondaryCalendar(calendar: CalendarType) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[SECONDARY_CALENDAR_KEY] = calendar.name
         }
     }
 
