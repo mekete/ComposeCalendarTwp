@@ -362,7 +362,7 @@ private fun GregorianOnlyContent(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(bottom = 2.dp)
         ) {
-            holidays.take(3).forEach { holiday ->
+            holidays.take(1).forEach { holiday ->
                 Box(
                     modifier = Modifier
                         .size(8.dp)
@@ -422,7 +422,7 @@ private fun DualEthiopianPrimaryContent(
                     .height(6.dp)
                     .align(Alignment.BottomStart) // <-- forces the Row to the bottom
         ) {
-            holidays.take(3).forEach { holiday ->
+            holidays.take(1).forEach { holiday ->
                 Box(
                     modifier = Modifier
                             .fillMaxSize()
@@ -475,7 +475,7 @@ private fun DualGregorianPrimaryContent(
                     .height(6.dp)
                     .align(Alignment.BottomStart) // <-- forces the Row to the bottom
         ) {
-            holidays.take(3).forEach { holiday ->
+            holidays.take(1).forEach { holiday ->
                 Box(
                     modifier = Modifier
                             .fillMaxSize()
@@ -674,7 +674,7 @@ fun HolidayListSection(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                holidays.take(3).forEach { holiday ->
+                holidays.take(1).forEach { holiday ->
                     HolidayItem(holiday = holiday, monthNames = monthNames)
                     Spacer(modifier = Modifier.height(4.dp))
                 }
