@@ -2,6 +2,8 @@ package com.ethiopiancalendar.di
 
 import android.content.Context
 import androidx.room.Room
+import com.ethiopiancalendar.data.initialization.AppInitializationManager
+import com.ethiopiancalendar.data.initialization.ReminderReregistrationManager
 import com.ethiopiancalendar.data.local.CalendarDatabase
 import com.ethiopiancalendar.data.local.dao.EventDao
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
@@ -66,5 +68,27 @@ object AppModule {
     @Singleton
     fun provideEventRepository(eventDao: EventDao): EventRepository {
         return EventRepository(eventDao)
+    }
+
+    // ========== Initialization Managers ==========
+
+    @Provides
+    @Singleton
+    fun provideAppInitializationManager(
+        @ApplicationContext context: Context,
+        settingsPreferences: SettingsPreferences,
+        remoteConfigManager: RemoteConfigManager,
+        database: CalendarDatabase
+    ): AppInitializationManager {
+        return AppInitializationManager(context, settingsPreferences, remoteConfigManager, database)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReminderReregistrationManager(
+        @ApplicationContext context: Context,
+        eventDao: EventDao
+    ): ReminderReregistrationManager {
+        return ReminderReregistrationManager(context, eventDao)
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,18 @@ enum class Language(val displayName: String) {
 }
 
 class SettingsPreferences(private val context: Context) {
+
+    // App Version and First-Run Settings
+    private val VERSION_CODE_KEY = intPreferencesKey("app_version_code")
+    private val VERSION_NAME_KEY = stringPreferencesKey("app_version_name")
+    private val IS_FIRST_RUN_KEY = booleanPreferencesKey("is_first_run")
+    private val LAST_USED_TIMESTAMP_KEY = longPreferencesKey("last_used_timestamp")
+    private val FIREBASE_INSTALLATION_ID_KEY = stringPreferencesKey("firebase_installation_id")
+
+    // Locale Settings
+    private val PRIMARY_LOCALE_KEY = stringPreferencesKey("primary_locale")
+    private val SECONDARY_LOCALE_KEY = stringPreferencesKey("secondary_locale")
+    private val DEVICE_COUNTRY_CODE_KEY = stringPreferencesKey("device_country_code")
 
     // Calendar Display Settings
     private val PRIMARY_CALENDAR_KEY = stringPreferencesKey("primary_calendar")
@@ -50,6 +63,40 @@ class SettingsPreferences(private val context: Context) {
     private val DAY_OFFSET_EID_AL_FITR_KEY = intPreferencesKey("config_day_offset_eid_al_fitir")
     private val DAY_OFFSET_MAWLID_KEY = intPreferencesKey("config_day_offset_mewlid")
     private val DAY_OFFSET_ETHIO_YEAR_KEY = intPreferencesKey("config_day_offset_ethio_year")
+
+    // Flow properties for app version and first-run
+    val versionCode: Flow<Int> = context.settingsDataStore.data.map { preferences ->
+        preferences[VERSION_CODE_KEY] ?: -1
+    }
+
+    val versionName: Flow<String> = context.settingsDataStore.data.map { preferences ->
+        preferences[VERSION_NAME_KEY] ?: ""
+    }
+
+    val isFirstRun: Flow<Boolean> = context.settingsDataStore.data.map { preferences ->
+        preferences[IS_FIRST_RUN_KEY] ?: true
+    }
+
+    val lastUsedTimestamp: Flow<Long> = context.settingsDataStore.data.map { preferences ->
+        preferences[LAST_USED_TIMESTAMP_KEY] ?: 0L
+    }
+
+    val firebaseInstallationId: Flow<String> = context.settingsDataStore.data.map { preferences ->
+        preferences[FIREBASE_INSTALLATION_ID_KEY] ?: ""
+    }
+
+    // Flow properties for locale settings
+    val primaryLocale: Flow<String> = context.settingsDataStore.data.map { preferences ->
+        preferences[PRIMARY_LOCALE_KEY] ?: ""
+    }
+
+    val secondaryLocale: Flow<String> = context.settingsDataStore.data.map { preferences ->
+        preferences[SECONDARY_LOCALE_KEY] ?: ""
+    }
+
+    val deviceCountryCode: Flow<String> = context.settingsDataStore.data.map { preferences ->
+        preferences[DEVICE_COUNTRY_CODE_KEY] ?: ""
+    }
 
     // Flow properties for observing settings
     val primaryCalendar: Flow<CalendarType> = context.settingsDataStore.data.map { preferences ->
@@ -138,6 +185,56 @@ class SettingsPreferences(private val context: Context) {
 
     val dayOffsetEthioYear: Flow<Int> = context.settingsDataStore.data.map { preferences ->
         preferences[DAY_OFFSET_ETHIO_YEAR_KEY] ?: 0
+    }
+
+    // Setter functions for app version and first-run
+    suspend fun setVersionCode(versionCode: Int) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[VERSION_CODE_KEY] = versionCode
+        }
+    }
+
+    suspend fun setVersionName(versionName: String) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[VERSION_NAME_KEY] = versionName
+        }
+    }
+
+    suspend fun setIsFirstRun(isFirstRun: Boolean) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[IS_FIRST_RUN_KEY] = isFirstRun
+        }
+    }
+
+    suspend fun setLastUsedTimestamp(timestamp: Long) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[LAST_USED_TIMESTAMP_KEY] = timestamp
+        }
+    }
+
+    suspend fun setFirebaseInstallationId(id: String) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[FIREBASE_INSTALLATION_ID_KEY] = id
+        }
+    }
+
+    // Setter functions for locale settings
+    suspend fun setPrimaryLocale(locale: String) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[PRIMARY_LOCALE_KEY] = locale
+        }
+    }
+
+    suspend fun setSecondaryLocale(locale: String) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[SECONDARY_LOCALE_KEY] = locale
+        }
+    }
+
+    suspend fun setDeviceCountryCode(countryCode: String) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[DEVICE_COUNTRY_CODE_KEY] = countryCode
+        }
     }
 
     // Setter functions for updating settings
