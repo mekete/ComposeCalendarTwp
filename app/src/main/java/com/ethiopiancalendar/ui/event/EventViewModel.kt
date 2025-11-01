@@ -33,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EventViewModel @Inject constructor(
     private val eventRepository: EventRepository,
-    @param:ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val alarmScheduler = AlarmScheduler(context)

@@ -31,7 +31,7 @@ import com.google.firebase.analytics.analytics
  */
 @Singleton
 class AppInitializationManager @Inject constructor(
-    @param:ApplicationContext
+    @ApplicationContext
     private val context: Context,
     private val settingsPreferences: SettingsPreferences,
     private val remoteConfigManager: RemoteConfigManager,
