@@ -6,6 +6,7 @@ import com.ethiopiancalendar.data.preferences.CalendarType
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import com.ethiopiancalendar.data.repository.HolidayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.threeten.extra.chrono.EthiopicDate
@@ -141,6 +142,9 @@ class MonthCalendarViewModel @Inject constructor(
                     emit(state)
                     Timber.d("Loaded page $page: ${state.holidays.size} holidays for $currentMonth")
                 }
+            } catch (e: CancellationException) {
+                // Don't log cancellation exceptions - they're expected when composition is left
+                throw e
             } catch (e: Exception) {
                 Timber.e(e, "Error loading month data for page $page")
                 val errorState = MonthCalendarUiState.Error(e.message ?: "Unknown error")

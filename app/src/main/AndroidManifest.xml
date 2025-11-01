@@ -62,7 +62,7 @@
                 android:resource="@xml/calendar_widget_info" />
         </receiver>
 
-        <!-- WorkManager initialization -->
+        <!-- Disable default WorkManager initialization to use Hilt's custom WorkerFactory -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -70,7 +70,8 @@
             tools:node="merge">
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup" />
+                android:value="androidx.startup"
+                tools:node="remove" />
         </provider>
 
     </application>
