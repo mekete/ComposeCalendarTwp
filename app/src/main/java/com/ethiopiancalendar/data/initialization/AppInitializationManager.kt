@@ -3,6 +3,7 @@ package com.ethiopiancalendar.data.initialization
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import com.ethiopiancalendar.BuildConfig
 import com.ethiopiancalendar.data.local.CalendarDatabase
 import com.ethiopiancalendar.data.preferences.CalendarType
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
@@ -121,7 +122,7 @@ class AppInitializationManager @Inject constructor(
 
             // Log first install event
             firebaseAnalytics.logEvent("app_first_install", Bundle().apply {
-                putInt("user_type",  versionCode.toLong())
+                putInt("user_type",  versionCode)
                 putString("screen_count", versionName)
             })
 

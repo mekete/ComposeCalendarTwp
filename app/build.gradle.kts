@@ -25,8 +25,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField("int", "VERSION_CODE", versionCode.toString())
+        buildConfigField("String", "VERSION_NAME", "\"Var 25\"")
+
     }
-    
+
+    buildFeatures {
+        buildConfig = true  // Make sure this is enabled
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
