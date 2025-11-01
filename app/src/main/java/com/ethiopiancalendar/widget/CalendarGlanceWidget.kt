@@ -1,6 +1,7 @@
 package com.ethiopiancalendar.widget
 
 import android.content.Context
+import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -10,6 +11,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.AndroidRemoteViews
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -27,14 +29,13 @@ import androidx.glance.layout.width
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
-import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.ethiopiancalendar.MainActivity
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-
+import  com.ethiopiancalendar.R;
 /**
  * CalendarGlanceWidget - Home screen widget for Ethiopian Calendar
  *
@@ -50,11 +51,15 @@ class CalendarGlanceWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme {
+                //TextClock(pattern = "HH:mm:ss", timeZoneId = "Africa/Nairobi")
+
                 CalendarWidgetContent()
             }
         }
     }
 }
+
+
 
 @Composable
 fun CalendarWidgetContent() {
@@ -66,6 +71,10 @@ fun CalendarWidgetContent() {
 
     Box(modifier = GlanceModifier.fillMaxSize().background(GlanceTheme.colors.background).padding(16.dp).clickable(actionStartActivity<MainActivity>()), contentAlignment = Alignment.TopCenter) {
         Column(modifier = GlanceModifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) { // Top Section: Date Display
+            val packageName = LocalContext.current.packageName
+
+            AndroidRemoteViews(RemoteViews(packageName, R.layout.clock_text_layout))
+
             Spacer(modifier = GlanceModifier.height(16.dp))
             TimeZonesSection(nairobiTime = widgetData.nairobiTime, nairobiDate = widgetData.nairobiTime, localTime = widgetData.localTime)
 
@@ -80,6 +89,8 @@ fun CalendarWidgetContent() {
 @Composable
 fun TimeZonesSection(nairobiTime: String, nairobiDate: String, localTime: String) {
     Column(modifier = GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalAlignment = Alignment.CenterVertically) { // Nairobi Time
+        //TextClock(pattern = "HH:mm:ss", timeZoneId = "Africa/Nairobi")
+
         TimeZoneItem(label = "Nairobi", date = nairobiDate, time = nairobiTime)
         Spacer(modifier = GlanceModifier.width(4.dp))
         TimeZoneItem(label = "Local", date = nairobiDate, time = localTime)

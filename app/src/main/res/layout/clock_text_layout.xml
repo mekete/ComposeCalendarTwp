@@ -1,0 +1,78 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_layout_daily"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:orientation="vertical"
+    android:paddingTop="0dp">
+
+    <LinearLayout
+        android:id="@+id/lnrl_widget_clock_primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="start"
+        android:orientation="horizontal"
+        android:paddingTop="0dp" >
+
+        <TextView
+            android:id="@+id/txtv_time_zone_primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:lineSpacingExtra="0dip"
+            android:text="Brazil"  />
+        <TextClock
+            android:id="@+id/txtc_widget_clock_primary"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:includeFontPadding="false"
+            android:format12Hour="hh:mm a"
+            android:lineSpacingMultiplier="0"
+            android:textSize="24sp"
+            android:timeZone="America/Puerto_Rico" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lnrl_widget_clock_secondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="start"
+        android:orientation="horizontal"
+        android:paddingTop="0dp">
+
+        <TextView
+            android:id="@+id/txtv_time_zone_secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:lineSpacingExtra="0dip"
+            android:text="Addis_Ababa" />
+        <TextClock
+            android:id="@+id/txtc_widget_clock_secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:includeFontPadding="false"
+            android:format12Hour="hh:mm a"
+            android:lineSpacingMultiplier="0"
+            android:textSize="24sp"
+            android:timeZone="Africa/Addis_Ababa" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
