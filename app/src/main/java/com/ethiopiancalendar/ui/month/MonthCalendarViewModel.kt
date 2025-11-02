@@ -2,10 +2,12 @@ package com.ethiopiancalendar.ui.month
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ethiopiancalendar.data.local.entity.EventInstance
 import com.ethiopiancalendar.data.preferences.CalendarType
 import com.ethiopiancalendar.data.preferences.SettingsPreferences
 import com.ethiopiancalendar.data.repository.EventRepository
 import com.ethiopiancalendar.data.repository.HolidayRepository
+import com.ethiopiancalendar.domain.model.HolidayOccurrence
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.*
@@ -122,8 +124,10 @@ class MonthCalendarViewModel @Inject constructor(
                         secondaryCalendar,
                         _selectedDate
                     ) { values: Array<*> ->
-                        val holidays = values[0] as List<*>
-                        val events = values[1] as List<*>
+                        @Suppress("UNCHECKED_CAST")
+                        val holidays = values[0] as List<HolidayOccurrence>
+                        @Suppress("UNCHECKED_CAST")
+                        val events = values[1] as List<EventInstance>
                         val primary = values[2] as CalendarType
                         val displayDual = values[3] as Boolean
                         val secondary = values[4] as CalendarType
