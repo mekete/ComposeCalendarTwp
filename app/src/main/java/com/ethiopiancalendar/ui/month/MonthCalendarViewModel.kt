@@ -113,39 +113,47 @@ class MonthCalendarViewModel @Inject constructor(
 
                 // Combine preferences with holiday and event data
                 // This will automatically react to preference changes and date selection
-                combine(
-                    holidayRepository.getHolidaysForMonth(year, month),
-                    eventRepository.getEventsForMonth(year, month),
-                    primaryCalendar,
-                    displayDualCalendar,
-                    secondaryCalendar,
-                    _selectedDate
-                ) { holidays, events, primary, displayDual, secondary, selected ->
-                    val dateList = generateDateListForMonth(currentMonth, primary)
+                emitAll(
+                    combine(
+                        holidayRepository.getHolidaysForMonth(year, month),
+                        eventRepository.getEventsForMonth(year, month),
+                        primaryCalendar,
+                        displayDualCalendar,
+                        secondaryCalendar,
+                        _selectedDate
+                    ) { values: Array<*> ->
+                        val holidays = values[0] as List<*>
+                        val events = values[1] as List<*>
+                        val primary = values[2] as CalendarType
+                        val displayDual = values[3] as Boolean
+                        val secondary = values[4] as CalendarType
+                        val selected = values[5] as EthiopicDate?
 
-                    // Calculate Gregorian month/year when Gregorian is primary
-                    val (gregorianYear, gregorianMonth) = if (primary == CalendarType.GREGOREAN) {
-                        calculateGregorianMonthForDisplay(currentMonth)
-                    } else {
-                        Pair(null, null)
+                        val dateList = generateDateListForMonth(currentMonth, primary)
+
+                        // Calculate Gregorian month/year when Gregorian is primary
+                        val (gregorianYear, gregorianMonth) = if (primary == CalendarType.GREGOREAN) {
+                            calculateGregorianMonthForDisplay(currentMonth)
+                        } else {
+                            Pair(null, null)
+                        }
+
+                        MonthCalendarUiState.Success(
+                            currentMonth = currentMonth,
+                            dateList = dateList,
+                            holidays = holidays,
+                            events = events,
+                            selectedDate = selected,
+                            primaryCalendar = primary,
+                            displayDualCalendar = displayDual,
+                            secondaryCalendar = secondary,
+                            currentGregorianYear = gregorianYear,
+                            currentGregorianMonth = gregorianMonth
+                        )
+                    }.onEach { state ->
+                        Timber.d("Loaded page $page: ${state.holidays.size} holidays, ${state.events.size} events for $currentMonth")
                     }
-
-                    MonthCalendarUiState.Success(
-                        currentMonth = currentMonth,
-                        dateList = dateList,
-                        holidays = holidays,
-                        events = events,
-                        selectedDate = selected,
-                        primaryCalendar = primary,
-                        displayDualCalendar = displayDual,
-                        secondaryCalendar = secondary,
-                        currentGregorianYear = gregorianYear,
-                        currentGregorianMonth = gregorianMonth
-                    )
-                }.collect { state ->
-                    emit(state)
-                    Timber.d("Loaded page $page: ${state.holidays.size} holidays, ${state.events.size} events for $currentMonth")
-                }
+                )
             } catch (e: CancellationException) {
                 // Don't log cancellation exceptions - they're expected when composition is left
                 throw e
